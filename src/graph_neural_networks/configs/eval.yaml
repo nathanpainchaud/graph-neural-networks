@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - data: mnist # choose datamodule with `test_dataloader()` for evaluation
-  - model: mnist
+  - data: ??? # choose datamodule with `test_dataloader()` for evaluation
+  - model: ???
   - logger: null
   - trainer: default
   - paths: default

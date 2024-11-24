@@ -3,8 +3,8 @@
 # specify here default configuration
 # order of defaults determines the order in which configs override each other
 defaults:
-  - data: mnist
-  - model: mnist
+  - data: ???
+  - model: ???
   - callbacks: default
   - logger: null # set logger here or use command line (e.g. `python train.py logger=tensorboard`)
   - trainer: default
