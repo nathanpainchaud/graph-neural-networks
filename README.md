@@ -67,7 +67,7 @@ gnn-train trainer=cpu
 gnn-train trainer=gpu
 ```
 
-Train model with chosen experiment configuration from [configs/experiment/](configs/experiment/)
+Train model with chosen experiment configuration from [configs/experiment/](src/graph_neural_networks/configs/experiment/)
 
 ```bash
 gnn-train experiment=experiment_name.yaml

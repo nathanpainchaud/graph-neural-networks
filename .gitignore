@@ -34,7 +34,7 @@ wheels/
 *.tar.gz
 
 # Lightning-Hydra-Template
-configs/local/default.yaml
+src/graph_neural_networks/configs/local/default.yaml
 /data/
 /logs/
 .env
