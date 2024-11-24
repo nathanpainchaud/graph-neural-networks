@@ -1,0 +1,40 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Virtual environments
+.venv
+
+# VisualStudioCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+**/.vscode
+
+# JetBrains
+.idea/
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Data & Models
+*.h5
+*.tar
+*.tar.gz
+
+# Lightning-Hydra-Template
+configs/local/default.yaml
+/data/
+/logs/
+.env
