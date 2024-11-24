@@ -1,9 +1,12 @@
 [project]
-name = "lightning-hydra-template"
+name = "graph-neural-networks"
 version = "0.1.0"
-description = "PyTorch Lightning + Hydra. A very user-friendly template for ML experimentation."
+description = "Experiments with Graph Neural Networks (GNNs)."
 readme = "README.md"
-repository = "https://github.com/nathanpainchaud/lighting-hydra-template"
+repository = "https://github.com/nathanpainchaud/graph-neural-networks"
+authors = [
+    {name = "Nathan Painchaud", email = "nathan.painchaud@insa-lyon.fr"},
+]
 requires-python = ">=3.12,<4"
 dependencies = [
     "hydra-colorlog>=1.2.0,<2",
@@ -12,6 +15,7 @@ dependencies = [
     "lightning>=2.4.0,<3",
     "rich>=13.9.4,<14",
     "rootutils>=1.0.7,<2",
+    "torch-geometric>=2.6.1,<3",
     "torch>=2.5.1,<3",
     "torchmetrics>=1.6.0,<2",
 ]
@@ -30,8 +34,8 @@ lint = [
 ]
 
 [project.scripts]
-template-train = "lightning_hydra_template.train:main"
-template-eval = "lightning_hydra_template.eval:main"
+gnn-train = "graph_neural_networks.train:main"
+gnn-eval = "graph_neural_networks.eval:main"
 
 [build-system]
 requires = ["hatchling"]

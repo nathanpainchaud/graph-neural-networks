@@ -210,7 +210,7 @@ wheels = [
 
 [[package]]
 name = "cmd2"
-version = "2.5.6"
+version = "2.5.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "gnureadline", marker = "platform_system == 'Darwin'" },
@@ -218,9 +218,9 @@ dependencies = [
     { name = "pyreadline3", marker = "platform_system == 'Windows'" },
     { name = "wcwidth" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/88/703b5c75610ec4ac2c5bcd390ab4b478e689faf1f02ea91fce3f57d449b8/cmd2-2.5.6.tar.gz", hash = "sha256:ab0ff178784ca087d886081b2ca384724c90b9b25eb982c57c6925ca17479f52", size = 690006 }
+sdist = { url = "https://files.pythonhosted.org/packages/2a/8a/42bfec2be9da0fe22519404329da302c1ca4e0d2a01a5cdf8b8785a91926/cmd2-2.5.7.tar.gz", hash = "sha256:0219e2bb75075fa16deffb88edf86efdd2a87439d1fa7b94fdea4b929a3dc914", size = 691584 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/98/ec/4a70c467be851d37b77c6e9e04207ea9d7a07b5252d3307d35c08871b108/cmd2-2.5.6-py3-none-any.whl", hash = "sha256:768511d3a496f2e1c20b275362edce8c0f937a0bb05116cf554961d7fb18b59c", size = 151292 },
+    { url = "https://files.pythonhosted.org/packages/34/93/8d906e7d3e52b55a5b46d34eb8a5689032dda327570432ba6283e0331342/cmd2-2.5.7-py3-none-any.whl", hash = "sha256:7e5856fd1a75716288d4638e68946f9697404f377dfdeeddc19045c7012de9b7", size = 152024 },
 ]
 
 [[package]]
@@ -377,6 +377,57 @@ wheels = [
 ]
 
 [[package]]
+name = "graph-neural-networks"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "hydra-colorlog" },
+    { name = "hydra-core" },
+    { name = "hydra-optuna-sweeper" },
+    { name = "lightning" },
+    { name = "rich" },
+    { name = "rootutils" },
+    { name = "torch" },
+    { name = "torch-geometric" },
+    { name = "torchmetrics" },
+]
+
+[package.optional-dependencies]
+wandb = [
+    { name = "wandb" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pre-commit" },
+]
+lint = [
+    { name = "docformatter" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "hydra-colorlog", specifier = ">=1.2.0,<2" },
+    { name = "hydra-core", specifier = ">=1.3.2,<2" },
+    { name = "hydra-optuna-sweeper", specifier = ">=1.2.0,<2" },
+    { name = "lightning", specifier = ">=2.4.0,<3" },
+    { name = "rich", specifier = ">=13.9.4,<14" },
+    { name = "rootutils", specifier = ">=1.0.7,<2" },
+    { name = "torch", specifier = ">=2.5.1,<3" },
+    { name = "torch-geometric", specifier = ">=2.6.1,<3" },
+    { name = "torchmetrics", specifier = ">=1.6.0,<2" },
+    { name = "wandb", marker = "extra == 'wandb'", specifier = ">=0.18.7,<0.19" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pre-commit", specifier = ">=4.0.1,<5" }]
+lint = [
+    { name = "docformatter", specifier = ">=1.7.5,<2" },
+    { name = "ruff", specifier = ">=0.8.0,<0.9" },
+]
+
+[[package]]
 name = "greenlet"
 version = "3.1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -497,55 +548,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/56/d0/78ea244ac044cd4df15aa8294a50ff3561fb177e7e5ba788aaa542046cae/lightning-2.4.0.tar.gz", hash = "sha256:9156604cc56e4b2b603f34fa7f0fe5107375c8e6d85e74544b319a15faa9ed0e", size = 620632 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/2c/85eaf42c983b0cd81bcda5876da2c8e2a9fd347908666ea9855724369171/lightning-2.4.0-py3-none-any.whl", hash = "sha256:560163af9711cf59055c448232c473150a299089efce0d2be3cc3288082d8768", size = 810971 },
-]
-
-[[package]]
-name = "lightning-hydra-template"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "hydra-colorlog" },
-    { name = "hydra-core" },
-    { name = "hydra-optuna-sweeper" },
-    { name = "lightning" },
-    { name = "rich" },
-    { name = "rootutils" },
-    { name = "torch" },
-    { name = "torchmetrics" },
-]
-
-[package.optional-dependencies]
-wandb = [
-    { name = "wandb" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pre-commit" },
-]
-lint = [
-    { name = "docformatter" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "hydra-colorlog", specifier = ">=1.2.0,<2" },
-    { name = "hydra-core", specifier = ">=1.3.2,<2" },
-    { name = "hydra-optuna-sweeper", specifier = ">=1.2.0,<2" },
-    { name = "lightning", specifier = ">=2.4.0,<3" },
-    { name = "rich", specifier = ">=13.9.4,<14" },
-    { name = "rootutils", specifier = ">=1.0.7,<2" },
-    { name = "torch", specifier = ">=2.5.1,<3" },
-    { name = "torchmetrics", specifier = ">=1.6.0,<2" },
-    { name = "wandb", marker = "extra == 'wandb'", specifier = ">=0.18.7,<0.19" },
-]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pre-commit", specifier = ">=4.0.1,<5" }]
-lint = [
-    { name = "docformatter", specifier = ">=1.7.5,<2" },
-    { name = "ruff", specifier = ">=0.8.0,<0.9" },
 ]
 
 [[package]]
@@ -1026,6 +1028,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pyparsing"
+version = "3.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/d5/e5aeee5387091148a19e1145f63606619cb5f20b83fccb63efae6474e7b2/pyparsing-3.2.0.tar.gz", hash = "sha256:cbf74e27246d595d9a74b186b810f6fbb86726dbf3b9532efb343f6d7294fe9c", size = 920984 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/ec/2eb3cd785efd67806c46c13a17339708ddc346cbb684eade7a6e6f79536a/pyparsing-3.2.0-py3-none-any.whl", hash = "sha256:93d9577b88da0bbea8cc8334ee8b918ed014968fd2ec383e868fb8afb1ccef84", size = 106921 },
+]
+
+[[package]]
 name = "pyperclip"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1343,6 +1354,25 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/5f/ba/607d013b55b9fd805db2a5c2662ec7551f1910b4eef39653eeaba182c5b2/torch-2.5.1-cp312-cp312-win_amd64.whl", hash = "sha256:73e58e78f7d220917c5dbfad1a40e09df9929d3b95d25e57d9f8558f84c9a11c", size = 203046841 },
     { url = "https://files.pythonhosted.org/packages/57/6c/bf52ff061da33deb9f94f4121fde7ff3058812cb7d2036c97bc167793bd1/torch-2.5.1-cp312-none-macosx_11_0_arm64.whl", hash = "sha256:8c712df61101964eb11910a846514011f0b6f5920c55dbf567bff8a34163d5b1", size = 63858109 },
     { url = "https://files.pythonhosted.org/packages/69/72/20cb30f3b39a9face296491a86adb6ff8f1a47a897e4d14667e6cf89d5c3/torch-2.5.1-cp313-cp313-manylinux1_x86_64.whl", hash = "sha256:9b61edf3b4f6e3b0e0adda8b3960266b9009d02b37555971f4d1c8f7a05afed7", size = 906393265 },
+]
+
+[[package]]
+name = "torch-geometric"
+version = "2.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "fsspec" },
+    { name = "jinja2" },
+    { name = "numpy" },
+    { name = "psutil" },
+    { name = "pyparsing" },
+    { name = "requests" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e8/81/e1b015494cb9e0bf4c47cc8426e49736120248733be0e22072a5628ae9ed/torch_geometric-2.6.1.tar.gz", hash = "sha256:1f18f9d0fc4d2239d526221e4f22606a4a3895b5d965a9856d27610a3df662c6", size = 771490 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/9f/157e913626c1acfb3b19ce000b1a6e4e4fb177c0bc0ea0c67ca5bd714b5a/torch_geometric-2.6.1-py3-none-any.whl", hash = "sha256:8faeb353f9655f7dbec44c5e0b44c721773bdfb279994da96b9b8b12fd30f427", size = 1135632 },
 ]
 
 [[package]]

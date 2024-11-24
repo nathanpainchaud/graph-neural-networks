@@ -9,7 +9,7 @@ import rootutils
 from omegaconf import DictConfig, OmegaConf
 from sympy.categories import Object
 
-from lightning_hydra_template.utils import pylogger, rich_utils
+from graph_neural_networks.utils import pylogger, rich_utils
 
 log = pylogger.RankedLogger(__name__, rank_zero_only=True)
 
