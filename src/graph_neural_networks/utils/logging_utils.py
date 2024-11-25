@@ -1,3 +1,4 @@
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from lightning_utilities.core.rank_zero import rank_zero_only
@@ -51,3 +52,19 @@ def log_hyperparameters(object_dict: dict[str, Any]) -> None:
     # send hparams to all loggers
     for logger in trainer.loggers:
         logger.log_hyperparams(hparams)
+
+
+def prefix(map: Mapping[str, Any], prefix: str, exclude: str | Sequence[str] | None = None) -> dict[str, Any]:
+    """Prepends a prefix to the keys of a mapping with string keys.
+
+    :param map: Mapping with string keys for which to add a prefix to the keys.
+    :param prefix: Prefix to add to the current keys in the mapping.
+    :param exclude: Keys to exclude from the prefix addition. These will remain unchanged in the new mapping.
+    :return: Dictionary where the keys have been prepended with `prefix`.
+    """
+    if exclude is None:
+        exclude = []
+    elif isinstance(exclude, str):
+        exclude = [exclude]
+
+    return {f"{prefix}{k}" if k not in exclude else k: v for k, v in map.items()}

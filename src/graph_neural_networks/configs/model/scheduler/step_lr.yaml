@@ -1,0 +1,7 @@
+# Default configuration for the learning rate decay scheduler was taken from the GIN paper:
+# https://arxiv.org/abs/1810.00826
+
+_target_: torch.optim.lr_scheduler.StepLR
+_partial_: true
+step_size: 50
+gamma: 0.5

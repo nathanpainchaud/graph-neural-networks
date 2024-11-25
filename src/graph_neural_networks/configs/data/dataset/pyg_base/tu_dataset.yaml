@@ -1,0 +1,3 @@
+_target_: torch_geometric.datasets.TUDataset
+root: ${paths.data_dir}
+name: ${attr.__call__:${hydra:runtime.choices.data/dataset},upper}

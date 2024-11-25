@@ -1,0 +1,27 @@
+defaults:
+  - components@encoder: gcn
+  - components/graph_pooling@graph_pooling: mean
+  - components@head: mlp
+  - optimizer: adamw
+  - scheduler: step_lr
+
+_target_: graph_neural_networks.models.GraphLevelLitModule
+
+encoder:
+  out_channels: null
+
+head:
+  in_channels: ${..encoder.hidden_channels}
+  hidden_channels: ${.in_channels}
+  num_layers: 2
+  dropout: 0.5
+  norm: null
+
+criterion:
+  _target_: torch.nn.CrossEntropyLoss
+
+metrics:
+  acc:
+    _target_: torchmetrics.Accuracy
+    task: multiclass
+    num_classes: ${hparams.data.num_classes}

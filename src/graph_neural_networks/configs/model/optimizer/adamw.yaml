@@ -1,0 +1,8 @@
+# Default configuration for the AdamW optimizer (i.e. LR and L2 regularization) was taken from GCN/GIN papers:
+# GCN: https://arxiv.org/abs/1609.02907
+# GIN: https://arxiv.org/abs/1810.00826
+
+_target_: torch.optim.AdamW
+_partial_: true
+lr: 0.01
+weight_decay: 0

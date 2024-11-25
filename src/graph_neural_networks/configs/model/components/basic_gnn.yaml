@@ -1,0 +1,12 @@
+_target_: ???
+in_channels: ${hparams.data.num_node_features}
+hidden_channels: ???
+num_layers: ???
+out_channels: ${hparams.data.num_classes}
+dropout: 0
+act: relu
+act_first: false
+act_kwargs: null
+norm: null
+norm_kwargs: null
+jk: null

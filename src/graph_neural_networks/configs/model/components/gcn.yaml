@@ -1,0 +1,11 @@
+# Simple 2-layer GCN model that implements the architecture from the original paper:
+# "Semi-Supervised Classification with Graph Convolutional Networks"
+# https://arxiv.org/abs/1609.02907
+
+defaults:
+  - basic_gnn
+
+_target_: torch_geometric.nn.GCN
+hidden_channels: 16
+num_layers: 2
+dropout: 0.5
