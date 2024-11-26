@@ -32,7 +32,11 @@ python -m venv ./venv
 source ./venv/bin/activate
 
 # install project
-pip install -e .
+# you must specify as an extra the desired CPU/CUDA versions of PyTorch
+# Supported values are: cpu, cu124, cu121, cu118
+# [OPTIONAL] you can also specify other extras for more functionalities
+# Supported values are: wandb (for W&B integration)
+pip install -e .[cu124,wandb]
 ```
 
 #### uv
@@ -51,7 +55,11 @@ git clone https://github.com/YourGithubName/graph-neural-networks
 cd graph-neural-networks
 
 # create uv environment
-uv sync
+# you must specify as an extra the desired CPU/CUDA versions of PyTorch
+# Supported values are: cpu, cu124, cu121, cu118
+# [OPTIONAL] you can also specify other extras for more functionalities
+# Supported values are: wandb (for W&B integration)
+uv sync --extra cu124 --extra wandb
 source ./venv/bin/activate
 ```
 
