@@ -32,6 +32,6 @@ logger:
 # Implementing these assertions in the config file allows Hydra to check them
 # and stop the program from running if the configs are known to be incompatible
 _assert_:
-  - ${raise:AssertionError,gt,${hparams.data.num_graphs},1}
-  - ${raise:AssertionError,is_not,${hparams.data.num_node_features},none}
-  - ${raise:AssertionError,is_not,${hparams.data.num_classes},none}
+  data_has_more_than_one_graph: ${assert:${op:gt,${hparams.data.num_graphs},1}}
+  data_num_node_features_not_none: ${assert:${op:is_not,${hparams.data.num_node_features},none}}
+  data_num_classes_not_none: ${assert:${op:is_not,${hparams.data.num_classes},none}}
