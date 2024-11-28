@@ -6,7 +6,7 @@ from lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 
-from graph_neural_networks.utils.logging_utils import prefix
+from graph_neural_networks.utils import prefix
 
 
 class GraphLevelLitModule(LightningModule):
