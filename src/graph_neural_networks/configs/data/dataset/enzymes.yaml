@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - /data/dataset/pyg_base@data.train_dataset: tu_dataset
+  - /data/dataset/pyg_base@data.val_dataset: tu_dataset
+  - /data/dataset/pyg_base@data.test_dataset: tu_dataset
+  # To add a transform (or pre-transform) to one of the dataset, you can use the following syntax:
+#  - /data/transform@data.train_dataset: <transform_name>
+
+hparams:
+  data:
+    # ENZYMES dataset contains 600 graphs in the original version, and 595 graphs in the cleaned version
+    num_graphs: ${op.ternary:${oc.select:data.train_dataset.cleaned,False}, 600, 595}
+    num_node_labels: 3
+    num_node_attributes: 18
+    use_node_attr: False
+    num_node_features: ${op:add,hparams.data.num_node_labels,${op.ternary:hparams.data.use_node_attr, hparams.data.num_node_attributes, 0}}
+    num_classes: 6
+    cleaned: False

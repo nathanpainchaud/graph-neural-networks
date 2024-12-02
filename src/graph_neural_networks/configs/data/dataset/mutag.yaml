@@ -9,6 +9,9 @@ defaults:
 
 hparams:
   data:
-    num_graphs: 188
+    # MUTAG dataset contains 188 graphs in the original version, and 135 graphs in the cleaned version
+    num_graphs: ${op.ternary:${oc.select:data.train_dataset.cleaned,False}, 188, 135}
     num_node_features: 7
+    num_edge_features: 4
     num_classes: 2
+    cleaned: False
