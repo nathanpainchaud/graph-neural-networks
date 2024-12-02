@@ -12,7 +12,9 @@ defaults:
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 
-tags: ["enzyme", "graph_classification", "gcn"]
+tags:
+  - ${hydra:runtime.choices.data/dataset} # automatically tag with the chosen dataset
+  - ${hydra:runtime.choices.model} # automatically tag with the chosen model/task
 
 seed: 12345
 
@@ -26,7 +28,7 @@ data:
 logger:
   wandb:
     tags: ${tags}
-    group: "enzyme"
+    group: ${tags.0} # by default, group runs by the first tag (dataset)
 
 # Assert data config values are compatible with the model
 # Implementing these assertions in the config file allows Hydra to check them
