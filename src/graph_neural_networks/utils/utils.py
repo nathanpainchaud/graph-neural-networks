@@ -54,6 +54,9 @@ def register_omegaconf_resolvers() -> None:
     )
     OmegaConf.register_new_resolver("cast", lambda obj, cast_type: _cast(obj, cast_type))
     OmegaConf.register_new_resolver("op", lambda op, *args: getattr(operator, op)(*args))
+    OmegaConf.register_new_resolver(
+        "op.ternary", lambda condition, true_val, false_val: true_val if condition else false_val
+    )
     OmegaConf.register_new_resolver("call", lambda fn_path, *args: import_from_module(fn_path)(*args))
     OmegaConf.register_new_resolver("call.attr", lambda obj, method_name, *args: getattr(obj, method_name)(*args))
 
