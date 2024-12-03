@@ -1,17 +1,14 @@
 # @package _global_
 
 defaults:
-  - /data/dataset/pyg_base@data.train_dataset: tu_dataset
-  - /data/dataset/pyg_base@data.val_dataset: tu_dataset
-  - /data/dataset/pyg_base@data.test_dataset: tu_dataset
-  # To add a transform (or pre-transform) to one of the dataset, you can use the following syntax:
-#  - /data/transform@data.train_dataset: <transform_name>
+  - /data/dataset/pyg_base@data.dataset: tu_dataset
+  # To add a transform (or pre-transform) to the dataset, you can use the following syntax:
+#  - /data/transform@data.dataset: <transform_name>
 
 hparams:
   data:
-    # MUTAG dataset contains 188 graphs in the original version, and 135 graphs in the cleaned version
-    num_graphs: ${op.ternary:${oc.select:data.train_dataset.cleaned,False}, 188, 135}
+    # MUTAG dataset contains 135 graphs in the cleaned version, and 188 graphs in the original version
+    num_graphs: ${op.ternary:${data.dataset.cleaned}, 135, 188}
     num_node_features: 7
     num_edge_features: 4
     num_classes: 2
-    cleaned: False

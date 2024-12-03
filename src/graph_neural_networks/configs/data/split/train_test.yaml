@@ -1,0 +1,7 @@
+_target_: graph_neural_networks.data.multigraph_split
+_partial_: True
+test_size: 0.2
+val_size: 0.1
+shuffle: True
+stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify by default if num_classes exists and > 0
+random_state: 12345 # Use a different seed from the main seed to allow models w/ different seeds to use the same splits

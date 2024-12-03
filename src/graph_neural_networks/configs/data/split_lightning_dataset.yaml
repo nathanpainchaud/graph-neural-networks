@@ -1,0 +1,9 @@
+defaults:
+  - dataset: ??? # Specify the dataset name
+  - split: ??? # Specify how the dataset should be divided into splits/subsets
+
+_target_: graph_neural_networks.data.SplitLightningDataset
+fold: 0
+batch_size: 32
+num_workers: 0
+pin_memory: False

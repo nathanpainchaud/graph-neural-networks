@@ -4,8 +4,9 @@
 # python train.py experiment=graph_classification
 
 defaults:
-  - override /data: lightning_dataset
+  - override /data: split_lightning_dataset
   - override /data/dataset: mutag
+  - override /data/split: k_fold # use k-fold splits since the dataset is small
   - override /model: graph_classification
   - override /model/components@model.encoder: gcn
 
@@ -14,6 +15,8 @@ defaults:
 
 tags:
   - ${hydra:runtime.choices.data/dataset} # automatically tag with the chosen dataset
+  - ${hydra:runtime.choices.data/split} # automatically tag with the chosen dataset split strategy
+  - fold-${data.fold} # automatically tag with the fold used for testing
   - ${hydra:runtime.choices.model} # automatically tag with the chosen model/task
 
 seed: 12345
