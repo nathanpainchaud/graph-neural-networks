@@ -116,3 +116,14 @@ Launch multiple experiments at once using the `multirun` (`-m`) option.
 # run multiple experiments sequentially, here w/ 5 different seeds
 gnn-train -m experiment=<YOUR_EXPERIMENT_CONFIG> seed=0,1,2,3,4
 ```
+
+Launch multiple experiments at once **in parallel** using the [Joblib launcher for Hydra](https://hydra.cc/docs/plugins/joblib_launcher/).
+
+> [!NOTE]
+> The `hydra-joblib-launcher` plugin required to use this feature is installed by default with the project, so no need
+> to install it by yourself.
+
+```bash
+# run multiple experiments in parallel, here w/ 5 different seeds
+gnn-train -m hydra/launcher=joblib experiment=<YOUR_EXPERIMENT_CONFIG> seed=0,1,2,3,4
+```
