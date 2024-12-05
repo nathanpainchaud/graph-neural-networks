@@ -6,6 +6,12 @@ defaults:
 #  - /data/transform@data.dataset: <transform_name>
 
 hparams:
+  # hparams.data.* values are meant to expose the constant properties of the `torch_geometric.data.Dataset` instance
+  # to make them available during the resolution of the configuration, using the same names.
+  # This is done to allow for automatic interpolation of data-processing components (e.g. stratified splits)
+  # and model architecture components (e.g. input/output dimensions) during the resolution of the configuration.
+  # Therefore, it is important to provide the values available for your dataset, whether it is a PyTorch Geometric
+  # dataset or your own custom dataset.
   data:
     # MUTAG dataset contains 135 graphs in the cleaned version, and 188 graphs in the original version
     num_graphs: ${op.ternary:${data.dataset.cleaned}, 135, 188}
