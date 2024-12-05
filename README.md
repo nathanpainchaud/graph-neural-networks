@@ -1,6 +1,6 @@
 <div align="center">
 
-# Your Project Name
+# Graph Neural Networks
 
 [![pytorch](https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
 [![lightning](https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white)](https://pytorchlightning.ai/)
@@ -16,7 +16,15 @@
 
 ## Description
 
-What it does
+A template project for training graph neural networks with PyTorch Lightning and Hydra. It tries to minimize the
+complexity of the boilerplate code and configuration management, so that they can be easily understood and modified to
+suit your needs, while still providing a feature-complete and flexible framework for working with GNNs.
+
+> [!IMPORTANT]
+> Using this template requires a basic understanding of PyTorch Lightning and Hydra. If you do not know at least what
+> these libraries do and how they work at a high level, you should familiarize yourself with them.
+> We refer you to the [PyTorch Lightning documentation](https://lightning.ai/docs/pytorch/stable/) and the
+> [Hydra documentation](https://hydra.cc/docs/intro/).
 
 ## Installation
 
@@ -41,6 +49,7 @@ pip install -e .[cu124,wandb]
 
 #### uv
 
+> [!NOTE]
 > [uv](https://docs.astral.sh/uv/) is a Python package and project manager.
 > It allows you to manage Python interpreters, dependencies, and project configuration in a single tool.
 > If you don't have it installed already, you can install it (on Linux and macOS) by running:
@@ -65,24 +74,45 @@ source ./venv/bin/activate
 
 ## How to run
 
-Train model with default configuration
+### The basics
+
+Train model with the default configuration.
+
+> [!WARNING]
+> The default configuration is not complete and running it as-is will fail, asking you to specify the missing `data`
+> and `model` groups.
 
 ```bash
 # train on CPU
-gnn-train trainer=cpu
+gnn-train trainer=cpu data=<YOUR_DATA_CONFIG> model=<YOUR_MODEL_CONFIG>
 
 # train on GPU
-gnn-train trainer=gpu
+gnn-train trainer=gpu data=<YOUR_DATA_CONFIG> model=<YOUR_MODEL_CONFIG>
 ```
 
-Train model with chosen experiment configuration from [configs/experiment/](src/graph_neural_networks/configs/experiment/)
+Override any individual parameter in the config files from the command line like this:
 
 ```bash
-gnn-train experiment=experiment_name.yaml
+gnn-train trainer.max_epochs=20 data.batch_size=64 ...
 ```
 
-You can override any parameter from command line like this
+### Use preset configs
+
+Train model with chosen experiment configuration from [configs/experiment/](src/graph_neural_networks/configs/experiment/).
+
+> [!TIP]
+> This allows you to provide (complete) presets on top of the default configuration, typically for experiments you want
+> to run regularly.
 
 ```bash
-gnn-train trainer.max_epochs=20 data.batch_size=64
+gnn-train experiment=<YOUR_EXPERIMENT_CONFIG>
+```
+
+### Run multiple experiments
+
+Launch multiple experiments at once using the `multirun` (`-m`) option.
+
+```bash
+# run multiple experiments sequentially, here w/ 5 different seeds
+gnn-train -m experiment=<YOUR_EXPERIMENT_CONFIG> seed=0,1,2,3,4
 ```
