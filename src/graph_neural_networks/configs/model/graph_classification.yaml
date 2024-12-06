@@ -14,7 +14,7 @@ head:
   in_channels: ${..encoder.hidden_channels}
   hidden_channels: ${.in_channels}
   num_layers: 2
-  dropout: 0.5
+  dropout: ${..encoder.dropout}
   norm: null
 
 criterion:

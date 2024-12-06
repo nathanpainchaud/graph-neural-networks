@@ -127,3 +127,18 @@ Launch multiple experiments at once **in parallel** using the [Joblib launcher f
 # run multiple experiments in parallel, here w/ 5 different seeds
 gnn-train -m hydra/launcher=joblib experiment=<YOUR_EXPERIMENT_CONFIG> seed=0,1,2,3,4
 ```
+
+### Run automatic hyperparameter search with Optuna
+
+Launch an automatic hyperparameter search using the [Optuna sweeper for Hydra](https://hydra.cc/docs/plugins/optuna_sweeper/).
+
+```bash
+gnn-train hparams_search=graph_classification_cv_optuna experiment=graph_classification
+```
+
+> [!TIP]
+> Support for Optuna in a cross-validation setting is enabled by using the custom
+> [`hydra_serial_sweeper`](src/graph_neural_networks/utils/utils.py#:~:text=hydra_serial_sweeper) decorator on the Hydra
+> main function, along with the `serial_sweeper=cross_validation` option. This last option is already configured in the
+> above [`graph_classification_cv_optuna`](src/graph_neural_networks/configs/hparams_search/graph_classification_cv_optuna.yaml)
+> config.

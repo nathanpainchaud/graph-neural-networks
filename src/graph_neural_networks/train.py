@@ -16,6 +16,7 @@ from graph_neural_networks.utils import (
     pre_hydra_routine,
     task_wrapper,
 )
+from graph_neural_networks.utils.utils import hydra_serial_sweeper
 
 log = RankedLogger(__name__, rank_zero_only=True)
 
@@ -90,6 +91,7 @@ def train(cfg: DictConfig) -> tuple[dict[str, Any], dict[str, Any]]:
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="train.yaml")
+@hydra_serial_sweeper
 def hydra_main(cfg: DictConfig) -> float | None:
     """Hydra entry point for training.
 
