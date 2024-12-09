@@ -36,8 +36,8 @@ git clone https://github.com/nathanpainchaud/graph-neural-networks
 cd graph-neural-networks
 
 # [OPTIONAL] create virtual environment
-python -m venv ./venv
-source ./venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 
 # install project
 # you must specify as an extra the desired CPU/CUDA versions of PyTorch
@@ -69,7 +69,7 @@ cd graph-neural-networks
 # [OPTIONAL] you can also specify other extras for more functionalities
 # Supported values are: wandb (for W&B integration)
 uv sync --extra cu124 --extra wandb
-source ./venv/bin/activate
+source .venv/bin/activate
 ```
 
 ## How to run
