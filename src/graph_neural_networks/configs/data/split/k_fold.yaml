@@ -1,7 +1,7 @@
 _target_: graph_neural_networks.data.multigraph_k_fold
 _partial_: True
-n_splits: ${op.ternary:${op:is_not,${.val_size},null}, 10, 5} # default to 10 if `val_size is not None`, otherwise 5
-val_size: 0.1
+test_size: null # Size of the holdout test set
+n_splits: ${op.ternary:${op:truth,${.test_size}}, 5, 10} # default to 5 if `test_size is not None`, otherwise 10
 shuffle: True
 stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify by default if num_classes exists and > 0
 random_state: 12345 # Use a different seed from the main seed to allow models w/ different seeds to use the same splits

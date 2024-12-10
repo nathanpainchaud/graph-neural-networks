@@ -25,16 +25,10 @@ class SplitLightningDataset(LightningDataset):
         :param kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
         """
         fold_split = self.get_splits(split, dataset)[fold]
-        train_idx, test_idx, val_idx = fold_split["train"], fold_split["test"], fold_split.get("val")
+        train_idx, val_idx, test_idx = fold_split["train"], fold_split["val"], fold_split.get("test")
 
-        train_dataset = dataset[train_idx]
-        if val_idx:
-            val_dataset = dataset[val_idx]
-            test_dataset = dataset[test_idx]
-        else:
-            log.info("No validation set in the requested split, using test set as validation set!")
-            val_dataset = dataset[test_idx]
-            test_dataset = None
+        train_dataset, val_dataset = dataset[train_idx], dataset[val_idx]
+        test_dataset = dataset[test_idx] if test_idx else None
 
         super().__init__(
             train_dataset, val_dataset=val_dataset, test_dataset=test_dataset, pred_dataset=dataset, **kwargs

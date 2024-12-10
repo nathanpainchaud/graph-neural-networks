@@ -7,8 +7,8 @@ DatasetSplit = list[dict[str, list[int]]]
 
 def multigraph_k_fold(
     dataset: Dataset,
+    test_size: float | int | None = None,
     n_splits: int = 10,
-    val_size: float | int | None = 0.1,
     shuffle: bool = True,
     stratify: bool = False,
     random_state: int | RandomState | None = 12345,
@@ -16,35 +16,37 @@ def multigraph_k_fold(
     """Splits a multi-graph dataset into k folds for cross-validation, with each graph treated as a sample.
 
     :param dataset: The multi-graph dataset to split.
+    :param test_size: The size of the holdout test set to split from the training set before creating the folds over the
+        remaining training set. This effectively means that all folds "share" the same test set.
+        If `None` or `0`, no holdout test set is created.
     :param n_splits: The number of folds to create.
-    :param val_size: The size of the validation set to additionally create from the training set.
-        If `None`, no validation set is created.
     :param shuffle: Whether to shuffle the data before splitting.
     :param stratify: Whether to stratify the data based on the graph-level target labels.
     :param random_state: The random state to use for reproducibility.
 
-    :return: A list of splits, where each split contains the indices of its train, test and (optional) val sets.
+    :return: A list of splits, where each split contains the indices of its train, val and (optional) test sets.
     """
     k_fold_cls = model_selection.StratifiedKFold if stratify else model_selection.KFold
     k_fold = k_fold_cls(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
 
+    if test_size:
+        test_split_kwargs = {"test_size": test_size, "shuffle": shuffle, "random_state": random_state}
+        if stratify:
+            test_split_kwargs["stratify"] = dataset.y
+
+        k_fold_idx, test_idx = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
+
+    # Create a subset that excludes the test set (if it exists)
+    k_fold_data = dataset[k_fold_idx] if test_size else dataset
     folds = []
-    for train_idx, test_idx in k_fold.split(dataset.indices(), y=dataset.y if stratify else None):
+    for fold_train_idx, fold_val_idx in k_fold.split(k_fold_data.indices(), y=k_fold_data.y if stratify else None):
         # Convert the int64 arrays returned by sklearn's KFold to lists of base integers
-        train_idx, test_idx = train_idx.astype(int).tolist(), test_idx.astype(int).tolist()  # noqa: PLW2901
+        fold_train_idx, fold_val_idx = fold_train_idx.astype(int).tolist(), fold_val_idx.astype(int).tolist()  # noqa: PLW2901
 
-        if val_size:
-            # If `val_size` is provided, split the training set into training and validation sets
-            train_subset = dataset[train_idx]
-            split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
-            if stratify:
-                split_kwargs["stratify"] = train_subset.y
+        current_fold = {"train": fold_train_idx, "val": fold_val_idx}
+        if test_size:
+            current_fold["test"] = test_idx
 
-            train_idx, val_idx = model_selection.train_test_split(train_subset.indices(), **split_kwargs)  # noqa: PLW2901
-
-        current_fold = {"train": train_idx, "test": test_idx}
-        if val_size:
-            current_fold["val"] = val_idx
         folds.append(current_fold)
 
     return folds
@@ -52,41 +54,40 @@ def multigraph_k_fold(
 
 def multigraph_split(
     dataset: Dataset,
-    test_size: float | int = 0.2,
-    val_size: float | int | None = 0.1,
+    val_size: float | int = 0.1,
+    test_size: float | int | None = 0.2,
     stratify: bool = False,
     shuffle: bool = True,
     random_state: int | RandomState | None = 12345,
 ) -> DatasetSplit:
-    """Splits a multi-graph dataset into train, test and (optional) val sets, with each graph treated as a sample.
+    """Splits a multi-graph dataset into train, and optional val and test sets, with each graph treated as a sample.
 
     :param dataset: The multi-graph dataset to split.
-    :param test_size: The size of the test set.
-    :param val_size: The size of the validation set to additionally create from the training set.
-        If `None`, no validation set is created.
+    :param val_size: The size of the validation set. If both `test_size` and `val_size` are provided, the test set is
+        created first, and the validation set is created from the remaining training set.
+    :param test_size: The size of the test set. If `None` or `0`, no test set is created.
     :param stratify: Whether to stratify the data based on the graph-level target labels.
     :param shuffle: Whether to shuffle the data before splitting.
     :param random_state: The random state to use for reproducibility.
 
-    :return: A list containing a single split between the train, test and (optional) val sets.
+    :return: A list containing a single split between the train, and optional val and test sets.
     """
-    test_split_kwargs = {"test_size": test_size, "shuffle": shuffle, "random_state": random_state}
-    if stratify:
-        test_split_kwargs["stratify"] = dataset.y
+    split = {"train": dataset.indices()}
 
-    train_idx, test_idx = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
-
-    if val_size:
-        # Create a training subset that excludes the test set
-        train_subset = dataset[train_idx]
-        val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
+    if test_size:
+        # Include the full dataset in the split
+        test_split_kwargs = {"test_size": test_size, "shuffle": shuffle, "random_state": random_state}
         if stratify:
-            val_split_kwargs["stratify"] = train_subset.y
+            test_split_kwargs["stratify"] = dataset.y
 
-        train_idx, val_idx = model_selection.train_test_split(train_subset.indices(), **val_split_kwargs)
+        split["train"], split["test"] = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
 
-    split = {"train": train_idx, "test": test_idx}
-    if val_size:
-        split["val"] = val_idx
+    # Create a subset that excludes the test set (if it exists)
+    data_to_split = dataset[split["train"]]
+    val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
+    if stratify:
+        val_split_kwargs["stratify"] = data_to_split.y
+
+    split["train"], split["val"] = model_selection.train_test_split(data_to_split.indices(), **val_split_kwargs)
 
     return [split]
