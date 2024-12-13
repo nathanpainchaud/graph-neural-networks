@@ -18,11 +18,12 @@ class SplitLightningDataset(LightningDataset):
     def __init__(self, dataset: Dataset, split: Callable[[Dataset], DatasetSplit], fold: int = 0, **kwargs) -> None:
         """Initializes a `SplitLightningDataset`.
 
-        :param dataset: The dataset to split.
-        :param split: The function to use for splitting the dataset.
-        :param fold: The fold to use, in case of multiple splits, e.g. for cross-validation. If you only need one split,
-            e.g. for a typical train/val/test split, use the default value of 0 to access the single split.
-        :param kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
+        Args:
+            dataset: The dataset to split.
+            split: The function to use for splitting the dataset.
+            fold: The fold to use, in case of multiple splits, e.g. for cross-validation. If you only need one split,
+                e.g. for a typical train/val/test split, use the default value of 0 to access the single split.
+            **kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
         """
         fold_split = self.get_splits(split, dataset)[fold]
         train_idx, val_idx, test_idx = fold_split["train"], fold_split["val"], fold_split.get("test")
@@ -38,10 +39,13 @@ class SplitLightningDataset(LightningDataset):
     def get_splits(split_fn: Callable[[Dataset], DatasetSplit], dataset: Dataset) -> DatasetSplit:
         """Get the splits for the dataset according to `split_fn`, either by loading saved splits or creating new ones.
 
-        :param split_fn: The function to use for splitting the dataset.
-        :param dataset: The dataset to split.
-        :return: The splits for the dataset. A list (to support multiple splits/folds) of dictionaries, each containing
-            the indices for the train, test, and (optional) val sets of one split of the dataset. If you only need one
+        Args:
+            split_fn: The function to use for splitting the dataset.
+            dataset: The dataset to split.
+
+        Returns:
+            The splits for the dataset. A list (to support multiple splits/folds) of dictionaries, each containing the
+            indices for the train, test, and (optional) val sets of one split of the dataset. If you only need one
             split, e.g. for a typical train/val/test split, the list will contain a single dictionary/split.
         """
         # Serialize the split function and its kwargs to a string to use it as a unique identifier for the splits

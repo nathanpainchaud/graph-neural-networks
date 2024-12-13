@@ -15,16 +15,18 @@ def multigraph_k_fold(
 ) -> DatasetSplit:
     """Splits a multi-graph dataset into k folds for cross-validation, with each graph treated as a sample.
 
-    :param dataset: The multi-graph dataset to split.
-    :param test_size: The size of the holdout test set to split from the training set before creating the folds over the
-        remaining training set. This effectively means that all folds "share" the same test set.
-        If `None` or `0`, no holdout test set is created.
-    :param n_splits: The number of folds to create.
-    :param shuffle: Whether to shuffle the data before splitting.
-    :param stratify: Whether to stratify the data based on the graph-level target labels.
-    :param random_state: The random state to use for reproducibility.
+    Args:
+        dataset: The multi-graph dataset to split.
+        test_size: The size of the holdout test set to split from the training set before creating the folds over the
+            remaining training set. This effectively means that all folds "share" the same test set. If None or 0,
+            no holdout test set is created.
+        n_splits: The number of folds to create.
+        shuffle: Whether to shuffle the data before splitting.
+        stratify: Whether to stratify the data based on the graph-level target labels.
+        random_state: The random state to use for reproducibility.
 
-    :return: A list of splits, where each split contains the indices of its train, val and (optional) test sets.
+    Returns:
+        A list of splits, where each split contains the indices of its train, val and (optional) test sets.
     """
     k_fold_cls = model_selection.StratifiedKFold if stratify else model_selection.KFold
     k_fold = k_fold_cls(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
@@ -62,15 +64,17 @@ def multigraph_split(
 ) -> DatasetSplit:
     """Splits a multi-graph dataset into train, and optional val and test sets, with each graph treated as a sample.
 
-    :param dataset: The multi-graph dataset to split.
-    :param val_size: The size of the validation set. If both `test_size` and `val_size` are provided, the test set is
-        created first, and the validation set is created from the remaining training set.
-    :param test_size: The size of the test set. If `None` or `0`, no test set is created.
-    :param stratify: Whether to stratify the data based on the graph-level target labels.
-    :param shuffle: Whether to shuffle the data before splitting.
-    :param random_state: The random state to use for reproducibility.
+    Args:
+        dataset: The multi-graph dataset to split.
+        val_size: The size of the validation set. If both `test_size` and `val_size` are provided, the test set is
+            created first, and the validation set is created from the remaining training set.
+        test_size: The size of the test set. If None or 0, no test set is created.
+        stratify: Whether to stratify the data based on the graph-level target labels.
+        shuffle: Whether to shuffle the data before splitting.
+        random_state: The random state to use for reproducibility.
 
-    :return: A list containing a single split between the train, and optional val and test sets.
+    Returns:
+        A list containing a single split between the train, and optional val and test sets.
     """
     split = {"train": dataset.indices()}
 

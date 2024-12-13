@@ -8,7 +8,7 @@ from graph_neural_networks.models import MetricTrackingLitModule
 
 
 class GraphLevelLitModule(MetricTrackingLitModule):
-    """A LightningModule for training GNNs aimed at graph-level tasks."""
+    """A LightningModule for GNNs aimed at graph-level tasks."""
 
     def __init__(
         self,
@@ -20,10 +20,13 @@ class GraphLevelLitModule(MetricTrackingLitModule):
     ):
         """Initializes a `GraphLevelLitModule`.
 
-        :param encoder: The GNN model used to encode the graph.
-        :param graph_pooling: The graph pooling operation to use to aggregate node features into a single graph-level
-            representation.
-        :param head: The prediction head used to make predictions based on the graph-level representation.
+        Args:
+            encoder: The GNN model used to encode the graph.
+            graph_pooling: The graph pooling operation to use to aggregate node features into a single graph-level
+                representation.
+            head: The prediction head used to make predictions based on the graph-level representation.
+            *args: Additional positional arguments to pass to the superclass.
+            **kwargs: Additional keyword arguments to pass to the superclass.
         """
         super().__init__(*args, **kwargs)
 
@@ -37,8 +40,11 @@ class GraphLevelLitModule(MetricTrackingLitModule):
     def forward(self, data: Batch) -> torch.Tensor:
         """Perform a forward pass through the model on a batch of graphs.
 
-        :param data: A batch of graphs, represented as one big (disconnected) graph.
-        :return: The predicted logits for the input graphs in the batch.
+        Args:
+            data: A batch of graphs, represented as one big (disconnected) graph.
+
+        Returns:
+            The predicted logits for the input graphs in the batch.
         """
         x, edge_index, batch, batch_size = data.x, data.edge_index, data.batch, data.batch_size
         x = self.encoder(x, edge_index, batch=batch, batch_size=batch_size)

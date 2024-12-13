@@ -19,14 +19,15 @@ class MetricTrackingLitModule(LightningModule, ABC):
     This module is designed to be used as a base class for other `LightningModule`s that require metric tracking.
 
     The way the loss and metrics are logged is as follows:
-    - The loss, defined by the `criterion` parameter, is logged as `train/loss`, `val/loss`, and `test/loss`, in the
-      respective loops. This is useful to expose the loss to callbacks and optimizers that might need to monitor it.
-    - The metrics, defined by the `metrics` parameter, are logged as `train/<metric>`, `val/<metric>`,
-      and `test/<metric>`, in the respective loops. This is useful to expose the metrics to callbacks and optimizers
-      that might need to monitor them.
-    - For the 'train' and 'val' loss and metrics, the best values, either min or max depending on the metric, are also
-      logged under `<loop>/<metric>/best`. This is useful to provide a known log entry from which to retrieve the best
-      values across the whole run, for example to monitor them for automatic hyperparameter tuning.
+        - The loss, defined by the `criterion` parameter, is logged as `"train/loss"`, `"val/loss"`, and `"test/loss"`,
+          in the respective loops. This is useful to expose the loss to callbacks and optimizers that might need to
+          monitor it.
+        - The metrics, defined by the `metrics` parameter, are logged as `"train/<metric>"`, `"val/<metric>"`, and
+          `"test/<metric>"`, in the respective loops. This is useful to expose the metrics to callbacks and optimizers
+          that might need to monitor them.
+        - For the "train" and "val" loss and metrics, the best values, either min or max depending on the metric, are
+          also logged under `"<loop>/<metric>/best"`. This is useful to provide a known log entry from which to retrieve
+          the best values across the whole run, for example to monitor them for automatic hyperparameter tuning.
     """
 
     def __init__(
@@ -40,10 +41,13 @@ class MetricTrackingLitModule(LightningModule, ABC):
     ):
         """Initializes a `MetricTrackingLitModule`.
 
-        :param criterion: The loss function to use for training.
-        :param optimizer: The optimizer to use for training.
-        :param scheduler: The learning rate scheduler to use for training.
-        :param metrics: A collection of metrics to use for evaluation.
+        Args:
+            criterion: The loss function to use for training.
+            optimizer: The optimizer to use for training.
+            scheduler: The learning rate scheduler to use for training.
+            metrics: A collection of metrics to use for evaluation.
+            *args: Additional positional arguments to pass to the superclass.
+            **kwargs: Additional keyword arguments to pass to the superclass.
         """
         super().__init__(*args, **kwargs)
 
@@ -88,10 +92,11 @@ class MetricTrackingLitModule(LightningModule, ABC):
     def model_step(self, batch: Batch) -> tuple[torch.Tensor, torch.Tensor]:
         """Perform a single model step on a batch of data.
 
-        :param batch: A batch of data (a tuple) containing the input tensor of images and target labels.
-        :return: A tuple containing (in order):
-            - A tensor of losses.
-            - A tensor of (unnormalized) predictions (i.e. logits).
+        Args:
+            batch: A batch of data containing the input tensor of images and target labels.
+
+        Returns:
+            A pair of tensors containing the loss and the (unnormalized) predictions (i.e. logits), respectively.
         """
         logits = self.forward(batch)
         loss = self.criterion(logits, batch.y)
@@ -166,10 +171,12 @@ class MetricTrackingLitModule(LightningModule, ABC):
     def configure_optimizers(self) -> dict[str, Any]:
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
 
-        Examples:
-            https://lightning.ai/docs/pytorch/latest/common/lightning_module.html#configure-optimizers
+        References:
+            - PyTorch Lightning documentation on configuring optimizers:
+              https://lightning.ai/docs/pytorch/latest/common/lightning_module.html#configure-optimizers
 
-        :return: A dict containing the configured optimizers and learning-rate schedulers to be used for training.
+        Returns:
+            A dict containing the configured optimizers and learning-rate schedulers to be used for training.
         """
         optimizer = self.hparams.optimizer(params=self.trainer.model.parameters())
         if self.hparams.scheduler is not None:
