@@ -72,6 +72,31 @@ uv sync --extra cu124 --extra wandb
 source .venv/bin/activate
 ```
 
+### Setup Weight & Biases
+
+#### Create an account
+
+Follow the instructions on the [Weights & Biases website](https://docs.wandb.ai/quickstart#1-create-an-account-and-install-wb)
+to create an account.
+
+#### Install W&B
+
+Make sure that you install the `wandb` extra when installing the project, as shown in the [installation instructions](#installation).
+
+#### Configure your credentials
+
+The recommended way to configure your W&B credentials is to expose them as environment variables
+(see [W&B's documentation on this](https://docs.wandb.ai/guides/track/environment-variables/)). You can do this by
+copying the [`.env.example`](.env.example) file to a new `.env` file (which will be ignored by Git) and filling in your
+W&B credentials.
+
+You don't have to do anything more than that, as the project is configured to automatically load environment variables
+from the `.env` file when executing the scripts.
+
+#### Use the wandb logger
+
+Follow the instructions provided in the [How to run](#track-experiments) section to enable experiment tracking via W&B.
+
 ## How to run
 
 ### The basics
@@ -106,6 +131,26 @@ Train model with chosen experiment configuration from [configs/experiment/](src/
 
 ```bash
 gnn-train experiment=<YOUR_EXPERIMENT_CONFIG>
+```
+
+### Track experiments
+
+Although some basic logging configurations are provided for CSV file and TensorBoard, the recommended tool to track
+experiments is [Weights & Biases](https://wandb.ai/site), by using W&B's
+[integration in PyTorch Lightning](https://docs.wandb.ai/guides/integrations/lightning/).
+
+> [!WARNING]
+> You must have followed the [W&B setup instructions](#setup-weight--biases) to use this feature.
+
+```bash
+# track experiment online w/ W&B
+gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=wandb
+
+# track experiment offline w/ W&B
+gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=wandb logger.wandb.offline=True
+
+# track experiments using different loggers at once (i.e. CSV, TensorBoard, W&B)
+gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=many_loggers
 ```
 
 ### Run multiple experiments
