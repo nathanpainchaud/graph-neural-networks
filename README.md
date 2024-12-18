@@ -60,7 +60,7 @@ pip install -e .[cu124,wandb]
 
 ```bash
 # clone project
-git clone https://github.com/YourGithubName/graph-neural-networks
+git clone https://github.com/nathanpainchaud/graph-neural-networks
 cd graph-neural-networks
 
 # create uv environment
