@@ -10,4 +10,4 @@ params:
 
 # If the experiment return a value, e.g. a performance metric, `reduce` defines how to aggregate over the sweep
 reduce:
-  _target_: statistics.mean
+  _target_: numpy.nanmean
