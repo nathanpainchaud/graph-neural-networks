@@ -5,7 +5,7 @@ from torch_geometric.data import Dataset
 DatasetSplit = list[dict[str, list[int]]]
 
 
-def multigraph_k_fold(
+def intergraph_k_fold(
     dataset: Dataset,
     test_size: float | int | None = None,
     n_splits: int = 10,
@@ -54,7 +54,7 @@ def multigraph_k_fold(
     return folds
 
 
-def multigraph_split(
+def intergraph_split(
     dataset: Dataset,
     val_size: float | int = 0.1,
     test_size: float | int | None = 0.2,

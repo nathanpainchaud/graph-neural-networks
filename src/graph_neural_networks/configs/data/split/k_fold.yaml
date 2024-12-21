@@ -1,4 +1,4 @@
-_target_: graph_neural_networks.data.multigraph_k_fold
+_target_: graph_neural_networks.data.intergraph_k_fold
 _partial_: True
 test_size: null # Size of the holdout test set
 n_splits: ${op.ternary:${op:truth,${.test_size}}, 5, 10} # default to 5 if `test_size is not None`, otherwise 10
