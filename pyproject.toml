@@ -48,10 +48,11 @@ cu124 = [
 [dependency-groups]
 dev = [
     "pre-commit>=4.0.1,<5",
+    {include-group = "lint"},
 ]
 lint = [
     "docformatter>=1.7.5,<2",
-    "ruff>=0.8.0,<0.9",
+    "ruff>=0.8.4,<0.9",
 ]
 
 [project.scripts]
@@ -63,7 +64,6 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-default-groups = [ "dev", "lint" ]
 # Refer to the note above about installing pytorch using optional dependencies,
 # especially the link to uv's documentation, to understand this configuration
 conflicts = [
