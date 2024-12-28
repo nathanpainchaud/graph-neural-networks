@@ -18,7 +18,11 @@ dependencies = [
     "rich>=13.9.4,<14",
     "rootutils>=1.0.7,<2",
     "scikit-learn>=1.5.2,<2",
-    "torch-geometric",
+    # Use our fork of torch-geometric that patches Lightning imports until the following issue gets solved and released:
+    # https://github.com/pyg-team/pytorch_geometric/issues/9811
+    # NOTE: The direct reference is specified here using hatchling's syntax (instead of in `tool.uv.sources`)
+    # so that our fork also gets chosen when installing the package using `pip install .`
+    "torch-geometric @ git+https://github.com/nathanpainchaud/pytorch_geometric.git@0bea004a831b2fde32b12cdaa03e3715cb44c240",
     "torchmetrics>=1.6.0,<2",
 ]
 [project.optional-dependencies]
@@ -63,6 +67,9 @@ gnn-eval = "graph_neural_networks.eval:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.metadata]
+allow-direct-references = true  # Allow direct references to install `torch-geometric` from our fork
+
 [tool.uv]
 # Refer to the note above about installing pytorch using optional dependencies,
 # especially the link to uv's documentation, to understand this configuration
@@ -76,9 +83,6 @@ conflicts = [
 ]
 
 [tool.uv.sources]
-# Use our fork of torch-geometric that patches Lightning imports until the following issue gets solved and released:
-# https://github.com/pyg-team/pytorch_geometric/issues/9811
-torch-geometric = { git = "https://github.com/nathanpainchaud/pytorch_geometric", branch = "release/2.6.1/fix-lightning-imports" }
 # Refer to the note above about installing pytorch using optional dependencies,
 # especially the link to uv's documentation, to understand this configuration
 torch = [
