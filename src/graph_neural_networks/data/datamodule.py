@@ -1,10 +1,14 @@
+import copy
 import json
 from collections.abc import Callable
 from pathlib import Path
 
 from filelock import FileLock
+from lightning import LightningDataModule
+from torch.utils.data import IterableDataset
 from torch_geometric.data import Dataset
-from torch_geometric.data.lightning import LightningDataset
+from torch_geometric.data.lightning.datamodule import kwargs_repr
+from torch_geometric.loader import DataLoader
 
 from graph_neural_networks.data.split import DatasetSplit
 from graph_neural_networks.utils import RankedLogger
@@ -12,28 +16,83 @@ from graph_neural_networks.utils import RankedLogger
 log = RankedLogger(__name__, rank_zero_only=True)
 
 
-class SplitLightningDataset(LightningDataset):
-    """A LightningDataset that splits a full dataset, e.g. in k-fold, for use in typical train/val/test pipelines."""
+class SplitLightningDataset(LightningDataModule):
+    """A `LightningDataModule` that splits a full dataset, e.g. in k-fold, for use in typical train/val/test pipelines.
 
-    def __init__(self, dataset: Dataset, split: Callable[[Dataset], DatasetSplit], fold: int = 0, **kwargs) -> None:
+    We avoid inheriting from PyG's `LightningDataset` because it expects already instantiated datasets, and with the way
+    PyG datasets are designed, this would mean the data would have been downloaded already. However, the philosophy of
+    `LightningDataModule`s is to only download the data in the `prepare_data` hook.
+
+    Therefore, we use a callable that returns the dataset to only instantiate the dataset in the `prepare_data` hook.
+    """
+
+    def __init__(
+        self, dataset: Callable[[], Dataset], split: Callable[[Dataset], DatasetSplit], fold: int = 0, **kwargs
+    ) -> None:
         """Initializes a `SplitLightningDataset`.
 
         Args:
-            dataset: The dataset to split.
+            dataset: A callable that returns the dataset to split. See the class docstring for why this is a callable.
             split: The function to use for splitting the dataset.
             fold: The fold to use, in case of multiple splits, e.g. for cross-validation. If you only need one split,
                 e.g. for a typical train/val/test split, use the default value of 0 to access the single split.
             **kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
         """
-        fold_split = self.get_splits(split, dataset)[fold]
-        train_idx, val_idx, test_idx = fold_split["train"], fold_split["val"], fold_split.get("test")
+        super().__init__()
 
-        train_dataset, val_dataset = dataset[train_idx], dataset[val_idx]
-        test_dataset = dataset[test_idx] if test_idx else None
+        self._dataset_init = dataset
+        self._split_fn = split
+        self.fold = fold
 
-        super().__init__(
-            train_dataset, val_dataset=val_dataset, test_dataset=test_dataset, pred_dataset=dataset, **kwargs
+        if "shuffle" in kwargs:
+            log.warning(
+                f"The 'shuffle={kwargs['shuffle']}' option is ignored in '{self.__class__.__name__}'. Remove it from "
+                f"the argument list to disable this warning"
+            )
+            del kwargs["shuffle"]
+
+        self.kwargs = kwargs
+
+        self.train_dataset = None
+        self.val_dataset = None
+        self.test_dataset = None
+        self.pred_dataset = None
+
+    def __repr__(self) -> str:  # noqa: D105
+        kwargs = kwargs_repr(
+            train_dataset=self.train_dataset,
+            val_dataset=self.val_dataset,
+            test_dataset=self.test_dataset,
+            pred_dataset=self.pred_dataset,
+            **self.kwargs,
         )
+        return f"{self.__class__.__name__}({kwargs})"
+
+    def prepare_data(self) -> None:
+        """Instantiate the PyG dataset to download the data (if necessary)."""
+        # Instantiate the PyG dataset (by calling `_dataset_init`) to trigger the download of the data.
+        # Do not assign the resulting dataset to `self.*` to respect the design of LightningDataModule
+        # where `prepare_data` should not assign state (since it is only called on the main process)
+        self._dataset_init()
+
+    def setup(self, stage: str) -> None:
+        """Split the dataset into train, val, and test sets."""
+        # Instantiate the PyG dataset again, this time assigning it to `self.dataset`
+        # PyG datasets are designed not to download the data again if it already exists at the designated path
+        dataset = self._dataset_init()
+
+        if stage == "predict":
+            self.pred_dataset = dataset
+
+        else:
+            # Split the dataset into train, val, and test sets
+            fold_split = self.get_splits(self._split_fn, dataset)[self.fold]
+            train_idx, val_idx, test_idx = fold_split["train"], fold_split["val"], fold_split.get("test")
+
+            if stage == "fit":
+                self.train_dataset, self.val_dataset = dataset[train_idx], dataset[val_idx]
+            elif stage == "test":
+                self.test_dataset = dataset[test_idx]
 
     @staticmethod
     def get_splits(split_fn: Callable[[Dataset], DatasetSplit], dataset: Dataset) -> DatasetSplit:
@@ -77,3 +136,28 @@ class SplitLightningDataset(LightningDataset):
                 splits = json.load(f)
 
         return splits
+
+    def train_dataloader(self) -> DataLoader:  # noqa: D102
+        shuffle = not isinstance(self.train_dataset, IterableDataset)
+        shuffle &= self.kwargs.get("sampler", None) is None
+        shuffle &= self.kwargs.get("batch_sampler", None) is None
+
+        return DataLoader(self.train_dataset, shuffle=shuffle, **self.kwargs)
+
+    def _eval_dataloader(self, dataset: Dataset) -> DataLoader:
+        assert dataset is not None
+
+        kwargs = copy.copy(self.kwargs)
+        kwargs.pop("sampler", None)
+        kwargs.pop("batch_sampler", None)
+
+        return DataLoader(dataset, shuffle=False, **kwargs)
+
+    def val_dataloader(self) -> DataLoader:  # noqa: D102
+        return self._eval_dataloader(self.val_dataset)
+
+    def test_dataloader(self) -> DataLoader:  # noqa: D102
+        return self._eval_dataloader(self.test_dataset)
+
+    def predict_dataloader(self) -> DataLoader:  # noqa: D102
+        return self._eval_dataloader(self.pred_dataset)
