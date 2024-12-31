@@ -1,4 +1,5 @@
 import copy
+import inspect
 import json
 from collections.abc import Callable
 from pathlib import Path
@@ -107,15 +108,17 @@ class SplitLightningDataset(LightningDataModule):
             indices for the train, test, and (optional) val sets of one split of the dataset. If you only need one
             split, e.g. for a typical train/val/test split, the list will contain a single dictionary/split.
         """
-        # Serialize the split function and its kwargs to a string to use it as a unique identifier for the splits
-        # The kwargs are sorted to ensure that the same kwargs in a different order result in the same string ID
-        splits_id = ",".join(f"{k}={v}" for k, v in sorted(split_fn.keywords.items()))
+        # Serialize the split function and its parameters to a string to use it as a unique identifier for the splits
+        # The parameters are sorted to ensure that even a different order results in the same string ID
+        split_params = inspect.signature(split_fn).parameters.copy()
+        split_params.popitem(last=False)  # Del the first param passed to `split_fn` (the dataset)
+        splits_repr = ",".join(f"{k}={v.default}" for k, v in sorted(split_params.items()))
         splits = None
 
         # Acquire a lock on the (possibly not existing) splits file
         # This is done to prevent multiple processes from overwriting each other's splits, in case multiple experiments
         # are launched at the same time that all require the same non-existing splits
-        splits_file = Path(dataset.processed_dir) / "splits" / f"{splits_id}.json"
+        splits_file = Path(dataset.processed_dir) / "splits" / f"{splits_repr}.json"
 
         with FileLock(str(splits_file.with_suffix(".lock"))):
             if not splits_file.exists():
