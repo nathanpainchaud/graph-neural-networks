@@ -2,6 +2,11 @@ from numpy.random import RandomState
 from sklearn import model_selection
 from torch_geometric.data import Dataset
 
+from graph_neural_networks.utils import RankedLogger
+
+log = RankedLogger(__name__, rank_zero_only=True)
+
+
 DatasetSplit = list[dict[str, list[int]]]
 TRAIN_SPLIT = "train"
 VAL_SPLIT = "val"
@@ -59,7 +64,7 @@ def intergraph_k_fold(
 
 def intergraph_split(
     dataset: Dataset,
-    val_size: float | int = 0.1,
+    val_size: float | int | None = 0.1,
     test_size: float | int | None = 0.2,
     stratify: bool = False,
     shuffle: bool = True,
@@ -69,9 +74,11 @@ def intergraph_split(
 
     Args:
         dataset: The multi-graph dataset to split.
-        val_size: The size of the validation set. If both `test_size` and `val_size` are provided, the test set is
-            created first, and the validation set is created from the remaining training set.
-        test_size: The size of the test set. If None or 0, no test set is created.
+        val_size: The size of the validation set. If None or 0, no validation set is created. If both `test_size` and
+            `val_size` are provided, creates the test set first, and then the validation set from the remaining training
+            set.
+        test_size: The size of the test set. If None or 0, no test set is created. If both `test_size` and `val_size`
+            are provided, creates the test set first, and then the validation set from the remaining training set.
         stratify: Whether to stratify the data based on the graph-level target labels.
         shuffle: Whether to shuffle the data before splitting.
         random_state: The random state to use for reproducibility.
@@ -79,7 +86,13 @@ def intergraph_split(
     Returns:
         A list containing a single split between the train, and optional val and test sets.
     """
-    split = {TRAIN_SPLIT: dataset.indices()}
+    if not (val_size or test_size):
+        log.warning(
+            "No validation or test set configured. Returning the full dataset as train set. This is likely a mistake "
+            "and not intended behavior."
+        )
+
+    split = {TRAIN_SPLIT: list(dataset.indices())}
 
     if test_size:
         # Include the full dataset in the split
@@ -90,11 +103,14 @@ def intergraph_split(
         split[TRAIN_SPLIT], split[TEST_SPLIT] = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
 
     # Create a subset that excludes the test set (if it exists)
-    data_to_split = dataset[split[TRAIN_SPLIT]]
-    val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
-    if stratify:
-        val_split_kwargs["stratify"] = data_to_split.y
+    if val_size:
+        data_to_split = dataset[split[TRAIN_SPLIT]]
+        val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
+        if stratify:
+            val_split_kwargs["stratify"] = data_to_split.y
 
-    split[TRAIN_SPLIT], split[VAL_SPLIT] = model_selection.train_test_split(data_to_split.indices(), **val_split_kwargs)
+        split[TRAIN_SPLIT], split[VAL_SPLIT] = model_selection.train_test_split(
+            data_to_split.indices(), **val_split_kwargs
+        )
 
     return [split]
