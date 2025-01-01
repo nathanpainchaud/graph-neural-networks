@@ -3,6 +3,9 @@ from sklearn import model_selection
 from torch_geometric.data import Dataset
 
 DatasetSplit = list[dict[str, list[int]]]
+TRAIN_SPLIT = "train"
+VAL_SPLIT = "val"
+TEST_SPLIT = "test"
 
 
 def intergraph_k_fold(
@@ -45,9 +48,9 @@ def intergraph_k_fold(
         # Convert the int64 arrays returned by sklearn's KFold to lists of base integers
         fold_train_idx, fold_val_idx = fold_train_idx.astype(int).tolist(), fold_val_idx.astype(int).tolist()  # noqa: PLW2901
 
-        current_fold = {"train": fold_train_idx, "val": fold_val_idx}
+        current_fold = {TRAIN_SPLIT: fold_train_idx, VAL_SPLIT: fold_val_idx}
         if test_size:
-            current_fold["test"] = test_idx
+            current_fold[TEST_SPLIT] = test_idx
 
         folds.append(current_fold)
 
@@ -76,7 +79,7 @@ def intergraph_split(
     Returns:
         A list containing a single split between the train, and optional val and test sets.
     """
-    split = {"train": dataset.indices()}
+    split = {TRAIN_SPLIT: dataset.indices()}
 
     if test_size:
         # Include the full dataset in the split
@@ -84,14 +87,14 @@ def intergraph_split(
         if stratify:
             test_split_kwargs["stratify"] = dataset.y
 
-        split["train"], split["test"] = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
+        split[TRAIN_SPLIT], split[TEST_SPLIT] = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
 
     # Create a subset that excludes the test set (if it exists)
-    data_to_split = dataset[split["train"]]
+    data_to_split = dataset[split[TRAIN_SPLIT]]
     val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
     if stratify:
         val_split_kwargs["stratify"] = data_to_split.y
 
-    split["train"], split["val"] = model_selection.train_test_split(data_to_split.indices(), **val_split_kwargs)
+    split[TRAIN_SPLIT], split[VAL_SPLIT] = model_selection.train_test_split(data_to_split.indices(), **val_split_kwargs)
 
     return [split]

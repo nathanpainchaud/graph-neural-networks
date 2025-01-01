@@ -6,12 +6,13 @@ from pathlib import Path
 
 from filelock import FileLock
 from lightning import LightningDataModule
+from lightning.pytorch.trainer.states import TrainerFn
 from torch.utils.data import IterableDataset
 from torch_geometric.data import Dataset
 from torch_geometric.data.lightning.datamodule import kwargs_repr
 from torch_geometric.loader import DataLoader
 
-from graph_neural_networks.data.split import DatasetSplit
+from graph_neural_networks.data.split import TEST_SPLIT, TRAIN_SPLIT, VAL_SPLIT, DatasetSplit
 from graph_neural_networks.utils import RankedLogger
 
 log = RankedLogger(__name__, rank_zero_only=True)
@@ -90,23 +91,27 @@ class SplitLightningDataset(LightningDataModule):
         # where `prepare_data` should not assign state (since it is only called on the main process)
         self._dataset_init()
 
-    def setup(self, stage: str) -> None:
-        """Split the dataset into train, val, and test sets."""
-        # Instantiate the PyG dataset again, this time assigning it to `self.dataset`
-        # PyG datasets are designed not to download the data again if it already exists at the designated path
+    def setup(self, stage: TrainerFn) -> None:
+        """Set up the train, val, test or predict datasets according to the stage, splitting into subsets if needed.
+
+        Args:
+            stage: The stage of the trainer to set up the datasets for.
+        """
+        # Instantiate the PyG dataset again, this time to assign it. Avoids downloading the data again since PyG
+        # datasets cache their data under their root directory
         dataset = self._dataset_init()
 
-        if stage == "predict":
+        if stage == TrainerFn.PREDICTING:
             self.pred_dataset = dataset
 
         else:
             # Split the dataset into train, val, and test sets
             fold_split = self.get_splits(self._split_fn, dataset)[self.fold]
-            train_idx, val_idx, test_idx = fold_split["train"], fold_split["val"], fold_split.get("test")
+            train_idx, val_idx, test_idx = fold_split[TRAIN_SPLIT], fold_split[VAL_SPLIT], fold_split.get(TEST_SPLIT)
 
-            if stage == "fit":
+            if stage == TrainerFn.FITTING:
                 self.train_dataset, self.val_dataset = dataset[train_idx], dataset[val_idx]
-            elif stage == "test":
+            elif stage == TrainerFn.TESTING:
                 self.test_dataset = dataset[test_idx] if test_idx else None
 
     @staticmethod
