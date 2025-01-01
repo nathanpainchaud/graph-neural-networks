@@ -1,4 +1,5 @@
 import copy
+import functools
 import inspect
 import json
 from collections.abc import Callable
@@ -133,10 +134,11 @@ class SplitLightningDataset(LightningDataModule):
             split, e.g. for a typical train/val/test split, the list will contain a single dictionary/split.
         """
         # Serialize the split function and its parameters to a string to use it as a unique identifier for the splits
-        # The parameters are sorted to ensure that even a different order results in the same string ID
-        split_params = inspect.signature(split_fn).parameters.copy()
-        split_params.popitem(last=False)  # Del the first param passed to `split_fn` (the dataset)
-        splits_repr = ",".join(f"{k}={v.default}" for k, v in sorted(split_params.items()))
+        # NOTE: The parameters are sorted to ensure that even a different order results in the same string ID
+        split_fn_name = split_fn.func.__name__ if isinstance(split_fn, functools.partial) else split_fn.__name__
+        split_fn_params = inspect.signature(split_fn).parameters.copy()
+        split_fn_params.popitem(last=False)  # Del the first param passed to `split_fn` (the positional dataset arg)
+        splits_repr = ",".join([f"<{split_fn_name}>", *[f"{k}={v.default}" for k, v in split_fn_params.items()]])
         splits = None
 
         # Acquire a lock on the (possibly not existing) splits file
