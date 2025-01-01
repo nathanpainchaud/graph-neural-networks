@@ -6,7 +6,7 @@
 # https://hydra.cc/docs/advanced/override_grammar/extended/#sweeps
 
 params:
-  data.fold: range(${data.split.n_splits}) # By default, sweep over the number of folds
+  data.split_idx: range(${data.split.n_splits}) # By default, sweep over the number of splits
 
 # If the experiment return a value, e.g. a performance metric, `reduce` defines how to aggregate over the sweep
 reduce:

@@ -13,7 +13,7 @@ from torch_geometric.data import Dataset
 from torch_geometric.data.lightning.datamodule import kwargs_repr
 from torch_geometric.loader import DataLoader
 
-from graph_neural_networks.data.split import TEST_SPLIT, TRAIN_SPLIT, VAL_SPLIT, DatasetSplit
+from graph_neural_networks.data.split import TEST_SET, TRAIN_SET, VAL_SET, DatasetSplit
 from graph_neural_networks.utils import RankedLogger
 
 log = RankedLogger(__name__, rank_zero_only=True)
@@ -35,7 +35,7 @@ class SplitLightningDataset(LightningDataModule):
         split: Callable[[Dataset], DatasetSplit],
         has_val: bool,
         has_test: bool,
-        fold: int = 0,
+        split_idx: int = 0,
         **kwargs,
     ) -> None:
         """Initializes a `SplitLightningDataset`.
@@ -45,15 +45,15 @@ class SplitLightningDataset(LightningDataModule):
             split: The function to use for splitting the dataset.
             has_val: Whether the split function will generate a validation set.
             has_test: Whether the split function will generate a test set.
-            fold: The fold to use, in case of multiple splits, e.g. for cross-validation. If you only need one split,
-                e.g. for a typical train/val/test split, use the default value of 0 to access the single split.
+            split_idx: The split to use, in case of multiple splits, e.g. for cross-validation. If you have only one
+                split, e.g. a typical train/val/test split, use the default value of 0 to access the only split.
             **kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
         """
         super().__init__()
 
         self._dataset_init = dataset
         self._split_fn = split
-        self.fold = fold
+        self.split_idx = split_idx
 
         # Remove the val and test dataloaders if the dataset does not have sets for them
         if not has_val:
@@ -107,12 +107,8 @@ class SplitLightningDataset(LightningDataModule):
 
         else:
             # Split the dataset into train, val, and test sets
-            fold_split = self.get_splits(self._split_fn, dataset)[self.fold]
-            train_idx, val_idx, test_idx = (
-                fold_split[TRAIN_SPLIT],
-                fold_split.get(VAL_SPLIT),
-                fold_split.get(TEST_SPLIT),
-            )
+            split = self.get_splits(self._split_fn, dataset)[self.split_idx]
+            train_idx, val_idx, test_idx = split[TRAIN_SET], split.get(VAL_SET), split.get(TEST_SET)
 
             if stage == TrainerFn.FITTING:
                 self.train_dataset = dataset[train_idx]
@@ -129,7 +125,7 @@ class SplitLightningDataset(LightningDataModule):
             dataset: The dataset to split.
 
         Returns:
-            The splits for the dataset. A list (to support multiple splits/folds) of dictionaries, each containing the
+            The splits for the dataset. A list of dictionaries (to support multiple splits), each containing the
             indices for the train, test, and (optional) val sets of one split of the dataset. If you only need one
             split, e.g. for a typical train/val/test split, the list will contain a single dictionary/split.
         """

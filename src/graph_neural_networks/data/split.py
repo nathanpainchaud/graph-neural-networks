@@ -8,9 +8,9 @@ log = RankedLogger(__name__, rank_zero_only=True)
 
 
 DatasetSplit = list[dict[str, list[int]]]
-TRAIN_SPLIT = "train"
-VAL_SPLIT = "val"
-TEST_SPLIT = "test"
+TRAIN_SET = "train"
+VAL_SET = "val"
+TEST_SET = "test"
 
 
 def intergraph_k_fold(
@@ -63,9 +63,9 @@ def intergraph_k_fold(
         # Convert the int64 arrays returned by sklearn's KFold to lists of base integers
         train_idx, val_idx = train_idx.astype(int).tolist(), val_idx.astype(int).tolist()  # noqa: PLW2901
 
-        split = {TRAIN_SPLIT: train_idx, VAL_SPLIT: val_idx}
+        split = {TRAIN_SET: train_idx, VAL_SET: val_idx}
         if holdout_test_size:
-            split[TEST_SPLIT] = test_idx
+            split[TEST_SET] = test_idx
 
         splits.append(split)
 
@@ -74,8 +74,8 @@ def intergraph_k_fold(
     # 2) remove the newly assigned test samples from the training set
     if test_fold:
         for split_idx, split in enumerate(splits):
-            split[TEST_SPLIT] = splits[split_idx - 1][VAL_SPLIT]
-            split[TRAIN_SPLIT] = list(set(split[TRAIN_SPLIT]) - set(split[TEST_SPLIT]))
+            split[TEST_SET] = splits[split_idx - 1][VAL_SET]
+            split[TRAIN_SET] = list(set(split[TRAIN_SET]) - set(split[TEST_SET]))
 
     return splits
 
@@ -110,7 +110,7 @@ def intergraph_split(
             "and not intended behavior."
         )
 
-    split = {TRAIN_SPLIT: list(dataset.indices())}
+    split = {TRAIN_SET: list(dataset.indices())}
 
     if test_size:
         # Include the full dataset in the split
@@ -118,17 +118,15 @@ def intergraph_split(
         if stratify:
             test_split_kwargs["stratify"] = dataset.y
 
-        split[TRAIN_SPLIT], split[TEST_SPLIT] = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
+        split[TRAIN_SET], split[TEST_SET] = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
 
     # Create a subset that excludes the test set (if it exists)
     if val_size:
-        data_to_split = dataset[split[TRAIN_SPLIT]]
+        data_to_split = dataset[split[TRAIN_SET]]
         val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
         if stratify:
             val_split_kwargs["stratify"] = data_to_split.y
 
-        split[TRAIN_SPLIT], split[VAL_SPLIT] = model_selection.train_test_split(
-            data_to_split.indices(), **val_split_kwargs
-        )
+        split[TRAIN_SET], split[VAL_SET] = model_selection.train_test_split(data_to_split.indices(), **val_split_kwargs)
 
     return [split]
