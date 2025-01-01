@@ -3,11 +3,12 @@
 split:
   _target_: graph_neural_networks.data.intergraph_k_fold
   _partial_: True
-  test_size: null # Size of the holdout test set
-  n_splits: ${op.ternary:${op:truth,${.test_size}}, 5, 10} # default to 5 if `test_size is not None`, otherwise 10
+  test_fold: True
+  holdout_test_size: ${op.ternary:${.test_fold}, null, 0.2} # default to 0.2 if `test_fold is False`, otherwise None
+  n_splits: ${op.ternary:${.holdout_test_size}, 5, 10} # default to 5 if `holdout_test_size`, otherwise 10
   shuffle: True
   stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify by default if num_classes exists and > 0
   random_state: 12345 # Use a different seed from the main seed to allow models w/ different seeds to use the same splits
 
 has_val: True
-has_test: ${op:truth,${.split.test_size}} # If `test_size` is truthy, then we have a test set
+has_test: ${op:or_,${.split.test_fold},${op:truth,${.split.holdout_test_size}}} # If `test_fold` or `holdout_test_size` are truthy, then we have a test set

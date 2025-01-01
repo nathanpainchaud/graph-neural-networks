@@ -15,7 +15,8 @@ TEST_SPLIT = "test"
 
 def intergraph_k_fold(
     dataset: Dataset,
-    test_size: float | int | None = None,
+    test_fold: bool = True,
+    holdout_test_size: float | int | None = None,
     n_splits: int = 10,
     shuffle: bool = True,
     stratify: bool = False,
@@ -25,10 +26,13 @@ def intergraph_k_fold(
 
     Args:
         dataset: The multi-graph dataset to split.
-        test_size: The size of the holdout test set to split from the training set before creating the folds over the
-            remaining training set. This effectively means that all folds "share" the same test set. If None or 0,
-            no holdout test set is created.
-        n_splits: The number of folds to create.
+        holdout_test_size: The size of the holdout test set to split from the training set before creating the K folds.
+            This effectively means that all splits are assigned the same test set. If None or 0, the full dataset is
+            used when creating the folds. Mutually exclusive with `test_fold`.
+        test_fold: Whether to reserve a fold for testing in each of the splits, using a separate fold for validation
+            and K-2 folds for training. If None or False, use one fold for validation/evaluation and K-1 folds for
+            training. Mutually exclusive with `holdout_test_size`.
+        n_splits: The number of folds/splits to create.
         shuffle: Whether to shuffle the data before splitting.
         stratify: Whether to stratify the data based on the graph-level target labels.
         random_state: The random state to use for reproducibility.
@@ -36,30 +40,44 @@ def intergraph_k_fold(
     Returns:
         A list of splits, where each split contains the indices of its train, val and (optional) test sets.
     """
+    if holdout_test_size and test_fold:
+        raise ValueError(
+            "You specified both `holdout_test_size` and `test_fold`, which are mutually exclusive strategies for "
+            "defining a test set. Pick one of the two."
+        )
+
     k_fold_cls = model_selection.StratifiedKFold if stratify else model_selection.KFold
     k_fold = k_fold_cls(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
 
-    if test_size:
-        test_split_kwargs = {"test_size": test_size, "shuffle": shuffle, "random_state": random_state}
+    if holdout_test_size:
+        test_split_kwargs = {"test_size": holdout_test_size, "shuffle": shuffle, "random_state": random_state}
         if stratify:
             test_split_kwargs["stratify"] = dataset.y
 
-        k_fold_idx, test_idx = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
+        holdout_train_idx, test_idx = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
 
     # Create a subset that excludes the test set (if it exists)
-    k_fold_data = dataset[k_fold_idx] if test_size else dataset
-    folds = []
-    for fold_train_idx, fold_val_idx in k_fold.split(k_fold_data.indices(), y=k_fold_data.y if stratify else None):
+    k_fold_data = dataset[holdout_train_idx] if holdout_test_size else dataset
+    splits = []
+    for train_idx, val_idx in k_fold.split(k_fold_data.indices(), y=k_fold_data.y if stratify else None):
         # Convert the int64 arrays returned by sklearn's KFold to lists of base integers
-        fold_train_idx, fold_val_idx = fold_train_idx.astype(int).tolist(), fold_val_idx.astype(int).tolist()  # noqa: PLW2901
+        train_idx, val_idx = train_idx.astype(int).tolist(), val_idx.astype(int).tolist()  # noqa: PLW2901
 
-        current_fold = {TRAIN_SPLIT: fold_train_idx, VAL_SPLIT: fold_val_idx}
-        if test_size:
-            current_fold[TEST_SPLIT] = test_idx
+        split = {TRAIN_SPLIT: train_idx, VAL_SPLIT: val_idx}
+        if holdout_test_size:
+            split[TEST_SPLIT] = test_idx
 
-        folds.append(current_fold)
+        splits.append(split)
 
-    return folds
+    # When test folds are requested:
+    # 1) use the validation fold of the previous split as the current split's test fold
+    # 2) remove the newly assigned test samples from the training set
+    if test_fold:
+        for split_idx, split in enumerate(splits):
+            split[TEST_SPLIT] = splits[split_idx - 1][VAL_SPLIT]
+            split[TRAIN_SPLIT] = list(set(split[TRAIN_SPLIT]) - set(split[TEST_SPLIT]))
+
+    return splits
 
 
 def intergraph_split(
