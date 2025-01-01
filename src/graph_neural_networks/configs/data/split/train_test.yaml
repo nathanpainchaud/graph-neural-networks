@@ -1,7 +1,13 @@
-_target_: graph_neural_networks.data.intergraph_split
-_partial_: True
-val_size: 0.1
-test_size: 0.2
-shuffle: True
-stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify by default if num_classes exists and > 0
-random_state: 12345 # Use a different seed from the main seed to allow models w/ different seeds to use the same splits
+# @package data
+
+split:
+  _target_: graph_neural_networks.data.intergraph_split
+  _partial_: True
+  val_size: 0.1
+  test_size: 0.2
+  shuffle: True
+  stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify by default if num_classes exists and > 0
+  random_state: 12345 # Use a different seed from the main seed to allow models w/ different seeds to use the same splits
+
+has_val: ${op:truth,${.split.val_size}} # If `val_size` is truthy, then we have a validation set
+has_test: ${op:truth,${.split.test_size}} # If `test_size` is truthy, then we have a test set

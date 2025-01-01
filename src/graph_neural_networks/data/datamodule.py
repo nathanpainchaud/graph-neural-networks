@@ -28,13 +28,21 @@ class SplitLightningDataset(LightningDataModule):
     """
 
     def __init__(
-        self, dataset: Callable[[], Dataset], split: Callable[[Dataset], DatasetSplit], fold: int = 0, **kwargs
+        self,
+        dataset: Callable[[], Dataset],
+        split: Callable[[Dataset], DatasetSplit],
+        has_val: bool,
+        has_test: bool,
+        fold: int = 0,
+        **kwargs,
     ) -> None:
         """Initializes a `SplitLightningDataset`.
 
         Args:
             dataset: A callable that returns the dataset to split. See the class docstring for why this is a callable.
             split: The function to use for splitting the dataset.
+            has_val: Whether the split function will generate a validation set.
+            has_test: Whether the split function will generate a test set.
             fold: The fold to use, in case of multiple splits, e.g. for cross-validation. If you only need one split,
                 e.g. for a typical train/val/test split, use the default value of 0 to access the single split.
             **kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
@@ -44,6 +52,12 @@ class SplitLightningDataset(LightningDataModule):
         self._dataset_init = dataset
         self._split_fn = split
         self.fold = fold
+
+        # Remove the val and test dataloaders if the dataset does not have sets for them
+        if not has_val:
+            self.val_dataloader = None
+        if not has_test:
+            self.test_dataloader = None
 
         if "shuffle" in kwargs:
             log.warning(
@@ -93,7 +107,7 @@ class SplitLightningDataset(LightningDataModule):
             if stage == "fit":
                 self.train_dataset, self.val_dataset = dataset[train_idx], dataset[val_idx]
             elif stage == "test":
-                self.test_dataset = dataset[test_idx]
+                self.test_dataset = dataset[test_idx] if test_idx else None
 
     @staticmethod
     def get_splits(split_fn: Callable[[Dataset], DatasetSplit], dataset: Dataset) -> DatasetSplit:
