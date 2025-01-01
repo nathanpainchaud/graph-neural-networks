@@ -107,10 +107,15 @@ class SplitLightningDataset(LightningDataModule):
         else:
             # Split the dataset into train, val, and test sets
             fold_split = self.get_splits(self._split_fn, dataset)[self.fold]
-            train_idx, val_idx, test_idx = fold_split[TRAIN_SPLIT], fold_split[VAL_SPLIT], fold_split.get(TEST_SPLIT)
+            train_idx, val_idx, test_idx = (
+                fold_split[TRAIN_SPLIT],
+                fold_split.get(VAL_SPLIT),
+                fold_split.get(TEST_SPLIT),
+            )
 
             if stage == TrainerFn.FITTING:
-                self.train_dataset, self.val_dataset = dataset[train_idx], dataset[val_idx]
+                self.train_dataset = dataset[train_idx]
+                self.val_dataset = dataset[val_idx] if val_idx else None
             elif stage == TrainerFn.TESTING:
                 self.test_dataset = dataset[test_idx] if test_idx else None
 
