@@ -92,11 +92,8 @@ def intergraph_split(
 
     Args:
         dataset: The multi-graph dataset to split.
-        val_size: The size of the validation set. If None or 0, no validation set is created. If both `test_size` and
-            `val_size` are provided, creates the test set first, and then the validation set from the remaining training
-            set.
-        test_size: The size of the test set. If None or 0, no test set is created. If both `test_size` and `val_size`
-            are provided, creates the test set first, and then the validation set from the remaining training set.
+        val_size: The size of the validation set. If None or 0, no validation set is created.
+        test_size: The size of the test set. If None or 0, no test set is created.
         stratify: Whether to stratify the data based on the graph-level target labels.
         shuffle: Whether to shuffle the data before splitting.
         random_state: The random state to use for reproducibility.
@@ -123,6 +120,9 @@ def intergraph_split(
     # Create a subset that excludes the test set (if it exists)
     if val_size:
         data_to_split = dataset[split[TRAIN_SET]]
+        if isinstance(val_size, float) and test_size:
+            # If `val_size` represents a proportion of the dataset, update it if a test set was split
+            val_size *= len(dataset) / len(data_to_split)
         val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
         if stratify:
             val_split_kwargs["stratify"] = data_to_split.y
