@@ -1,4 +1,4 @@
 from .datamodule import SplitLightningDataset
-from .split import intergraph_k_fold, intergraph_split
+from .split import DatasetSplit, DatasetSplitter, k_fold, subsets_split
 
-__all__ = ["SplitLightningDataset", "intergraph_k_fold", "intergraph_split"]
+__all__ = ["SplitLightningDataset", "DatasetSplit", "DatasetSplitter", "k_fold", "subsets_split"]

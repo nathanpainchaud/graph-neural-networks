@@ -1,3 +1,9 @@
+import functools
+from collections.abc import Callable, Sequence
+from typing import Any
+
+import numpy as np
+from lightning_utilities import apply_to_collection
 from numpy.random import RandomState
 from sklearn import model_selection
 from torch_geometric.data import Dataset
@@ -13,28 +19,71 @@ VAL_SET = "val"
 TEST_SET = "test"
 
 
-def intergraph_k_fold(
-    dataset: Dataset,
+class DatasetSplitter:
+    """Wrapper to adapt PyG datasets for generic split functions operating on indices and labels."""
+
+    def __init__(
+        self,
+        split_fn: Callable[[Sequence[Any], Sequence[int] | None, ...], DatasetSplit],
+        stratify: bool = False,
+        **split_fn_kwargs,
+    ):
+        """Initializes a `DatasetSplitter`.
+
+        Args:
+            split_fn: The generic split function to wrap for PyG datasets.
+            stratify: Whether to stratify the data based on the graph-level target labels.
+            **split_fn_kwargs: Keyword arguments to pass to underlying split function.
+        """
+        self.split_fn = split_fn
+        self.stratify = stratify
+        self.split_fn_kwargs = split_fn_kwargs
+
+    def __repr__(self) -> str:
+        """Returns a pretty string representation of the split function and its parameters."""
+        kwargs = self.split_fn_kwargs.copy()
+        kwargs["stratify"] = self.stratify
+        # Sort the kwargs to ensure a consistent repr, even if the order of the kwargs changes
+        kwargs_repr = ",".join(f"{k}={v}" for k, v in sorted(kwargs.items()))
+        split_fn_name = (
+            self.split_fn.func.__name__ if isinstance(self.split_fn, functools.partial) else self.split_fn.__name__
+        )
+        return f"{split_fn_name}({kwargs_repr})"
+
+    def __call__(self, dataset: Dataset) -> DatasetSplit:
+        """Splits a multi-graph dataset such that each graph is treated as a sample.
+
+        Args:
+            dataset: The multi-graph dataset to split.
+
+        Returns:
+            A list of splits, where each split contains the indices of its train, val and (optional) test sets.
+        """
+        return self.split_fn(dataset, dataset.y if self.stratify else None, **self.split_fn_kwargs)
+
+
+def k_fold(
+    data: Sequence[Any],
+    stratify: Sequence[int] | None = None,
+    n_splits: int = 10,
     test_fold: bool = True,
     holdout_test_size: float | int | None = None,
-    n_splits: int = 10,
     shuffle: bool = True,
-    stratify: bool = False,
     random_state: int | RandomState | None = 12345,
 ) -> DatasetSplit:
-    """Splits a multi-graph dataset into k folds for cross-validation, with each graph treated as a sample.
+    """Splits a sequence of sample indices into k folds for cross-validation.
 
     Args:
-        dataset: The multi-graph dataset to split.
+        data: Data of length `n_samples` to split.
+        stratify: If provided, the data is split in a stratified fashion, using this as the class labels.
+        n_splits: The number of folds/splits to create.
         holdout_test_size: The size of the holdout test set to split from the training set before creating the K folds.
             This effectively means that all splits are assigned the same test set. If None or 0, the full dataset is
             used when creating the folds. Mutually exclusive with `test_fold`.
         test_fold: Whether to reserve a fold for testing in each of the splits, using a separate fold for validation
             and K-2 folds for training. If None or False, use one fold for validation/evaluation and K-1 folds for
             training. Mutually exclusive with `holdout_test_size`.
-        n_splits: The number of folds/splits to create.
         shuffle: Whether to shuffle the data before splitting.
-        stratify: Whether to stratify the data based on the graph-level target labels.
         random_state: The random state to use for reproducibility.
 
     Returns:
@@ -46,56 +95,59 @@ def intergraph_k_fold(
             "defining a test set. Pick one of the two."
         )
 
-    k_fold_cls = model_selection.StratifiedKFold if stratify else model_selection.KFold
-    k_fold = k_fold_cls(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
+    # Create an array of indices relative to the input data +
+    # ensure that labels are a numpy array to easily index them using arrays
+    indices = np.arange(len(data))
+    if stratify is not None:
+        stratify = np.array(stratify)
 
     if holdout_test_size:
-        test_split_kwargs = {"test_size": holdout_test_size, "shuffle": shuffle, "random_state": random_state}
-        if stratify:
-            test_split_kwargs["stratify"] = dataset.y
+        test_split_cls = model_selection.ShuffleSplit if stratify is None else model_selection.StratifiedShuffleSplit
+        test_split = test_split_cls(n_splits=1, test_size=holdout_test_size, random_state=random_state)
+        train_idx, test_idx = next(test_split.split(indices, stratify))
 
-        holdout_train_idx, test_idx = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
+        # Excludes the hold-out test set from the data
+        indices = indices[train_idx]
+        if stratify is not None:
+            stratify = stratify[train_idx]
 
-    # Create a subset that excludes the test set (if it exists)
-    k_fold_data = dataset[holdout_train_idx] if holdout_test_size else dataset
+    k_fold_cls = model_selection.KFold if stratify is None else model_selection.StratifiedKFold
+    k_fold = k_fold_cls(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
     splits = []
-    for train_idx, val_idx in k_fold.split(k_fold_data.indices(), y=k_fold_data.y if stratify else None):
-        # Convert the int64 arrays returned by sklearn's KFold to lists of base integers
-        train_idx, val_idx = train_idx.astype(int).tolist(), val_idx.astype(int).tolist()  # noqa: PLW2901
-
-        split = {TRAIN_SET: train_idx, VAL_SET: val_idx}
+    for train_idx, val_idx in k_fold.split(indices, y=stratify):
+        split = {TRAIN_SET: indices[train_idx], VAL_SET: indices[val_idx]}
         if holdout_test_size:
             split[TEST_SET] = test_idx
-
         splits.append(split)
 
-    # When test folds are requested:
-    # 1) use the validation fold of the previous split as the current split's test fold
-    # 2) remove the newly assigned test samples from the training set
     if test_fold:
         for split_idx, split in enumerate(splits):
+            # Use the validation fold of the previous split as the current split's test fold
             split[TEST_SET] = splits[split_idx - 1][VAL_SET]
-            split[TRAIN_SET] = list(set(split[TRAIN_SET]) - set(split[TEST_SET]))
+            # Remove the newly assigned test samples from the training set
+            split[TRAIN_SET] = np.setdiff1d(split[TRAIN_SET], split[TEST_SET], assume_unique=True)
+
+    # Convert arrays of int64 (e.g. returned by `KFold.split`) to a sorted native int list
+    # to avoid serialization issues if the caller tries to save the splits to disk
+    splits = apply_to_collection(splits, np.ndarray, lambda x: np.sort(x).tolist())
 
     return splits
 
 
-def intergraph_split(
-    dataset: Dataset,
+def subsets_split(
+    data: Sequence[Any],
+    stratify: Sequence[int] | None = None,
     val_size: float | int | None = 0.1,
     test_size: float | int | None = 0.2,
-    stratify: bool = False,
-    shuffle: bool = True,
     random_state: int | RandomState | None = 12345,
 ) -> DatasetSplit:
-    """Splits a multi-graph dataset into train, and optional val and test sets, with each graph treated as a sample.
+    """Splits a sequence of sample indices into train, and optional val and test sets.
 
     Args:
-        dataset: The multi-graph dataset to split.
+        data: Data of length `n_samples` to split.
+        stratify: If provided, the data is split in a stratified fashion, using this as the class labels.
         val_size: The size of the validation set. If None or 0, no validation set is created.
         test_size: The size of the test set. If None or 0, no test set is created.
-        stratify: Whether to stratify the data based on the graph-level target labels.
-        shuffle: Whether to shuffle the data before splitting.
         random_state: The random state to use for reproducibility.
 
     Returns:
@@ -107,26 +159,38 @@ def intergraph_split(
             "and not intended behavior."
         )
 
-    split = {TRAIN_SET: list(dataset.indices())}
+    # Create an array of indices relative to the input data +
+    # ensure that labels are a numpy array to easily index them using arrays
+    indices = np.arange(len(data))
+    if stratify is not None:
+        stratify = np.array(stratify)
+
+    split = {TRAIN_SET: indices}
+
+    splits_cls = model_selection.ShuffleSplit if stratify is None else model_selection.StratifiedShuffleSplit
+
+    if val_size:
+        val_split = splits_cls(n_splits=1, test_size=val_size, random_state=random_state)
+        train_idx, val_idx = next(val_split.split(indices, stratify))
+        split[TRAIN_SET], split[VAL_SET] = indices[train_idx], indices[val_idx]
 
     if test_size:
-        # Include the full dataset in the split
-        test_split_kwargs = {"test_size": test_size, "shuffle": shuffle, "random_state": random_state}
-        if stratify:
-            test_split_kwargs["stratify"] = dataset.y
+        # Make sure to exclude the val set from the data, if one was created
+        indices = indices[split[TRAIN_SET]]
+        if stratify is not None:
+            stratify = stratify[split[TRAIN_SET]]
 
-        split[TRAIN_SET], split[TEST_SET] = model_selection.train_test_split(dataset.indices(), **test_split_kwargs)
+        # If `test_size` represents a proportion of the dataset, compute the proportion relative to the training set
+        # (to adjust the proportion in case a val set was split)
+        if isinstance(test_size, float):
+            test_size *= len(data) / len(indices)
 
-    # Create a subset that excludes the test set (if it exists)
-    if val_size:
-        data_to_split = dataset[split[TRAIN_SET]]
-        if isinstance(val_size, float) and test_size:
-            # If `val_size` represents a proportion of the dataset, update it if a test set was split
-            val_size *= len(dataset) / len(data_to_split)
-        val_split_kwargs = {"test_size": val_size, "shuffle": shuffle, "random_state": random_state}
-        if stratify:
-            val_split_kwargs["stratify"] = data_to_split.y
+        test_split = splits_cls(n_splits=1, test_size=test_size, random_state=random_state)
+        train_idx, test_idx = next(test_split.split(indices, stratify))
+        split[TRAIN_SET], split[TEST_SET] = indices[train_idx], indices[test_idx]
 
-        split[TRAIN_SET], split[VAL_SET] = model_selection.train_test_split(data_to_split.indices(), **val_split_kwargs)
+    # Convert arrays of int64 (e.g. returned by `ShuffleSplit.split`) to a sorted native int list
+    # to avoid serialization issues if the caller tries to save the splits to disk
+    split = apply_to_collection(split, np.ndarray, lambda x: np.sort(x).tolist())
 
     return [split]

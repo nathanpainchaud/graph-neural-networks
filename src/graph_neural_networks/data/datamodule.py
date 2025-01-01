@@ -1,6 +1,4 @@
 import copy
-import functools
-import inspect
 import json
 from collections.abc import Callable
 from pathlib import Path
@@ -42,9 +40,11 @@ class SplitLightningDataset(LightningDataModule):
 
         Args:
             dataset: A callable that returns the dataset to split. See the class docstring for why this is a callable.
-            split: The function to use for splitting the dataset.
-            has_val: Whether the split function will generate a validation set.
-            has_test: Whether the split function will generate a test set.
+            split: The callable to use for splitting the dataset. Note that `repr` is called on it to serialize it to a
+                string to save/load splits. So you might want to implement a custom `__repr__` wrapper for it to make
+                sure only the relevant parameters are serialized.
+            has_val: Whether the split will include a validation set.
+            has_test: Whether the split will include a test set.
             split_idx: The split to use, in case of multiple splits, e.g. for cross-validation. If you have only one
                 split, e.g. a typical train/val/test split, use the default value of 0 to access the only split.
             **kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
@@ -130,12 +130,7 @@ class SplitLightningDataset(LightningDataModule):
             split, e.g. for a typical train/val/test split, the list will contain a single dictionary/split.
         """
         # Serialize the split function and its parameters to a string to use it as a unique identifier for the splits
-        # NOTE: The parameters are sorted to ensure that even a different order results in the same string ID
-        split_fn_name = split_fn.func.__name__ if isinstance(split_fn, functools.partial) else split_fn.__name__
-        split_fn_params = inspect.signature(split_fn).parameters.copy()
-        split_fn_params.popitem(last=False)  # Del the first param passed to `split_fn` (the positional dataset arg)
-        splits_repr = ",".join([f"<{split_fn_name}>", *[f"{k}={v.default}" for k, v in split_fn_params.items()]])
-        splits = None
+        splits_repr = repr(split_fn)
 
         # Acquire a lock on the (possibly not existing) splits file
         # This is done to prevent multiple processes from overwriting each other's splits, in case multiple experiments
@@ -143,7 +138,7 @@ class SplitLightningDataset(LightningDataModule):
         splits_file = Path(dataset.processed_dir) / "splits" / f"{splits_repr}.json"
 
         with FileLock(str(splits_file.with_suffix(".lock"))):
-            if not splits_file.exists():
+            if generate_splits := not splits_file.exists():
                 # If requested splits do not match saved splits for the dataset, create new splits
                 log.info(f"No saved splits match the requested splits. Creating new dataset splits in '{splits_file}'!")
                 splits = split_fn(dataset)
@@ -154,7 +149,7 @@ class SplitLightningDataset(LightningDataModule):
         # The lock on the splits file is automatically released after the context manager exits
         # once the splits have been written to the file
 
-        if not splits:
+        if not generate_splits:
             log.info(f"Requested splits match previous splits. Loading saved splits from '{splits_file}'!")
             # Otherwise, load splits from the saved splits file
             with splits_file.open() as f:
