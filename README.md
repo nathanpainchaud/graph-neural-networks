@@ -35,26 +35,7 @@ suit your needs, while still providing a feature-complete and flexible framework
 
 ## Installation
 
-#### Pip
-
-```bash
-# clone project
-git clone https://github.com/nathanpainchaud/graph-neural-networks
-cd graph-neural-networks
-
-# [OPTIONAL] create virtual environment
-python -m venv .venv
-source .venv/bin/activate
-
-# install project
-# you must specify as an extra the desired CPU/CUDA versions of PyTorch
-# Supported values are: cpu, cu124, cu121, cu118
-# [OPTIONAL] you can also specify other extras for more functionalities
-# Supported values are: wandb (for W&B integration)
-pip install -e .[cu124,wandb]
-```
-
-#### uv
+#### uv (recommended)
 
 > [!NOTE]
 > [uv](https://docs.astral.sh/uv/) is a Python package and project manager.
@@ -65,19 +46,60 @@ pip install -e .[cu124,wandb]
 > curl -LsSf https://astral.sh/uv/install.sh | sh
 > ```
 
-```bash
-# clone project
-git clone https://github.com/nathanpainchaud/graph-neural-networks
-cd graph-neural-networks
+1. Download the repository.
+   ```bash
+   git clone https://github.com/nathanpainchaud/graph-neural-networks
+   cd graph-neural-networks
+   ```
+2. Create a virtual environment and install the project and its dependencies. You must specify as an extra the desired
+   compute platform for PyTorch (i.e. CPU/CUDA). Supported values are: `cpu`, `cu124`, `cu121`, `cu118`.
+   ```bash
+   # e.g. to install the project with the PyTorch version built for CPU
+   uv sync --extra cpu
 
-# create uv environment
-# you must specify as an extra the desired CPU/CUDA versions of PyTorch
-# Supported values are: cpu, cu124, cu121, cu118
-# [OPTIONAL] you can also specify other extras for more functionalities
-# Supported values are: wandb (for W&B integration)
-uv sync --extra cu124 --extra wandb
-source .venv/bin/activate
-```
+   # e.g. to install the project with the PyTorch version built for CUDA 12.4
+   uv sync --extra cu124
+   ```
+   [OPTIONAL] You can also specify other extras for additional functionalities:
+   ```bash
+   # e.g. to install the `wandb` extra for W&B integration
+   uv sync --extra cpu --extra wandb
+   ```
+3. Activate the virtual environment created by `uv`.
+   ```bash
+   source .venv/bin/activate
+   ```
+
+#### Pip
+
+1. Download the repository.
+   ```bash
+   git clone https://github.com/nathanpainchaud/graph-neural-networks
+   cd graph-neural-networks
+   ```
+2. Create a virtual environment and activate it.
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+3. Install PyTorch libraries (i.e. `torch` and `torchvision`) according to the [official instructions](https://pytorch.org/get-started/locally/).
+   Follow the instructions for `pip` and the compute platform compatible with your system.
+   ```bash
+   # e.g. to install the PyTorch version built for CPU
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+   # e.g. to install the PyTorch version built for CUDA 12.1
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+   ```
+4. Install the project in editable mode.
+   ```bash
+   pip install -e .
+   ```
+   [OPTIONAL] You can also specify other extras for additional functionalities:
+   ```bash
+   # e.g. to install the `wandb` extra for W&B integration
+   pip install -e .[wandb]
+   ```
 
 ### Setup Weight & Biases
 
