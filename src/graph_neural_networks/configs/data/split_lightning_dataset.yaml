@@ -3,6 +3,9 @@ defaults:
   - split: ??? # Specify how the dataset should be divided into splits/subsets
 
 _target_: graph_neural_networks.data.SplitLightningDataset
+has_val: ??? # Whether the split has a validation set
+has_test: ??? # Whether the split has a test set
+stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify splits by default if num_classes exists and > 0
 split_idx: 0
 batch_size: 32
 num_workers: 0

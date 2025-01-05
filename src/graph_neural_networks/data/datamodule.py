@@ -3,6 +3,7 @@ import json
 from collections.abc import Callable
 from pathlib import Path
 
+import torch
 from filelock import FileLock
 from lightning import LightningDataModule
 from lightning.pytorch.trainer.states import TrainerFn
@@ -11,7 +12,7 @@ from torch_geometric.data import Dataset
 from torch_geometric.data.lightning.datamodule import kwargs_repr
 from torch_geometric.loader import DataLoader
 
-from graph_neural_networks.data.split import TEST_SET, TRAIN_SET, VAL_SET, DatasetSplit
+from graph_neural_networks.data.split import TEST_SET, TRAIN_SET, VAL_SET, DatasetSplit, serialize_split_fn
 from graph_neural_networks.utils import RankedLogger
 
 log = RankedLogger(__name__, rank_zero_only=True)
@@ -27,12 +28,15 @@ class SplitLightningDataset(LightningDataModule):
     Therefore, we use a callable that returns the dataset to only instantiate the dataset in the `prepare_data` hook.
     """
 
+    SplitFunction = Callable[[Dataset, torch.Tensor | None], DatasetSplit]
+
     def __init__(
         self,
         dataset: Callable[[], Dataset],
-        split: Callable[[Dataset], DatasetSplit],
+        split: SplitFunction,
         has_val: bool,
         has_test: bool,
+        stratify: bool = False,
         split_idx: int = 0,
         **kwargs,
     ) -> None:
@@ -40,11 +44,10 @@ class SplitLightningDataset(LightningDataModule):
 
         Args:
             dataset: A callable that returns the dataset to split. See the class docstring for why this is a callable.
-            split: The callable to use for splitting the dataset. Note that `repr` is called on it to serialize it to a
-                string to save/load splits. So you might want to implement a custom `__repr__` wrapper for it to make
-                sure only the relevant parameters are serialized.
+            split: The callable to use for splitting the dataset.
             has_val: Whether the split will include a validation set.
             has_test: Whether the split will include a test set.
+            stratify: Whether to split the data in a stratified fashion, using the dataset's class labels.
             split_idx: The split to use, in case of multiple splits, e.g. for cross-validation. If you have only one
                 split, e.g. a typical train/val/test split, use the default value of 0 to access the only split.
             **kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
@@ -53,6 +56,7 @@ class SplitLightningDataset(LightningDataModule):
 
         self._dataset_init = dataset
         self._split_fn = split
+        self._stratify = stratify
         self.split_idx = split_idx
 
         # Remove the val and test dataloaders if the dataset does not have sets for them
@@ -107,7 +111,7 @@ class SplitLightningDataset(LightningDataModule):
 
         else:
             # Split the dataset into train, val, and test sets
-            split = self.get_splits(self._split_fn, dataset)[self.split_idx]
+            split = self.get_splits(self._split_fn, self._stratify, dataset)[self.split_idx]
             train_idx, val_idx, test_idx = split[TRAIN_SET], split.get(VAL_SET), split.get(TEST_SET)
 
             if stage == TrainerFn.FITTING:
@@ -117,11 +121,12 @@ class SplitLightningDataset(LightningDataModule):
                 self.test_dataset = dataset[test_idx] if test_idx else None
 
     @staticmethod
-    def get_splits(split_fn: Callable[[Dataset], DatasetSplit], dataset: Dataset) -> DatasetSplit:
+    def get_splits(split_fn: SplitFunction, stratify: bool, dataset: Dataset) -> DatasetSplit:
         """Get the splits for the dataset according to `split_fn`, either by loading saved splits or creating new ones.
 
         Args:
             split_fn: The function to use for splitting the dataset.
+            stratify: Whether to split the data in a stratified fashion, using the dataset's class labels.
             dataset: The dataset to split.
 
         Returns:
@@ -130,10 +135,10 @@ class SplitLightningDataset(LightningDataModule):
             split, e.g. for a typical train/val/test split, the list will contain a single dictionary/split.
         """
         # Generate the splits for the dataset
-        splits = split_fn(dataset)
+        splits = split_fn(dataset, dataset.y if stratify else None)
 
         # Serialize the split function and its parameters to a string to use it as a unique identifier for the splits
-        splits_repr = repr(split_fn)
+        splits_repr = serialize_split_fn(split_fn, stratify)
 
         # Acquire a lock on the (possibly not existing) splits file
         # This is done to prevent multiple processes from overwriting each other's splits, in case multiple experiments

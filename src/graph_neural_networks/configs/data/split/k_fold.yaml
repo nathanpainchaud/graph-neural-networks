@@ -1,11 +1,8 @@
 # @package data
 
 split:
-  _target_: graph_neural_networks.data.DatasetSplitter
-  split_fn:
-    _target_: graph_neural_networks.data.k_fold
-    _partial_: True
-  stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify by default if num_classes exists and > 0
+  _target_: graph_neural_networks.data.k_fold
+  _partial_: True
   n_splits: ${op.ternary:${.holdout_test_size}, 5, 10} # default to 5 if `holdout_test_size`, otherwise 10
   test_fold: True
   holdout_test_size: ${op.ternary:${.test_fold}, null, 0.2} # default to 0.2 if `test_fold is False`, otherwise None

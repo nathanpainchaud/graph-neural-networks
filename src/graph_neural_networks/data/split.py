@@ -1,4 +1,5 @@
 import functools
+import inspect
 from collections.abc import Callable, Sequence
 from typing import Any
 
@@ -6,7 +7,6 @@ import numpy as np
 from lightning_utilities import apply_to_collection
 from numpy.random import RandomState
 from sklearn import model_selection
-from torch_geometric.data import Dataset
 
 from graph_neural_networks.utils import RankedLogger
 
@@ -17,49 +17,6 @@ DatasetSplit = list[dict[str, list[int]]]
 TRAIN_SET = "train"
 VAL_SET = "val"
 TEST_SET = "test"
-
-
-class DatasetSplitter:
-    """Wrapper to adapt PyG datasets for generic split functions operating on indices and labels."""
-
-    def __init__(
-        self,
-        split_fn: Callable[[Sequence[Any], Sequence[int] | None, ...], DatasetSplit],
-        stratify: bool = False,
-        **split_fn_kwargs,
-    ):
-        """Initializes a `DatasetSplitter`.
-
-        Args:
-            split_fn: The generic split function to wrap for PyG datasets.
-            stratify: Whether to stratify the data based on the graph-level target labels.
-            **split_fn_kwargs: Keyword arguments to pass to underlying split function.
-        """
-        self.split_fn = split_fn
-        self.stratify = stratify
-        self.split_fn_kwargs = split_fn_kwargs
-
-    def __repr__(self) -> str:
-        """Returns a pretty string representation of the split function and its parameters."""
-        kwargs = self.split_fn_kwargs.copy()
-        kwargs["stratify"] = self.stratify
-        # Sort the kwargs to ensure a consistent repr, even if the order of the kwargs changes
-        kwargs_repr = ",".join(f"{k}={v}" for k, v in sorted(kwargs.items()))
-        split_fn_name = (
-            self.split_fn.func.__name__ if isinstance(self.split_fn, functools.partial) else self.split_fn.__name__
-        )
-        return f"{split_fn_name}({kwargs_repr})"
-
-    def __call__(self, dataset: Dataset) -> DatasetSplit:
-        """Splits a multi-graph dataset such that each graph is treated as a sample.
-
-        Args:
-            dataset: The multi-graph dataset to split.
-
-        Returns:
-            A list of splits, where each split contains the indices of its train, val and (optional) test sets.
-        """
-        return self.split_fn(dataset, dataset.y if self.stratify else None, **self.split_fn_kwargs)
 
 
 def k_fold(
@@ -194,3 +151,28 @@ def subsets_split(
     split = apply_to_collection(split, np.ndarray, lambda x: np.sort(x).tolist())
 
     return [split]
+
+
+def serialize_split_fn(
+    split_fn: Callable[[Sequence[Any], Sequence[int] | None, ...], DatasetSplit], stratify: bool
+) -> str:
+    """Serialize a split function to a string to use as a unique identifier for the splits.
+
+    Args:
+        split_fn: The split function to serialize.
+        stratify: Whether the function will be provided supervised labels to create splits in a stratified fashion.
+
+    Returns:
+        A unique string representation of the split function.
+    """
+    # Inspect the signature of the split function to get the default parameters
+    split_params = inspect.signature(split_fn).parameters.copy()
+    split_params.popitem(last=False)  # Del the first param passed to `split_fn` (the positional dataset arg)
+    split_params.pop("stratify", None)  # Del the `stratify` param, as it's overridden by the flag
+    split_params = {k: v.default for k, v in split_params.items()}  # Unpack the `Signature` object
+    split_params["stratify"] = stratify  # Add the stratify flag to the params
+
+    # Sort the params to ensure a consistent repr, even if the order of the params changes
+    params_repr = ",".join(f"{k}={v}" for k, v in sorted(split_params.items()))
+    split_fn_name = split_fn.func.__name__ if isinstance(split_fn, functools.partial) else split_fn.__name__
+    return f"{split_fn_name}({params_repr})"
