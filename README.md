@@ -206,13 +206,29 @@ gnn-train -m hydra/launcher=joblib experiment=<YOUR_EXPERIMENT_CONFIG> seed=0,1,
 
 Launch an automatic hyperparameter search using the [Optuna sweeper for Hydra](https://hydra.cc/docs/plugins/optuna_sweeper/).
 
+> [!WARNING]
+> You have to make sure that the `hparams_search` config you use is compatible with the model, since `hparams_search`
+> defines how to sweep over model-dependent config options.
+
 ```bash
-gnn-train hparams_search=graph_classification_cv_optuna experiment=graph_classification
+# Example of a predefined Optuna config for graph-level models with a compatible experiment
+gnn-train experiment=graph_classification hparams_search=graph_level_optuna
 ```
 
 > [!TIP]
-> Support for Optuna in a cross-validation setting is enabled by using the custom
-> [`hydra_serial_sweeper`](src/graph_neural_networks/utils/utils.py#:~:text=hydra_serial_sweeper) decorator on the Hydra
-> main function, along with the `serial_sweeper=cross_validation` option. This last option is already configured in the
-> above [`graph_classification_cv_optuna`](src/graph_neural_networks/configs/hparams_search/graph_classification_cv_optuna.yaml)
-> config.
+> Optuna can be used in a cross-validation setting, by evaluating each sampling of hyperparameters on the different
+> dataset folds and reporting the average performance. However, this approach is not compatible with the default Optuna
+> sweeper plugin, where each trial corresponds to one Hydra run, i.e. one model trained/evaluated on a specific
+> partition of the dataset.
+>
+> To support this feature, we rely on our custom `serial_sweeper`, designed to run multiple jobs in sequence within the
+> same Hydra run and then aggregate the results of these jobs. By sweeping over the different folds with this sweeper,
+> we support cross-validation with Optuna.
+>
+> This is all handled already in the predefined Optuna config `graph_level_optuna` for graph-level models. However, if
+> you want to support this in your own Optuna config, all you have to do is to use the predefined `cross_validation`
+> config for `serial_sweeper`, and make sure that `data.split=kfold` is used to split the data into multiple folds.
+>
+> ```bash
+> gnn-train [...] hparams_search=<YOUR_OPTUNA_CONFIG> data.split=kfold serial_sweeper=cross_validation
+> ```
