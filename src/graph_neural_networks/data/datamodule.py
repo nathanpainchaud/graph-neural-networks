@@ -16,6 +16,14 @@ from torch_geometric.loader import DataLoader
 from graph_neural_networks.data.split import TEST_SET, TRAIN_SET, VAL_SET, DatasetSplit, serialize_split_fn
 from graph_neural_networks.utils import RankedLogger
 
+try:
+    from ogb.graphproppred import PygGraphPropPredDataset
+
+    no_ogb = False
+except ImportError:
+    PygGraphPropPredDataset = object
+    no_ogb = True
+
 log = RankedLogger(__name__, rank_zero_only=True)
 
 
@@ -208,3 +216,21 @@ class SplitLightningDataset(LightningDataset):
 
         split = splits[self._split_idx]
         return split[TRAIN_SET], split.get(VAL_SET), split.get(TEST_SET)
+
+
+class OGBLightningDataset(LightningDataset):
+    """A thin wrapper around the `ogb` datasets to use them in PyTorch Lightning."""
+
+    def __init__(self, *args, **kwargs) -> None:  # noqa: D107
+        if no_ogb:
+            raise ModuleNotFoundError(
+                "No module named 'ogb' found. "
+                "Install the project with the 'ogb' extra to use the 'OGBLightningDataset'."
+            )
+
+        super().__init__(*args, has_val=True, has_test=True, **kwargs)
+
+    def get_splits(self, dataset: PygGraphPropPredDataset) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Get the standardized OGB train, val, and test splits for the dataset."""
+        split = dataset.get_idx_split()
+        return split["train"], split["valid"], split["test"]

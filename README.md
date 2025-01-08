@@ -64,6 +64,9 @@ suit your needs, while still providing a feature-complete and flexible framework
    ```bash
    # e.g. to install the `wandb` extra for W&B integration
    uv sync --extra cpu --extra wandb
+
+   # e.g. to install the `ogb` extra for Open Graph Benchmark datasets
+   uv sync --extra cpu --extra ogb
    ```
 3. Activate the virtual environment created by `uv`.
    ```bash
@@ -99,6 +102,9 @@ suit your needs, while still providing a feature-complete and flexible framework
    ```bash
    # e.g. to install the `wandb` extra for W&B integration
    pip install -e .[wandb]
+
+   # e.g. to install the `ogb` extra for Open Graph Benchmark datasets
+   pip install -e .[ogb]
    ```
 
 ### Setup Weight & Biases
