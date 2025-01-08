@@ -1,5 +1,6 @@
 import copy
 import json
+from abc import ABC, abstractmethod
 from collections.abc import Callable
 from pathlib import Path
 
@@ -18,46 +19,30 @@ from graph_neural_networks.utils import RankedLogger
 log = RankedLogger(__name__, rank_zero_only=True)
 
 
-class SplitLightningDataset(LightningDataModule):
-    """A `LightningDataModule` that splits a full dataset, e.g. in k-fold, for use in typical train/val/test pipelines.
+class LightningDataset(LightningDataModule, ABC):
+    """A `LightningDataModule` that wraps a PyG `Dataset` for use in typical train/val/test pipelines.
 
-    We avoid inheriting from PyG's `LightningDataset` because it expects already instantiated datasets, and with the way
-    PyG datasets are designed, this would mean the data would have been downloaded already. However, the philosophy of
+    This is a thin wrapper around a PyG `Dataset` that allows for easy integration with PyTorch Lightning. We avoid
+    using PyG's own `LightningDataset` because it expects already instantiated datasets, and with the way PyG datasets
+    are designed, this would mean the data would have been downloaded already. However, the philosophy of
     `LightningDataModule`s is to only download the data in the `prepare_data` hook.
 
     Therefore, we use a callable that returns the dataset to only instantiate the dataset in the `prepare_data` hook.
     """
 
-    SplitFunction = Callable[[Dataset, torch.Tensor | None], DatasetSplit]
-
-    def __init__(
-        self,
-        dataset: Callable[[], Dataset],
-        split: SplitFunction,
-        has_val: bool,
-        has_test: bool,
-        stratify: bool = False,
-        split_idx: int = 0,
-        **kwargs,
-    ) -> None:
-        """Initializes a `SplitLightningDataset`.
+    def __init__(self, dataset: Callable[[], Dataset], has_val: bool, has_test: bool, **kwargs) -> None:
+        """Initializes a `LightningDataset`.
 
         Args:
-            dataset: A callable that returns the dataset to split. See the class docstring for why this is a callable.
-            split: The callable to use for splitting the dataset.
-            has_val: Whether the split will include a validation set.
-            has_test: Whether the split will include a test set.
-            stratify: Whether to split the data in a stratified fashion, using the dataset's class labels.
-            split_idx: The split to use, in case of multiple splits, e.g. for cross-validation. If you have only one
-                split, e.g. a typical train/val/test split, use the default value of 0 to access the only split.
+            dataset: A callable that returns the dataset. See the class docstring for why this is a callable.
+            has_val: Whether the dataset has a validation set.
+            has_test: Whether the dataset has a test set.
             **kwargs: Additional keyword arguments to pass to `torch_geometric.loader.DataLoader`.
         """
         super().__init__()
 
         self._dataset_init = dataset
-        self._split_fn = split
-        self._stratify = stratify
-        self.split_idx = split_idx
+        self.kwargs = kwargs
 
         # Remove the val and test dataloaders if the dataset does not have sets for them
         if not has_val:
@@ -111,34 +96,86 @@ class SplitLightningDataset(LightningDataModule):
 
         else:
             # Split the dataset into train, val, and test sets
-            split = self.get_splits(self._split_fn, self._stratify, dataset)[self.split_idx]
-            train_idx, val_idx, test_idx = split[TRAIN_SET], split.get(VAL_SET), split.get(TEST_SET)
+            train_idx, val_idx, test_idx = self.get_splits(dataset)
 
             if stage == TrainerFn.FITTING:
                 self.train_dataset = dataset[train_idx]
-                self.val_dataset = dataset[val_idx] if val_idx else None
+                self.val_dataset = dataset[val_idx] if val_idx is not None else None
             elif stage == TrainerFn.TESTING:
-                self.test_dataset = dataset[test_idx] if test_idx else None
+                self.test_dataset = dataset[test_idx] if test_idx is not None else None
 
-    @staticmethod
-    def get_splits(split_fn: SplitFunction, stratify: bool, dataset: Dataset) -> DatasetSplit:
-        """Get the splits for the dataset according to `split_fn`, either by loading saved splits or creating new ones.
+    @abstractmethod
+    def get_splits(self, dataset: Dataset) -> tuple[list[int], list[int] | None, list[int] | None]:
+        """Get the splits of the dataset between train, val, and test sets.
 
         Args:
-            split_fn: The function to use for splitting the dataset.
-            stratify: Whether to split the data in a stratified fashion, using the dataset's class labels.
             dataset: The dataset to split.
 
         Returns:
-            The splits for the dataset. A list of dictionaries (to support multiple splits), each containing the
-            indices for the train, test, and (optional) val sets of one split of the dataset. If you only need one
-            split, e.g. for a typical train/val/test split, the list will contain a single dictionary/split.
+            The indices of samples for the train, val, and test sets.
+        """
+
+    def train_dataloader(self) -> DataLoader:  # noqa: D102
+        shuffle = not isinstance(self.train_dataset, IterableDataset)
+        shuffle &= self.kwargs.get("sampler", None) is None
+        shuffle &= self.kwargs.get("batch_sampler", None) is None
+
+        return DataLoader(self.train_dataset, shuffle=shuffle, **self.kwargs)
+
+    def _eval_dataloader(self, dataset: Dataset) -> DataLoader:
+        assert dataset is not None
+
+        kwargs = copy.copy(self.kwargs)
+        kwargs.pop("sampler", None)
+        kwargs.pop("batch_sampler", None)
+
+        return DataLoader(dataset, shuffle=False, **kwargs)
+
+    def val_dataloader(self) -> DataLoader:  # noqa: D102
+        return self._eval_dataloader(self.val_dataset)
+
+    def test_dataloader(self) -> DataLoader:  # noqa: D102
+        return self._eval_dataloader(self.test_dataset)
+
+    def predict_dataloader(self) -> DataLoader:  # noqa: D102
+        return self._eval_dataloader(self.pred_dataset)
+
+
+class SplitLightningDataset(LightningDataset):
+    """A `LightningDataset` that manages the splitting of the dataset according to a user-defined split function."""
+
+    SplitFunction = Callable[[Dataset, torch.Tensor | None], DatasetSplit]
+
+    def __init__(self, *args, split: SplitFunction, stratify: bool = False, split_idx: int = 0, **kwargs) -> None:
+        """Initializes a `SplitLightningDataset`.
+
+        Args:
+            *args: Additional positional arguments to pass to the superclass.
+            split: The callable to use for splitting the dataset.
+            stratify: Whether to split the data in a stratified fashion, using the dataset's class labels.
+            split_idx: The split to use, in case of multiple splits, e.g. for cross-validation. If you have only one
+                split, e.g. a typical train/val/test split, use the default value of 0 to access the only split.
+            **kwargs: Additional keyword arguments to pass to the superclass.
+        """
+        super().__init__(*args, **kwargs)
+        self._split_fn = split
+        self._stratify = stratify
+        self._split_idx = split_idx
+
+    def get_splits(self, dataset: Dataset) -> tuple[list[int], list[int] | None, list[int] | None]:
+        """Generates train, val, and test splits for the dataset, saves/compares them to a file, and returns one split.
+
+        Args:
+            dataset: The dataset to split.
+
+        Returns:
+            The indices of samples for the train, val, and test sets.
         """
         # Generate the splits for the dataset
-        splits = split_fn(dataset, dataset.y if stratify else None)
+        splits = self._split_fn(dataset, dataset.y if self._stratify else None)
 
         # Serialize the split function and its parameters to a string to use it as a unique identifier for the splits
-        splits_repr = serialize_split_fn(split_fn, stratify)
+        splits_repr = serialize_split_fn(self._split_fn, self._stratify)
 
         # Acquire a lock on the (possibly not existing) splits file
         # This is done to prevent multiple processes from overwriting each other's splits, in case multiple experiments
@@ -169,29 +206,5 @@ class SplitLightningDataset(LightningDataModule):
                     "splits are correct, delete the old file to regenerate the splits and get rid of this error."
                 )
 
-        return splits
-
-    def train_dataloader(self) -> DataLoader:  # noqa: D102
-        shuffle = not isinstance(self.train_dataset, IterableDataset)
-        shuffle &= self.kwargs.get("sampler", None) is None
-        shuffle &= self.kwargs.get("batch_sampler", None) is None
-
-        return DataLoader(self.train_dataset, shuffle=shuffle, **self.kwargs)
-
-    def _eval_dataloader(self, dataset: Dataset) -> DataLoader:
-        assert dataset is not None
-
-        kwargs = copy.copy(self.kwargs)
-        kwargs.pop("sampler", None)
-        kwargs.pop("batch_sampler", None)
-
-        return DataLoader(dataset, shuffle=False, **kwargs)
-
-    def val_dataloader(self) -> DataLoader:  # noqa: D102
-        return self._eval_dataloader(self.val_dataset)
-
-    def test_dataloader(self) -> DataLoader:  # noqa: D102
-        return self._eval_dataloader(self.test_dataset)
-
-    def predict_dataloader(self) -> DataLoader:  # noqa: D102
-        return self._eval_dataloader(self.pred_dataset)
+        split = splits[self._split_idx]
+        return split[TRAIN_SET], split.get(VAL_SET), split.get(TEST_SET)
