@@ -13,7 +13,7 @@ class GraphLevelLitModule(MetricTrackingLitModule):
     def __init__(
         self,
         encoder: nn.Module,
-        graph_pooling: Callable[[torch.Tensor, torch.Tensor | None, int | None], torch.Tensor],
+        readout: Callable[[torch.Tensor, torch.Tensor | None, int | None], torch.Tensor],
         head: nn.Module,
         *args,
         **kwargs,
@@ -22,8 +22,7 @@ class GraphLevelLitModule(MetricTrackingLitModule):
 
         Args:
             encoder: The GNN model used to encode the graph.
-            graph_pooling: The graph pooling operation to use to aggregate node features into a single graph-level
-                representation.
+            readout: The readout operation to use to aggregate node features into a single graph-level representation.
             head: The prediction head used to make predictions based on the graph-level representation.
             *args: Additional positional arguments to pass to the superclass.
             **kwargs: Additional keyword arguments to pass to the superclass.
@@ -48,6 +47,6 @@ class GraphLevelLitModule(MetricTrackingLitModule):
         """
         x, edge_index, batch, batch_size = data.x, data.edge_index, data.batch, data.batch_size
         x = self.encoder(x, edge_index, batch=batch, batch_size=batch_size)
-        # Pass the batch size to graph pooling operation to avoid CPU communication/graph breaks
-        x = self.hparams.graph_pooling(x, batch, batch_size)
+        # Pass the batch size to readout operation to avoid CPU communication/graph breaks
+        x = self.hparams.readout(x, batch, batch_size)
         return self.head(x, batch=batch, batch_size=batch_size)
