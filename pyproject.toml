@@ -14,20 +14,20 @@ dependencies = [
     "hydra-core>=1.3.2,<2",
     "hydra-joblib-launcher>=1.2.0,<2",
     "hydra-optuna-sweeper>=1.2.0,<2",
-    "lightning>=2.4.0,<3",
+    "lightning>=2.5.0.post0,<3",
     "rich>=13.9.4,<14",
     "rootutils>=1.0.7,<2",
-    "scikit-learn>=1.5.2,<2",
+    "scikit-learn>=1.6.1,<2",
     # Use our fork of torch-geometric that patches Lightning imports until the following issue gets solved and released:
     # https://github.com/pyg-team/pytorch_geometric/issues/9811
     # NOTE: The direct reference is specified here using hatchling's syntax (instead of in `tool.uv.sources`)
     # so that our fork also gets chosen when installing the package using `pip install .`
     "torch-geometric @ git+https://github.com/nathanpainchaud/pytorch_geometric.git@0bea004a831b2fde32b12cdaa03e3715cb44c240",
-    "torchmetrics>=1.6.0,<2",
+    "torchmetrics>=1.6.1,<2",
 ]
 [project.optional-dependencies]
 wandb = [
-    "wandb>=0.19.1,<0.20",
+    "wandb>=0.19.3,<0.20",
 ]
 ogb = [
     "ogb>=1.3.6,<2",
@@ -59,7 +59,7 @@ dev = [
 ]
 lint = [
     "docformatter>=1.7.5,<2",
-    "ruff>=0.9,<0.10",
+    "ruff>=0.9.1,<0.10",
 ]
 
 [project.scripts]
@@ -90,7 +90,7 @@ conflicts = [
 # Refer to the note above about installing pytorch using optional dependencies,
 # especially the link to uv's documentation, to understand this configuration
 torch = [
-  { index = "pytorch-cpu", extra = "cpu", marker = "sys_platform != 'Darwin'" },
+  { index = "pytorch-cpu", extra = "cpu" },
   { index = "pytorch-cu118", extra = "cu118" },
   { index = "pytorch-cu121", extra = "cu121" },
   { index = "pytorch-cu124", extra = "cu124" },
