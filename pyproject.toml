@@ -40,16 +40,16 @@ ogb = [
 # Each extra corresponds to a different platform, so it is up to project maintainers to decide which platforms
 # they want to list here, i.e. support
 cpu = [
-  "torch>=2.5.1,<3",
+  "torch>=2.5.1,<2.6",
 ]
 cu118 = [
-  "torch>=2.5.1,<3",
+  "torch>=2.5.1,<2.6",
 ]
 cu121 = [
-  "torch>=2.5.1,<3",
+  "torch>=2.5.1,<2.6",
 ]
 cu124 = [
-  "torch>=2.5.1,<3",
+  "torch>=2.5.1,<2.6",
 ]
 
 [dependency-groups]
