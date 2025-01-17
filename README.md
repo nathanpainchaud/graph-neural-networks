@@ -14,7 +14,7 @@
 [![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com/)
 <br>
 [![code-quality](https://github.com/nathanpainchaud/graph-neural-networks/actions/workflows/code-quality-main.yaml/badge.svg)](https://github.com/nathanpainchaud/graph-neural-networks/actions/workflows/code-quality-main.yaml)
-[![tests](https://github.com/nathanpainchaud/graph-neural-networks/actions/workflows/test.yml/badge.svg)](https://github.com/nathanpainchaud/graph-neural-networks/actions/workflows/test.yml)
+[![tests](https://github.com/nathanpainchaud/graph-neural-networks/actions/workflows/tests.yaml/badge.svg)](https://github.com/nathanpainchaud/graph-neural-networks/actions/workflows/tests.yaml)
 [![codecov](https://codecov.io/gh/nathanpainchaud/graph-neural-networks/branch/main/graph/badge.svg)](https://codecov.io/gh/nathanpainchaud/graph-neural-networks)
 <br>
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/nathanpainchaud/graph-neural-networks?tab=Apache-2.0-1-ov-file)
