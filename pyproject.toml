@@ -56,10 +56,16 @@ cu124 = [
 dev = [
     "pre-commit>=4.0.1,<5",
     {include-group = "lint"},
+    {include-group = "test"},
 ]
 lint = [
     "docformatter>=1.7.5,<2",
     "ruff>=0.9.1,<0.10",
+]
+test = [
+    "pytest>=8.3.4,<9",
+    "pytest-cov>=6.0.0,<7",
+    "sh>=2.2.1,<3",
 ]
 
 [project.scripts]
@@ -117,6 +123,35 @@ explicit = true
 name = "pytorch-cu124"
 url = "https://download.pytorch.org/whl/cu124"
 explicit = true
+
+[tool.pytest.ini_options]
+addopts = [
+  "--color=yes",
+  "--durations=0",
+  "--strict-markers",
+  "--doctest-modules",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::UserWarning",
+]
+log_cli = "True"
+markers = [
+  "slow: slow tests",
+]
+minversion = "6.0"
+testpaths = "tests/"
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: nocover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
 
 [tool.ruff]
 line-length = 120

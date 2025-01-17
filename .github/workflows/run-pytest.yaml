@@ -1,0 +1,38 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, "release/*", "dev"]
+
+jobs:
+  run-pytest:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          # It is considered best practice (by uv's developers) to pin to a specific uv version
+          # https://docs.astral.sh/uv/guides/integration/github/#installation
+          version: 0.5.14
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+
+      - name: Install the project
+        run: uv sync --extra cpu --extra ogb
+
+      - name: Run tests and collect coverage
+        run: uv run pytest --cov --cov-report=xml
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
