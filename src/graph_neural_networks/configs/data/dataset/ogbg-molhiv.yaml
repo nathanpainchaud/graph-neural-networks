@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - /data/dataset/ogb_base@data.dataset: graph_prop_pred
+  # To add a transform (or pre-transform) to the dataset, you can use the following syntax:
+#  - /data/transform@data.dataset: <transform_name>
+
+hparams:
+  # hparams.data.* values are meant to expose the constant properties of the `torch_geometric.data.Dataset` instance
+  # to make them available during the resolution of the configuration, using the same names.
+  # This is done to allow for automatic interpolation of data-processing components (e.g. stratified splits)
+  # and model architecture components (e.g. input/output dimensions) during the resolution of the configuration.
+  # Therefore, it is important to provide the values available for your dataset, whether it is a PyTorch Geometric
+  # dataset or your own custom dataset.
+  data:
+    num_graphs: 41127
+    num_node_features: 9
+    num_edge_features: 3
+    num_classes: 2
