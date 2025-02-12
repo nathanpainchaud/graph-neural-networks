@@ -17,5 +17,5 @@ hparams:
     num_graphs: ${op.ternary:${data.dataset.cleaned}, 595, 600}
     num_node_labels: 3
     num_node_attributes: 18
-    num_node_features: ${op:add,hparams.data.num_node_labels,${op.ternary:data.dataset.use_node_attr, hparams.data.num_node_attributes, 0}}
+    num_node_features: ${op:add,${.num_node_labels},${op.ternary:${data.dataset.use_node_attr}, ${.num_node_attributes}, 0}}
     num_classes: 6
