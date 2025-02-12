@@ -43,7 +43,7 @@ coverage.xml
 *.tar.gz
 
 # Lightning-Hydra-Template
-src/graph_neural_networks/configs/local/default.yaml
+src/**/configs/local/
 /data/
 /logs/
 .env
