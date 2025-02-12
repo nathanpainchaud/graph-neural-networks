@@ -64,11 +64,14 @@ suit your needs, while still providing a feature-complete and flexible framework
    ```
    [OPTIONAL] You can also specify other extras for additional functionalities:
    ```bash
-   # e.g. to install the `wandb` extra for W&B integration
-   uv sync --extra cpu --extra wandb
+   # e.g. to install the `wandb` and `tensorboard` extras for loggers' integration
+   uv sync --extra cpu --extra wandb --extra tensorboard
 
    # e.g. to install the `ogb` extra for Open Graph Benchmark datasets
    uv sync --extra cpu --extra ogb
+
+   # e.g. to install all extra functionalities at once
+   uv sync --extra cpu --extra all
    ```
 3. Activate the virtual environment created by `uv`.
    ```bash
@@ -102,11 +105,14 @@ suit your needs, while still providing a feature-complete and flexible framework
    ```
    [OPTIONAL] You can also specify other extras for additional functionalities:
    ```bash
-   # e.g. to install the `wandb` extra for W&B integration
-   pip install -e .[wandb]
+   # e.g. to install the `wandb` and `tensorboard` extras for loggers' integration
+   pip install -e .[wandb,tensorboard]
 
    # e.g. to install the `ogb` extra for Open Graph Benchmark datasets
    pip install -e .[ogb]
+
+   # e.g. to install all extra functionalities at once
+   pip install -e .[all]
    ```
 
 ### Setup Weight & Biases
@@ -180,6 +186,11 @@ experiments is [Weights & Biases](https://wandb.ai/site), by using W&B's
 > You must have followed the [W&B setup instructions](#setup-weight--biases) to use this feature.
 
 ```bash
+# track experiment locally w/ TensorBoard
+gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=tensorboard
+# and in another terminal
+tensorboard --logdir ./logs/
+
 # track experiment online w/ W&B
 gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=wandb
 
