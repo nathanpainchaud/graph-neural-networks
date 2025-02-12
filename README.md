@@ -146,10 +146,10 @@ Train model with the default configuration.
 
 ```bash
 # train on CPU
-gnn-train trainer=cpu data=<YOUR_DATA_CONFIG> model=<YOUR_MODEL_CONFIG>
+gnn-train trainer=cpu data=<YOUR_DATA_CONFIG> data.dataset=<YOUR_DATASET_CONFIG> model=<YOUR_MODEL_CONFIG>
 
 # train on GPU
-gnn-train trainer=gpu data=<YOUR_DATA_CONFIG> model=<YOUR_MODEL_CONFIG>
+gnn-train trainer=gpu data=<YOUR_DATA_CONFIG> data.dataset=<YOUR_DATASET_CONFIG> model=<YOUR_MODEL_CONFIG>
 ```
 
 Override any individual parameter in the config files from the command line like this:
