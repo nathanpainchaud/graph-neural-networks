@@ -29,7 +29,8 @@ def testing_overrides(tmp_path: Path) -> list[str]:
         "hydra.run.dir=" + str(tmp_path),
         "hydra.sweep.dir=" + str(tmp_path),
         "logger=[]",
-        "compile=false",  # Disable compilation to speed up tests
+        # Uncomment the following line if compilation is enabled by default to disable it for tests
+        # "compile=false",  # Disable compilation to speed up tests
     ]
 
 
