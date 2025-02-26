@@ -45,8 +45,15 @@ class GraphLevelLitModule(MetricTrackingLitModule):
         Returns:
             The predicted logits for the input graphs in the batch.
         """
-        x, edge_index, batch, batch_size = data.x, data.edge_index, data.batch, data.batch_size
-        x = self.encoder(x, edge_index, batch=batch, batch_size=batch_size)
+        x, batch, batch_size = data.x, data.batch, data.batch_size
+        x = self.encoder(
+            x,
+            data.edge_index,
+            edge_weight=data.edge_weight,
+            edge_attr=data.edge_attr,
+            batch=batch,
+            batch_size=batch_size,
+        )
         # Pass the batch size to readout operation to avoid CPU communication/graph breaks
         x = self.hparams.readout(x, batch, batch_size)
         return self.head(x, batch=batch, batch_size=batch_size)
