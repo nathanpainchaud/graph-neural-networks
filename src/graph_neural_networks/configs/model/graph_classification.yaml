@@ -6,9 +6,9 @@ defaults:
   - scheduler: step_lr
 
 _target_: graph_neural_networks.models.GraphLevelLitModule
+task: ${hparams.data.task}
 num_node_features: ${oc.select:hparams.data.num_node_features,0}
 num_edge_features: ${oc.select:hparams.data.num_edge_features,0}
-num_classes: ${hparams.data.num_classes}
 
 encoder:
   out_channels: null
@@ -21,7 +21,11 @@ head:
   norm: null
 
 criterion:
-  _target_: torch.nn.CrossEntropyLoss
+  # Use `CrossEntropyLoss` when task is multiclass, otherwise use `BCEWithLogitsLoss`
+  _target_: ${op.ternary:${op:eq,${hparams.data.task},multiclass}, torch.nn.CrossEntropyLoss, torch.nn.BCEWithLogitsLoss}
+
+# Use `torch.float` dtype for target when the criterion is `BCEWithLogitsLoss`, otherwise use `torch.long`
+criterion_target_dtype: ${op.ternary:${op:eq,${.criterion._target_},torch.nn.BCEWithLogitsLoss}, torch.float, torch.long}
 
 metrics:
   _target_: torchmetrics.MetricCollection
@@ -31,5 +35,9 @@ metrics:
   metrics:
     acc:
       _target_: torchmetrics.Accuracy
-      task: multiclass
-      num_classes: ${hparams.data.num_classes}
+      # Force `binary` task if `num_classes=1` (e.g. in special cases of multilabel classification),
+      # otherwise use the task associated with the dataset
+      task: ${op.ternary:${op:eq,${oc.select:hparams.data.num_classes},1}, binary, ${hparams.data.task}}
+      # Provide the number of classes as either `num_classes` or `num_labels` depending on the task
+      num_classes: ${oc.select:hparams.data.num_classes}
+      num_labels: ${oc.select:hparams.data.num_classes}

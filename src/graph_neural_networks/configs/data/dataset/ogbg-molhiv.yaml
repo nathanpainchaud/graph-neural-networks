@@ -16,4 +16,5 @@ hparams:
     num_graphs: 41127
     num_node_features: 9
     num_edge_features: 3
-    num_classes: 2
+    num_classes: 1
+    task: multilabel

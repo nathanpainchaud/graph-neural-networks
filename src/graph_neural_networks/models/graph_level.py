@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Literal
 
 import torch
 from torch import nn
@@ -14,6 +15,7 @@ class GraphLevelLitModule(MetricTrackingLitModule):
 
     def __init__(
         self,
+        task: Literal["binary", "multiclass", "multilabel", "regression"],
         encoder: nn.Module,
         readout: Callable[[torch.Tensor, torch.Tensor | None, int | None], torch.Tensor],
         head: nn.Module,
@@ -23,6 +25,7 @@ class GraphLevelLitModule(MetricTrackingLitModule):
         """Initializes a `GraphLevelLitModule`.
 
         Args:
+            task: Prediction task for which to configure the GNN model.
             encoder: The GNN model used to encode the graph.
             readout: The readout operation to use to aggregate node features into a single graph-level representation.
             head: The prediction head used to make predictions based on the graph-level representation.
@@ -59,4 +62,7 @@ class GraphLevelLitModule(MetricTrackingLitModule):
         )
         # Pass the batch size to readout operation to avoid CPU communication/graph breaks
         x = self.hparams.readout(x, batch, batch_size)
-        return self.head(x, batch=batch, batch_size=batch_size)
+        x = self.head(x, batch=batch, batch_size=batch_size)
+        if self.hparams.task == "binary":
+            x = x.squeeze(-1)  # Flatten the last dim when only one value is predicted
+        return x

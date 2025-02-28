@@ -36,4 +36,5 @@ logger:
 _assert_:
   data_more_than_one_graph: ${assert:${op:gt,${oc.select:hparams.data.num_graphs,0},1}}
   data_at_least_one_num_node_features: ${assert:${op:ge,${oc.select:hparams.data.num_node_features,0},1}}
-  data_at_least_one_num_classes: ${assert:${op:ge,${oc.select:hparams.data.num_classes,0},1}}
+  # Unless the task is binary, the number of classes must be specified and at least 1
+  data_at_least_one_num_classes: ${assert:$${op:or_,${op:eq,${hparams.data.task},binary},${op:ge,${oc.select:hparams.data.num_classes,0},1}}}
