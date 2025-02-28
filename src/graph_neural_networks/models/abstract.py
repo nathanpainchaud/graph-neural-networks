@@ -2,15 +2,18 @@ import inspect
 import types
 from abc import ABC
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, Literal
 
 import torch
 from lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
+from torch_geometric.datasets import FakeDataset
 from torchmetrics import MeanMetric, MetricCollection, MetricTracker
 
-from graph_neural_networks.utils import pad_keys
+from graph_neural_networks.utils import RankedLogger, pad_keys
+
+log = RankedLogger(__name__, rank_zero_only=True)
 
 
 class MetricTrackingLitModule(LightningModule, ABC):
@@ -30,12 +33,18 @@ class MetricTrackingLitModule(LightningModule, ABC):
           the best values across the whole run, for example to monitor them for automatic hyperparameter tuning.
     """
 
+    task_level: Literal["node", "graph"]
+    """The type of task the model is designed for, used to generate an example input batch."""
+
     def __init__(
         self,
         criterion: nn.Module,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
         metrics: MetricCollection | None = None,
+        num_node_features: int = None,
+        num_edge_features: int = None,
+        num_classes: int = None,
         *args,
         **kwargs,
     ):
@@ -46,6 +55,12 @@ class MetricTrackingLitModule(LightningModule, ABC):
             optimizer: The optimizer to use for training.
             scheduler: The learning rate scheduler to use for training.
             metrics: A collection of metrics to use for evaluation.
+            num_node_features: The number of features per node in the input graph(s). If provided, it is used to
+                generate an example input batch, useful for inspecting the model's input/output shapes.
+            num_edge_features: The number of features per edge in the input graph(s). If provided, it is used to
+                generate an example input batch, useful for inspecting the model's input/output shapes.
+            num_classes: The number of classes to predict, either for node or graph classification. If provided, it is
+                used to generate an example input batch, useful for inspecting the model's input/output shapes.
             *args: Additional positional arguments to pass to the superclass.
             **kwargs: Additional keyword arguments to pass to the superclass.
         """
@@ -70,6 +85,25 @@ class MetricTrackingLitModule(LightningModule, ABC):
             self.val_metrics_tracker = MetricTracker(metrics.clone(prefix="val/"), maximize=None)
             # No tracker for test metrics, since they should only be computed for one epoch
             self.test_metrics = metrics.clone(prefix="test/")
+
+        available_data_hparams = [param is not None for param in [num_node_features, num_edge_features, num_classes]]
+        if any(available_data_hparams):
+            if not all(available_data_hparams):
+                log.warning(
+                    "You provided the following hparams to generate an example input batch: "
+                    f"{num_node_features=}, {num_edge_features=}, {num_classes=}. "
+                    "No example batch will be generated because some hparams are missing."
+                    "To suppress this warning, either provide missing hparams or set all of them to `None` to disable "
+                    "example batch generation."
+                )
+            else:
+                fake_dataset = FakeDataset(
+                    num_graphs=2 if self.task_level == "graph" else 1,
+                    num_channels=num_node_features,
+                    edge_dim=num_edge_features,
+                    num_classes=num_classes,
+                )
+                self.example_input_array = Batch.from_data_list([data for data in fake_dataset])
 
     def save_hyperparameters(  # noqa: D102
         self,

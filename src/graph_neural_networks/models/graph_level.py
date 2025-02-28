@@ -10,6 +10,8 @@ from graph_neural_networks.models import MetricTrackingLitModule
 class GraphLevelLitModule(MetricTrackingLitModule):
     """A LightningModule for GNNs aimed at graph-level tasks."""
 
+    task_level = "graph"
+
     def __init__(
         self,
         encoder: nn.Module,
