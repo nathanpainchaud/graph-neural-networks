@@ -48,11 +48,12 @@ class GraphLevelLitModule(MetricTrackingLitModule):
             The predicted logits for the input graphs in the batch.
         """
         x, batch, batch_size = data.x, data.batch, data.batch_size
+        # Cast input features that must be floats to floats
         x = self.encoder(
-            x,
+            x.float(),
             data.edge_index,
-            edge_weight=data.edge_weight,
-            edge_attr=data.edge_attr,
+            edge_weight=data.edge_weight.float() if data.edge_weight is not None else None,
+            edge_attr=data.edge_attr.float() if data.edge_attr is not None else None,
             batch=batch,
             batch_size=batch_size,
         )
