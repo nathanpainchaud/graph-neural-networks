@@ -1,6 +1,6 @@
 _target_: torch_geometric.datasets.TUDataset
 root: ${paths.data_dir}
-name: ${call.attr:${hydra:runtime.choices.data/dataset},upper}
+name: ${op:call,${op:methodcaller,upper},${hydra:runtime.choices.data/dataset}}
 use_node_attr: False
 use_edge_attr: False
 cleaned: False
