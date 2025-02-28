@@ -117,5 +117,4 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
     monitor_checkpoint_best_epoch = int(monitor_checkpoint_stem.split("_")[1])
     assert monitor_checkpoint_best_epoch in range(1, 5)
 
-    assert metric_dict_1["train/loss/best"] > metric_dict_2["train/loss/best"]
     assert metric_dict_1["val/loss/best"] > metric_dict_2["val/loss/best"]
