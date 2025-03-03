@@ -1,0 +1,13 @@
+defaults:
+  - dataset: ??? # Specify the dataset name
+
+_target_: graph_neural_networks.data.datamodule.OGBLightningDataset
+batch_size: 32
+num_workers: 0
+pin_memory: True
+persistent_workers: ${op:gt,${.num_workers},0} # If `num_workers` is greater than 0, enable `persistent_workers`
+
+dataset:
+  # Avoid instantiating the dataset when the configuration is resolved, since PyG datasets download the data
+  # upon instantiation. This allows us to instantiate (and download) the dataset in the `prepare_data` hook.
+  _partial_: True
