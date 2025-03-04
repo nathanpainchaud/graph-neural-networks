@@ -1,7 +1,7 @@
 [project]
 name = "graph-neural-networks"
 version = "0.1.0"
-description = "Experiments with Graph Neural Networks (GNNs)."
+description = "PyTorch Geometric + Lightning + Hydra. A user-friendly toolbox/template for experimenting with Graph Neural Networks (GNNs)."
 readme = "README.md"
 repository = "https://github.com/nathanpainchaud/graph-neural-networks"
 authors = [
