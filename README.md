@@ -25,9 +25,9 @@
 
 ## Description
 
-A template project for training graph neural networks with PyTorch Lightning and Hydra. It tries to minimize the
-complexity of the boilerplate code and configuration management, so that they can be easily understood and modified to
-suit your needs, while still providing a feature-complete and flexible framework for working with GNNs.
+A template project for training graph neural networks using PyTorch Geometric, Lightning and Hydra. It tries to minimize
+the complexity of the boilerplate code and configuration management, so that they can be easily understood and modified
+to suit your needs, while still providing a feature-complete and flexible framework for working with GNNs.
 
 > [!IMPORTANT]
 > Using this template requires a basic understanding of PyTorch Lightning and Hydra. If you do not know at least what
@@ -130,11 +130,11 @@ Make sure that you install the `wandb` extra when installing the project, as sho
 
 The recommended way to configure your W&B credentials is to expose them as environment variables
 (see [W&B's documentation on this](https://docs.wandb.ai/guides/track/environment-variables/)). You can do this by
-copying the [`.env.example`](.env.example) file to a new `.env` file (which will be ignored by Git) and filling in your
-W&B credentials.
+copying the [`configs/local/example.yaml`](src/graph_neural_networks/configs/local/example.yaml) to a new `default.yaml`
+(which will be ignored by Git) and filling in your W&B credentials.
 
-You don't have to do anything more than that, as the project is configured to automatically load environment variables
-from the `.env` file when executing the scripts.
+You don't have to do anything more than that, as the project is configured to automatically load keys under `hydra.job.env_set`
+as environment variables when executing the scripts.
 
 #### Use the wandb logger
 
