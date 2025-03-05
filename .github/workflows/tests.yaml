@@ -31,7 +31,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install the project
-        run: uv sync --extra cpu --extra ogb
+        run: uv sync --extra cpu --extra all
 
       - name: Run tests
         run: uv run --no-sync pytest
@@ -51,7 +51,7 @@ jobs:
           version: 0.6.3
 
       - name: Install uv-managed python version and the project
-        run: uv sync --extra cpu --extra ogb
+        run: uv sync --extra cpu --extra all
 
       - name: Run tests and collect coverage
         # Explicitly point to pyproject.toml to work around a `coverage` limitation where child processes created by
