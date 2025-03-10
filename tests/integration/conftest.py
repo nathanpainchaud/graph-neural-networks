@@ -170,5 +170,5 @@ def mutag_classification_overrides() -> list[str]:
         "data=split_lightning_dataset",
         "data/dataset=mutag",
         # Model overrides
-        "model=graph_classification",
+        "model=graph_classifier",
     ]
