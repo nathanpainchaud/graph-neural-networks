@@ -115,6 +115,15 @@ to suit your needs, while still providing a feature-complete and flexible framew
    pip install -e .[all]
    ```
 
+### List of available extras
+
+- \[`cpu`|`cu124`|`cu121`|`cu118`\]: Required mutually exclusive extras to install the project with a PyTorch version
+  built for CPU or a specific CUDA version (only available when using `uv`, not `pip`).
+- `wandb`: For experiment tracking with Weights & Biases.
+- `tensorboard`: For experiment tracking with TensorBoard.
+- `ogb`: For Open Graph Benchmark datasets.
+- `all`: Install all (non-mutually exclusive) extras at once.
+
 ### Setup Weight & Biases
 
 #### Create an account
