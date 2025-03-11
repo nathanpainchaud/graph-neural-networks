@@ -2,8 +2,8 @@
 
 defaults:
   - _self_
-  - data: ??? # choose datamodule with `test_dataloader()` for evaluation
-  - model: ???
+  - data: ??? # no sane default can be provided here, data has to be provided by the user
+  - model: ??? # no sane default can be provided here, model has to be provided by the user
   - logger: null
   - trainer: default
   - paths: default

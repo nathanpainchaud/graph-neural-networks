@@ -155,22 +155,32 @@ Follow the instructions provided in the [How to run](#track-experiments) section
 
 Train model with the default configuration.
 
-> [!WARNING]
-> The default configuration is not complete and running it as-is will fail, asking you to specify the missing `data`
-> and `model` groups.
-
 ```bash
 # train on CPU
-gnn-train trainer=cpu data=<YOUR_DATA_CONFIG> data.dataset=<YOUR_DATASET_CONFIG> model=<YOUR_MODEL_CONFIG>
+gnn-train trainer=cpu
 
 # train on GPU
-gnn-train trainer=gpu data=<YOUR_DATA_CONFIG> data.dataset=<YOUR_DATASET_CONFIG> model=<YOUR_MODEL_CONFIG>
+gnn-train trainer=gpu
 ```
 
 Override any individual parameter in the config files from the command line like this:
 
 ```bash
+# override the number of epochs and batch size
 gnn-train trainer.max_epochs=20 data.batch_size=64 ...
+
+# train default model on your dataset
+gnn-train data/dataset=<YOUR_DATASET_CONFIG> ...
+
+# train your model on the default dataset
+gnn-train model=<YOUR_MODEL_CONFIG> ...
+```
+
+To evaluate a trained model, use the [`gnn-eval`](src/graph_neural_networks/eval.py) script.
+
+```bash
+# evaluate a trained model on your dataset's test set
+gnn-eval data=<DATAMODULE_CONFIG> data/dataset=<DATASET_CONFIG> model=<MODEL_CONFIG> ckpt_path=<PATH_TO_CHECKPOINT>
 ```
 
 ### Use preset configs
@@ -196,18 +206,18 @@ experiments is [Weights & Biases](https://wandb.ai/site), by using W&B's
 
 ```bash
 # track experiment locally w/ TensorBoard
-gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=tensorboard
+gnn-train logger=tensorboard
 # and in another terminal
 tensorboard --logdir ./logs/
 
 # track experiment online w/ W&B
-gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=wandb
+gnn-train logger=wandb
 
 # track experiment offline w/ W&B
-gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=wandb logger.wandb.offline=True
+gnn-train logger=wandb logger.wandb.offline=True
 
 # track experiments using different loggers at once (i.e. CSV, TensorBoard, W&B)
-gnn-train experiment=<YOUR_EXPERIMENT_CONFIG> logger=many_loggers
+gnn-train logger=many_loggers
 ```
 
 ### Run multiple experiments
@@ -216,7 +226,7 @@ Launch multiple experiments at once using the `multirun` (`-m`) option.
 
 ```bash
 # run multiple experiments sequentially, here w/ 5 different seeds
-gnn-train -m experiment=<YOUR_EXPERIMENT_CONFIG> seed=0,1,2,3,4
+gnn-train -m seed=0,1,2,3,4
 ```
 
 Launch multiple experiments at once **in parallel** using the [Joblib launcher for Hydra](https://hydra.cc/docs/plugins/joblib_launcher/).
@@ -227,7 +237,7 @@ Launch multiple experiments at once **in parallel** using the [Joblib launcher f
 
 ```bash
 # run multiple experiments in parallel, here w/ 5 different seeds
-gnn-train -m hydra/launcher=joblib experiment=<YOUR_EXPERIMENT_CONFIG> seed=0,1,2,3,4
+gnn-train -m hydra/launcher=joblib seed=0,1,2,3,4
 ```
 
 ### Run automatic hyperparameter search with Optuna

@@ -7,7 +7,6 @@ defaults:
   - override /data: split_lightning_dataset
   - override /data/dataset: mutag
   - override /model: graph_classifier
-  - override /model/components@model.encoder: gcn
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
