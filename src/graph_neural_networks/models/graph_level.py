@@ -5,10 +5,10 @@ import torch
 from torch import nn
 from torch_geometric.data import Batch
 
-from graph_neural_networks.models import MetricTrackingLitModule
+from graph_neural_networks.models import GraphLitModule
 
 
-class GraphLevelLitModule(MetricTrackingLitModule):
+class GraphLevelLitModule(GraphLitModule):
     """A LightningModule for GNNs aimed at graph-level tasks."""
 
     task_level = "graph"

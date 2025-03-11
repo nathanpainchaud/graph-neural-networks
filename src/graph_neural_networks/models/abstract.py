@@ -34,9 +34,6 @@ class MetricTrackingLitModule(LightningModule, ABC):
           the best values across the whole run, for example to monitor them for automatic hyperparameter tuning.
     """
 
-    task_level: Literal["node", "graph"]
-    """The type of task the model is designed for, used to generate an example input batch."""
-
     def __init__(
         self,
         criterion: nn.Module,
@@ -44,8 +41,6 @@ class MetricTrackingLitModule(LightningModule, ABC):
         scheduler: torch.optim.lr_scheduler,
         criterion_target_dtype: str | torch.dtype | None = None,
         metrics: MetricCollection | None = None,
-        num_node_features: int = None,
-        num_edge_features: int = None,
         *args,
         **kwargs,
     ):
@@ -59,10 +54,6 @@ class MetricTrackingLitModule(LightningModule, ABC):
                 This can be useful for criteria that expect specific target types not typically provided by datasets,
                 e.g. `BCEWithLogitsLoss` which expects float targets while class labels are usually provided as long.
             metrics: A collection of metrics to use for evaluation.
-            num_node_features: The number of features per node in the input graph(s). If provided, it is used to
-                generate an example input batch, useful for inspecting the model's input/output shapes.
-            num_edge_features: The number of features per edge in the input graph(s). If provided, it is used to
-                generate an example input batch, useful for inspecting the model's input/output shapes.
             *args: Additional positional arguments to pass to the superclass.
             **kwargs: Additional keyword arguments to pass to the superclass.
         """
@@ -92,24 +83,6 @@ class MetricTrackingLitModule(LightningModule, ABC):
             self.val_metrics_tracker = MetricTracker(metrics.clone(prefix="val/"), maximize=None)
             # No tracker for test metrics, since they should only be computed for one epoch
             self.test_metrics = metrics.clone(prefix="test/")
-
-        available_data_hparams = [param is not None for param in [num_node_features, num_edge_features]]
-        if any(available_data_hparams):
-            if not all(available_data_hparams):
-                log.warning(
-                    "You provided the following hparams to generate an example input batch: "
-                    f"{num_node_features=}, {num_edge_features=}. "
-                    "No example batch will be generated because some hparams are missing."
-                    "To suppress this warning, either provide missing hparams or set all of them to `None` to disable "
-                    "example batch generation."
-                )
-            else:
-                fake_dataset = FakeDataset(
-                    num_graphs=2 if self.task_level == "graph" else 1,
-                    num_channels=num_node_features,
-                    edge_dim=num_edge_features,
-                )
-                self.example_input_array = Batch.from_data_list([data for data in fake_dataset])
 
     def save_hyperparameters(  # noqa: D102
         self,
@@ -234,3 +207,41 @@ class MetricTrackingLitModule(LightningModule, ABC):
                 },
             }
         return {"optimizer": optimizer}
+
+
+class GraphLitModule(MetricTrackingLitModule, ABC):
+    """A `LightningModule` that provides the boilerplate code for GNNs."""
+
+    task_level: Literal["node", "graph"]
+    """The type of task the model is designed for, used to generate an example input batch."""
+
+    def __init__(self, num_node_features: int = None, num_edge_features: int = None, *args, **kwargs):
+        """Initializes a `GraphLitModule`.
+
+        Args:
+            num_node_features: The number of features per node in the input graph(s). If provided, it is used to
+                generate an example input batch, useful for inspecting the model's input/output shapes.
+            num_edge_features: The number of features per edge in the input graph(s). If provided, it is used to
+                generate an example input batch, useful for inspecting the model's input/output shapes.
+            *args: Additional positional arguments to pass to the superclass.
+            **kwargs: Additional keyword arguments to pass to the superclass.
+        """
+        super().__init__(*args, **kwargs)
+
+        available_data_hparams = [param is not None for param in [num_node_features, num_edge_features]]
+        if any(available_data_hparams):
+            if not all(available_data_hparams):
+                log.warning(
+                    "You provided the following hparams to generate an example input batch: "
+                    f"{num_node_features=}, {num_edge_features=}. "
+                    "No example batch will be generated because some hparams are missing."
+                    "To suppress this warning, either provide missing hparams or set all of them to `None` to disable "
+                    "example batch generation."
+                )
+            else:
+                fake_dataset = FakeDataset(
+                    num_graphs=2 if self.task_level == "graph" else 1,
+                    num_channels=num_node_features,
+                    edge_dim=num_edge_features,
+                )
+                self.example_input_array = Batch.from_data_list([data for data in fake_dataset])
