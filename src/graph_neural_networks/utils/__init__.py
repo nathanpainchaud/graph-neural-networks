@@ -6,15 +6,15 @@ from .utils import extras, get_metric_value, hydra_serial_sweeper, pre_hydra_rou
 
 __all__ = [
     "RankedLogger",
+    "enforce_tags",
     "extras",
     "get_metric_value",
     "hydra_serial_sweeper",
-    "pre_hydra_routine",
-    "task_wrapper",
-    "enforce_tags",
-    "print_config_tree",
-    "log_hyperparameters",
-    "pad_keys",
     "instantiate_callbacks",
     "instantiate_loggers",
+    "log_hyperparameters",
+    "pad_keys",
+    "pre_hydra_routine",
+    "print_config_tree",
+    "task_wrapper",
 ]

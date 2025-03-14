@@ -5,7 +5,6 @@ from typing import Any
 import pytest
 import torch
 from packaging.version import Version
-from pytest import MarkDecorator
 
 from .package_available import _IS_WINDOWS, _OGB_AVAILABLE, _SH_AVAILABLE, _WANDB_AVAILABLE, _XLA_AVAILABLE
 
@@ -39,7 +38,7 @@ class RunIf:
         wandb: bool = False,
         ogb: bool = False,
         **kwargs: dict[Any, Any],
-    ) -> MarkDecorator:
+    ) -> pytest.MarkDecorator:
         """Creates a new `@RunIf` `MarkDecorator` decorator.
 
         Args:

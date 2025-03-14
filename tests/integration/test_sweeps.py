@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from ..helpers.run import RunIf, run_sh_command
+from ..helpers.run import RunIf, run_sh_command  # noqa: TID252
 
 
 @pytest.fixture(scope="module")
@@ -36,7 +36,7 @@ def testing_overrides(tmp_path: Path) -> list[str]:
 
 @RunIf(sh=True)
 @pytest.mark.slow
-def test_experiments(train_script: Path, testing_overrides) -> None:
+def test_experiments(train_script: Path, testing_overrides: list[str]) -> None:
     """Test running all available experiment configs with `fast_dev_run=True`.
 
     Args:
@@ -48,13 +48,14 @@ def test_experiments(train_script: Path, testing_overrides) -> None:
         "-m",
         "experiment=glob(*)",
         "++trainer.fast_dev_run=true",
-    ] + testing_overrides
+        *testing_overrides,
+    ]
     run_sh_command(command)
 
 
 @RunIf(sh=True)
 @pytest.mark.slow
-def test_hydra_sweep(train_script: Path, application_overrides: list[str], testing_overrides) -> None:
+def test_hydra_sweep(train_script: Path, application_overrides: list[str], testing_overrides: list[str]) -> None:
     """Test default hydra sweep.
 
     Args:
@@ -62,22 +63,22 @@ def test_hydra_sweep(train_script: Path, application_overrides: list[str], testi
         application_overrides: The application-specific overrides to use.
         testing_overrides: The generic overrides to suitably configure tests.
     """
-    command = (
-        [
-            str(train_script),
-            "-m",
-            "model.optimizer.lr=0.005,0.01",
-            "++trainer.fast_dev_run=true",
-        ]
-        + application_overrides
-        + testing_overrides
-    )
+    command = [
+        str(train_script),
+        "-m",
+        "model.optimizer.lr=0.005,0.01",
+        "++trainer.fast_dev_run=true",
+        *application_overrides,
+        *testing_overrides,
+    ]
     run_sh_command(command)
 
 
 @RunIf(sh=True)
 @pytest.mark.slow
-def test_optuna_sweep(train_script: Path, mutag_classification_overrides: list[str], testing_overrides) -> None:
+def test_optuna_sweep(
+    train_script: Path, mutag_classification_overrides: list[str], testing_overrides: list[str]
+) -> None:
     """Test Optuna hyperparam sweeping.
 
     Args:
@@ -88,26 +89,24 @@ def test_optuna_sweep(train_script: Path, mutag_classification_overrides: list[s
     # TODO: Make this test more flexible by using `application_overrides` (instead of `mutag_classification_overrides`)
     #       and automatically picking the `hparams_search` config based on the application overrides.
     #       Not done because it is not trivial to find a reliable way to pick an appropriate `hparams_search` config.
-    command = (
-        [
-            str(train_script),
-            "-m",
-            "hparams_search=graph_level_optuna",
-            "~serial_sweeper",  # Disable the serial sweeper here to test it separately
-            "hydra.sweeper.n_jobs=1",
-            "hydra.sweeper.n_trials=10",
-            "hydra.sweeper.sampler.n_startup_trials=5",
-            "++trainer.fast_dev_run=true",
-        ]
-        + mutag_classification_overrides
-        + testing_overrides
-    )
+    command = [
+        str(train_script),
+        "-m",
+        "hparams_search=graph_level_optuna",
+        "~serial_sweeper",  # Disable the serial sweeper here to test it separately
+        "hydra.sweeper.n_jobs=1",
+        "hydra.sweeper.n_trials=10",
+        "hydra.sweeper.sampler.n_startup_trials=5",
+        "++trainer.fast_dev_run=true",
+        *mutag_classification_overrides,
+        *testing_overrides,
+    ]
     run_sh_command(command)
 
 
 @RunIf(sh=True)
 @pytest.mark.slow
-def test_serial_sweep(train_script: Path, application_overrides: list[str], testing_overrides) -> None:
+def test_serial_sweep(train_script: Path, application_overrides: list[str], testing_overrides: list[str]) -> None:
     """Test single-process serial sweeping.
 
     Args:
@@ -115,13 +114,11 @@ def test_serial_sweep(train_script: Path, application_overrides: list[str], test
         application_overrides: The application-specific overrides to use.
         testing_overrides: The generic overrides to suitably configure tests.
     """
-    command = (
-        [
-            str(train_script),
-            "serial_sweeper=cross_validation",
-            "++trainer.fast_dev_run=true",
-        ]
-        + application_overrides
-        + testing_overrides
-    )
+    command = [
+        str(train_script),
+        "serial_sweeper=cross_validation",
+        "++trainer.fast_dev_run=true",
+        *application_overrides,
+        *testing_overrides,
+    ]
     run_sh_command(command)

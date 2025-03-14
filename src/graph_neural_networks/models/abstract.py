@@ -43,7 +43,7 @@ class MetricTrackingLitModule(LightningModule, ABC):
         metrics: MetricCollection | None = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initializes a `MetricTrackingLitModule`.
 
         Args:
@@ -215,7 +215,9 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
     task_level: Literal["node", "graph"]
     """The type of task the model is designed for, used to generate an example input batch."""
 
-    def __init__(self, num_node_features: int = None, num_edge_features: int = None, *args, **kwargs):
+    def __init__(
+        self, num_node_features: int | None = None, num_edge_features: int | None = None, *args, **kwargs
+    ) -> None:
         """Initializes a `GraphLitModule`.
 
         Args:
@@ -244,4 +246,4 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
                     num_channels=num_node_features,
                     edge_dim=num_edge_features,
                 )
-                self.example_input_array = Batch.from_data_list([data for data in fake_dataset])
+                self.example_input_array = Batch.from_data_list(list(fake_dataset))

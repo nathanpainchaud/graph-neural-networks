@@ -21,7 +21,7 @@ class GraphLevelLitModule(GraphLitModule):
         head: nn.Module,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initializes a `GraphLevelLitModule`.
 
         Args:

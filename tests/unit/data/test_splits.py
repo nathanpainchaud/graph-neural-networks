@@ -205,11 +205,8 @@ class TestKFold(AbstractSplitTest):
     @pytest.mark.parametrize("holdout_test_size", [0.1, 20])
     def test_test_fold_and_holdout_test_size(splits_fn: Callable[[], DatasetSplit]) -> None:
         """Test that an error is raised when both `holdout_test_size` and `test_fold` are set."""
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError, match="both `holdout_test_size` and `test_fold`, which are mutually exclusive"):
             splits_fn()
-
-        assert exc_info.type is ValueError
-        assert "both `holdout_test_size` and `test_fold`, which are mutually exclusive" in str(exc_info.value)
 
 
 class TestSubsetsSplit(AbstractSplitTest):
@@ -322,7 +319,7 @@ class TestSubsetsSplit(AbstractSplitTest):
 
 
 @pytest.mark.parametrize(
-    "split_fn,expected_serialization",
+    ("split_fn", "expected_serialization"),
     [
         (
             k_fold,

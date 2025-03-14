@@ -86,9 +86,7 @@ def k_fold(
 
     # Convert arrays of int64 (e.g. returned by `KFold.split`) to a sorted native int list
     # to avoid serialization issues if the caller tries to save the splits to disk
-    splits = apply_to_collection(splits, np.ndarray, lambda x: np.sort(x).tolist())
-
-    return splits
+    return apply_to_collection(splits, np.ndarray, lambda x: np.sort(x).tolist())
 
 
 def subsets_split(

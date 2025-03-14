@@ -14,7 +14,7 @@ from torch_geometric.data import Dataset
 from graph_neural_networks.data import LightningDataset, SplitLightningDataset, k_fold, subsets_split
 from graph_neural_networks.data.datamodule import OGBLightningDataset
 
-from ...helpers.run import RunIf
+from ...helpers.run import RunIf  # noqa: TID252
 
 
 class AbstractLightningDatasetTest(ABC):
@@ -57,12 +57,17 @@ class AbstractLightningDatasetTest(ABC):
         # Ensure that `prepare_data` downloads the data, without assigning the subsets!
         dm.prepare_data()
         assert any(tmp_path.iterdir())
-        assert not dm.train_dataset and not dm.val_dataset and not dm.test_dataset and not dm.pred_dataset
+        assert not dm.train_dataset
+        assert not dm.val_dataset
+        assert not dm.test_dataset
+        assert not dm.pred_dataset
 
         # Ensure that `setup` assigns the subsets (for the respective stages) and that dataloaders can be created
         dm.setup(TrainerFn.FITTING)
-        assert dm.train_dataset and dm.val_dataset
-        assert dm.train_dataloader() and dm.val_dataloader()
+        assert dm.train_dataset
+        assert dm.train_dataloader()
+        assert dm.val_dataset
+        assert dm.val_dataloader()
 
         dm.setup(TrainerFn.TESTING)
         assert dm.test_dataset

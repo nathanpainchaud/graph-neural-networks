@@ -214,8 +214,7 @@ class SplitLightningDataset(LightningDataset):
                     f"you are sure that the new splits are correct, delete the old file to save the new splits and get "
                     f"rid of this error."
                 )
-            else:
-                log.info(f"Newly generated requested splits match the saved splits from '{splits_file}'!")
+            log.info(f"Newly generated requested splits match the saved splits from '{splits_file}'!")
 
         split = splits[self._split_idx]
         return split[TRAIN_SET], split.get(VAL_SET), split.get(TEST_SET)

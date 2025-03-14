@@ -6,7 +6,7 @@ from omegaconf import DictConfig, open_dict
 
 from graph_neural_networks.train import train
 
-from ..helpers.run import RunIf
+from ..helpers.run import RunIf  # noqa: TID252
 
 
 def test_train_fast_dev_run(cfg_train: DictConfig) -> None:
@@ -113,7 +113,7 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
 
     files = {child.stem for child in Path(tmp_path / "checkpoints").glob("*.ckpt")}
     # Check that a checkpoint from a later epoch was saved after resuming training
-    monitor_checkpoint_stem = [f for f in files if f.startswith("epoch_")][0]
+    monitor_checkpoint_stem = next(f for f in files if f.startswith("epoch_"))
     monitor_checkpoint_best_epoch = int(monitor_checkpoint_stem.split("_")[1])
     assert monitor_checkpoint_best_epoch in range(1, 5)
 
