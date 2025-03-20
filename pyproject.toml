@@ -23,7 +23,7 @@ dependencies = [
     # NOTE: The direct reference is specified here using hatchling's syntax (instead of in `tool.uv.sources`)
     # so that our fork also gets chosen when installing the package using `pip install .`
     "torch-geometric @ git+https://github.com/nathanpainchaud/pytorch_geometric.git@0bea004a831b2fde32b12cdaa03e3715cb44c240",
-    "torchmetrics>=1.6.1,<1.7",
+    "torchmetrics>=1.7,<1.8",
 ]
 [project.optional-dependencies]
 all = [
