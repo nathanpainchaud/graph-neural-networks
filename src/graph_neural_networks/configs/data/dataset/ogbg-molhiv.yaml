@@ -2,8 +2,9 @@
 
 defaults:
   - /data/dataset/ogb_base@data.dataset: graph_prop_pred
-  # To add a transform (or pre-transform) to the dataset, you can use the following syntax:
-#  - /data/transform@data.dataset: <transform_name>
+  # To add transforms (or pre-transforms) to the dataset, use the following config group:
+  - optional /data/dataset/transform: null
+  - optional /data/dataset/transform@data.dataset.pre_transform: null
 
 hparams:
   # hparams.data.* values are meant to expose the constant properties of the `torch_geometric.data.Dataset` instance
