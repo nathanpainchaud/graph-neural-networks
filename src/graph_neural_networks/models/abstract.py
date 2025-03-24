@@ -180,9 +180,17 @@ class MetricTrackingLitModule(LightningModule, ABC):
         self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         if self._base_metrics:
-            # Update the stateful metrics and log them, Lightning will take care to aggregate them over the epoch
+            # Update the stateful metrics
             self.test_metrics.update(logits, batch.y)
-            self.log_dict(self.test_metrics, on_step=False, on_epoch=True, prog_bar=True)
+
+    def on_test_epoch_end(self) -> None:  # noqa: D102
+        # Log the metrics accumulated over the epoch
+        if self._base_metrics:
+            # Call the `compute` method explicitly, instead of passing the metric object to `log_dict` inside the
+            # `test_step` and relying on Lightning to aggregate the metrics. This avoids issues when relying on the
+            # `MetricCollection` to flatten the output directory, which is not supported when called internally by
+            # Lightning.
+            self.log_dict(self.test_metrics.compute(), prog_bar=True)
 
     def configure_optimizers(self) -> dict[str, Any]:
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
