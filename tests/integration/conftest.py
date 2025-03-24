@@ -148,7 +148,7 @@ def cfg_eval(cfg_eval_global: DictConfig, tmp_path: Path) -> DictConfig:
     GlobalHydra.instance().clear()
 
 
-@pytest.fixture(scope="package", params=["mutag_classification_overrides"])
+@pytest.fixture(scope="package", params=["mutag_classification_overrides", "enzymes_classification_overrides"])
 def application_overrides(request: FixtureRequest) -> list[str]:
     """A pytest fixture for the overrides to use to specify the application (i.e. data, model, etc.) for the tests.
 
@@ -169,6 +169,22 @@ def mutag_classification_overrides() -> list[str]:
         # Data overrides
         "data=split_lightning_dataset",
         "data/dataset=mutag",
+        # Model overrides
+        "model=graph_classifier",
+    ]
+
+
+@pytest.fixture(scope="package")
+def enzymes_classification_overrides() -> list[str]:
+    """A pytest fixture for the overrides to use for quick tests on the MUTAG graph-level classification dataset.
+
+    Returns:
+        A list of configuration overrides.
+    """
+    return [
+        # Data overrides
+        "data=split_lightning_dataset",
+        "data/dataset=enzymes",
         # Model overrides
         "model=graph_classifier",
     ]
