@@ -171,6 +171,7 @@ def mutag_classification_overrides() -> list[str]:
         "data/dataset=mutag",
         # Model overrides
         "model=graph_classifier",
+        "model/metrics=binary_classification",
     ]
 
 
@@ -187,4 +188,5 @@ def enzymes_classification_overrides() -> list[str]:
         "data/dataset=enzymes",
         # Model overrides
         "model=graph_classifier",
+        "model/metrics=multi_classification",
     ]

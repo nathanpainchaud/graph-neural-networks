@@ -4,6 +4,10 @@ defaults:
   - components@head: mlp
   - optimizer: adamw
   - scheduler: step_lr
+  # Metrics depend on the data task, but because of limitations to the interpolation in the defaults list, it is not
+  # possible to use the data task value to interpolate which metrics config to use. Therefore, they are to be assigned
+  # manually by the user (e.g. in an experiment config).
+  - metrics: ???
 
 _target_: graph_neural_networks.models.GraphLevelLitModule
 task: ${hparams.data.task}
@@ -26,18 +30,3 @@ criterion:
 
 # Use `torch.float` dtype for target when the criterion is `BCEWithLogitsLoss`, otherwise use `torch.long`
 criterion_target_dtype: ${op.ternary:${op:eq,${.criterion._target_},torch.nn.BCEWithLogitsLoss}, torch.float, torch.long}
-
-metrics:
-  _target_: torchmetrics.MetricCollection
-  # since MetricCollection does not recognize OmegaConf containers as their corresponding Python primitives
-  # force the conversion of OmegaConf containers to Python primitives
-  _convert_: all
-  metrics:
-    acc:
-      _target_: torchmetrics.Accuracy
-      # Force `binary` task if `num_classes=1` (e.g. in special cases of multilabel classification),
-      # otherwise use the task associated with the dataset
-      task: ${op.ternary:${op:eq,${oc.select:hparams.data.num_classes},1}, binary, ${hparams.data.task}}
-      # Provide the number of classes as either `num_classes` or `num_labels` depending on the task
-      num_classes: ${oc.select:hparams.data.num_classes}
-      num_labels: ${oc.select:hparams.data.num_classes}

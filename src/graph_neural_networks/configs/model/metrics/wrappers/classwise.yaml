@@ -1,0 +1,4 @@
+_target_: torchmetrics.ClasswiseWrapper
+metric:
+  average: null
+labels: ${oc.select:hparams.data.class_labels}

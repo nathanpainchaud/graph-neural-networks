@@ -1,0 +1,7 @@
+defaults:
+  - metrics/acc
+
+_target_: torchmetrics.MetricCollection
+# since MetricCollection does not recognize OmegaConf containers as their corresponding Python primitives
+# force the conversion of OmegaConf containers to Python primitives
+_convert_: all

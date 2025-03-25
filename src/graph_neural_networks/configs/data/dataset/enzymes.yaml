@@ -20,4 +20,5 @@ hparams:
     num_node_attributes: 18
     num_node_features: ${op:add,${.num_node_labels},${op.ternary:${data.dataset.use_node_attr}, ${.num_node_attributes}, 0}}
     num_classes: 6
+    class_labels: [EC1, EC2, EC3, EC4, EC5, EC6]
     task: multiclass

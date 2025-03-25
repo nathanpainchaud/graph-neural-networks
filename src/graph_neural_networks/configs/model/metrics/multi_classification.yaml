@@ -1,0 +1,20 @@
+defaults:
+  - metrics/acc
+  - metrics/auroc
+  # insert _self_, i.e. current config, before wrappers (instead of by default being the last item in the defaults list)
+  # to avoid erasing the wrappers' overrides when interpolating the metrics inside the wrappers
+  - _self_
+  - wrappers/classwise@metrics.classwise_acc
+  - wrappers/classwise@metrics.classwise_auroc
+
+_target_: torchmetrics.MetricCollection
+# since MetricCollection does not recognize OmegaConf containers as their corresponding Python primitives
+# force the conversion of OmegaConf containers to Python primitives
+_convert_: all
+metrics:
+  classwise_acc:
+    metric: ${..acc}
+    prefix: acc/
+  classwise_auroc:
+    metric: ${..auroc}
+    prefix: auroc/

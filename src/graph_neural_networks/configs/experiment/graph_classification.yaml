@@ -7,6 +7,11 @@ defaults:
   - override /data: split_lightning_dataset
   - override /data/dataset: mutag
   - override /model: graph_classifier
+  # Metrics should only depend on the data task, and therefore should be able to be inferred from the data config.
+  # However, they belong to the model config, and because of limitations to the interpolation in the defaults list,
+  # it is not possible to use the data task value to interpolate which metrics config to use.
+  # Therefore, the least bad solution is to assign the metrics manually in the experiment config.
+  - override /model/metrics: binary_classification
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
