@@ -50,7 +50,7 @@ def cfg_train_global(cfg_path: Path, application_overrides: list[str]) -> DictCo
             cfg.paths.data_dir = os.path.join(os.environ["PROJECT_ROOT"], "data")
             cfg.trainer.min_epochs = 0
             cfg.trainer.max_epochs = 1
-            cfg.trainer.limit_train_batches = 5
+            cfg.trainer.limit_train_batches = 10
             cfg.trainer.limit_val_batches = 2
             cfg.trainer.limit_test_batches = 2
             cfg.trainer.accelerator = "cpu"
