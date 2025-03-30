@@ -15,7 +15,7 @@ dependencies = [
     "hydra-joblib-launcher>=1.2.0,<2",
     "hydra-optuna-sweeper>=1.2.0,<2",
     "lightning>=2.5.0.post0,<2.6",
-    "rich>=13.9.4,<14",
+    "rich>=14,<15",
     "rootutils>=1.0.7,<2",
     "scikit-learn>=1.6.1,<2",
     # Use our fork of torch-geometric that patches Lightning imports until the following issue gets solved and released:
