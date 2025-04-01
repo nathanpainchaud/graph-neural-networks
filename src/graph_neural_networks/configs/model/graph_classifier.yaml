@@ -29,4 +29,9 @@ criterion:
   _target_: ${op.ternary:${op:eq,${hparams.data.task},multiclass}, torch.nn.CrossEntropyLoss, torch.nn.BCEWithLogitsLoss}
 
 # Use `torch.float` dtype for target when the criterion is `BCEWithLogitsLoss`, otherwise use `torch.long`
-criterion_target_dtype: ${op.ternary:${op:eq,${.criterion._target_},torch.nn.BCEWithLogitsLoss}, torch.float, torch.long}
+criterion_target_dtype:
+  # Workaround to have hydra import the torch dtype, suggested in the comment referenced below:
+  # https://github.com/facebookresearch/hydra/issues/2140#issuecomment-2334918114
+  _target_: torch.__dict__.get
+  _args_:
+    - ${op.ternary:${op:eq,${...criterion._target_},torch.nn.BCEWithLogitsLoss}, float, long}

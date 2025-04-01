@@ -12,7 +12,6 @@ from torch_geometric.datasets import FakeDataset
 from torchmetrics import MeanMetric, MetricCollection, MetricTracker
 
 from graph_neural_networks.utils import RankedLogger, pad_keys
-from graph_neural_networks.utils.utils import import_from_module
 
 log = RankedLogger(__name__, rank_zero_only=True)
 
@@ -39,7 +38,7 @@ class MetricTrackingLitModule(LightningModule, ABC):
         criterion: nn.Module,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
-        criterion_target_dtype: str | torch.dtype | None = None,
+        criterion_target_dtype: torch.dtype | None = None,
         metrics: MetricCollection | None = None,
         *args,
         **kwargs,
@@ -61,10 +60,6 @@ class MetricTrackingLitModule(LightningModule, ABC):
 
         self.criterion = criterion
         self._criterion_target_dtype = criterion_target_dtype
-        if isinstance(self._criterion_target_dtype, str):
-            self._criterion_target_dtype = import_from_module(self._criterion_target_dtype)
-            if not isinstance(self._criterion_target_dtype, torch.dtype):
-                raise ValueError(f"Invalid torch dtype string: {criterion_target_dtype}")
         # Use metric trackers to aggregate and keep track of min loss across epochs
         # this is useful for callbacks/optimizers that might want to monitor the loss
         self.train_loss_tracker = MetricTracker(MeanMetric(), maximize=False)
