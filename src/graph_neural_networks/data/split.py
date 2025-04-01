@@ -22,6 +22,7 @@ TEST_SET = "test"
 def k_fold(
     data: Sequence[Any],
     stratify: Sequence[int] | None = None,
+    stratify_bins: int | Sequence[float] = 10,
     n_splits: int = 10,
     test_fold: bool = True,
     holdout_test_size: float | int | None = None,
@@ -33,6 +34,10 @@ def k_fold(
     Args:
         data: Data of length `n_samples` to split.
         stratify: If provided, the data is split in a stratified fashion, using this as the class labels.
+        stratify_bins: The bins to divide the stratify labels into, if `stratify` contains float labels. Ignored if
+            `stratify` is None or contains class labels. If `bins` is an int, it defines the number of equal-width bins
+            in the given range (10, by default). If bins is a sequence, it defines a monotonically increasing array of
+            bin edges, including the rightmost edge, allowing for non-uniform bin widths.
         n_splits: The number of folds/splits to create.
         holdout_test_size: The size of the holdout test set to split from the training set before creating the K folds.
             This effectively means that all splits are assigned the same test set. If None or 0, the full dataset is
@@ -57,6 +62,9 @@ def k_fold(
     indices = np.arange(len(data))
     if stratify is not None:
         stratify = np.array(stratify)
+        # Support continuous labels, by dividing them into discrete bins that sklearn can use for stratification
+        if np.issubdtype(stratify.dtype, np.floating):
+            stratify = _digitize_labels(stratify, stratify_bins)
 
     if holdout_test_size:
         test_split_cls = model_selection.ShuffleSplit if stratify is None else model_selection.StratifiedShuffleSplit
@@ -92,6 +100,7 @@ def k_fold(
 def subsets_split(
     data: Sequence[Any],
     stratify: Sequence[int] | None = None,
+    stratify_bins: int = 10,
     val_size: float | int | None = 0.1,
     test_size: float | int | None = 0.2,
     random_state: int | RandomState | None = 12345,
@@ -101,6 +110,10 @@ def subsets_split(
     Args:
         data: Data of length `n_samples` to split.
         stratify: If provided, the data is split in a stratified fashion, using this as the class labels.
+        stratify_bins: The bins to divide the stratify labels into, if `stratify` contains float labels. Ignored if
+            `stratify` is None or contains class labels. If `bins` is an int, it defines the number of equal-width bins
+            in the given range (10, by default). If bins is a sequence, it defines a monotonically increasing array of
+            bin edges, including the rightmost edge, allowing for non-uniform bin widths.
         val_size: The size of the validation set. If None or 0, no validation set is created.
         test_size: The size of the test set. If None or 0, no test set is created.
         random_state: The random state to use for reproducibility.
@@ -119,6 +132,9 @@ def subsets_split(
     indices = np.arange(len(data))
     if stratify is not None:
         stratify = np.array(stratify)
+        # Support continuous labels, by dividing them into discrete bins that sklearn can use for stratification
+        if np.issubdtype(stratify.dtype, np.floating):
+            stratify = _digitize_labels(stratify, stratify_bins)
 
     split = {TRAIN_SET: indices}
 
@@ -174,3 +190,20 @@ def serialize_split_fn(
     params_repr = ",".join(f"{k}={v}" for k, v in sorted(split_params.items()))
     split_fn_name = split_fn.func.__name__ if isinstance(split_fn, functools.partial) else split_fn.__name__
     return f"{split_fn_name}({params_repr})"
+
+
+def _digitize_labels(labels: Sequence[float], bins: int | Sequence[float]) -> np.ndarray:
+    """Digitizes continuous labels, e.g. regression targets, into bins to help create stratified splits.
+
+    Args:
+        labels: The labels to digitize.
+        bins: The number of bins to create.
+
+    Returns:
+        An array of bin indices for each label.
+    """
+    if isinstance(bins, int):
+        bins = np.linspace(np.min(labels), np.max(labels), bins + 1)  # Create `bins + 1` edges
+    # Replace left/right bins with open intervals to +-inf, since digitize assigns out-of-bounds values to 0/len(bins)
+    # + shift the bin indices by -1 to make them 0-based
+    return np.digitize(labels, bins[1:-1]) - 1

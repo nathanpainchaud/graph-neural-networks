@@ -3,6 +3,7 @@
 split:
   _target_: graph_neural_networks.data.k_fold
   _partial_: True
+  stratify_bins: ${op.ternary:${op:eq,${hparams.data.task},regression}, 10, null} # default to 5 if task is regression, otherwise None
   n_splits: ${op.ternary:${.holdout_test_size}, 5, 10} # default to 5 if `holdout_test_size`, otherwise 10
   test_fold: True
   holdout_test_size: ${op.ternary:${.test_fold}, null, 0.2} # default to 0.2 if `test_fold is False`, otherwise None

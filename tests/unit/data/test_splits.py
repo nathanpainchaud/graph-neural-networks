@@ -17,18 +17,25 @@ from graph_neural_networks.data.split import TEST_SET, TRAIN_SET, VAL_SET, Datas
 @pytest.fixture(scope="module", params=[100])
 def data(request: FixtureRequest) -> np.ndarray:
     """A Pytest fixture of random data simulating a dataset's features."""
-    return np.random.rand(request.param, 2)
+    return np.random.default_rng().random((request.param, 2))
 
 
-@pytest.fixture(scope="module", params=[True, False])
-def labels(request: FixtureRequest, data: Sequence[Any]) -> np.ndarray:
+@pytest.fixture(scope="module", params=[None, "classification", "regression"])
+def labels(request: FixtureRequest, data: Sequence[Any]) -> np.ndarray | None:
     """A Pytest fixture of random labels simulating a dataset's supervised labels.
 
     Args:
         request: The pytest request builtin fixture.
         data: The random features for which to generate matching labels.
     """
-    return np.random.randint(0, 2, len(data)) if request.param else None
+    rng = np.random.default_rng()
+    match request.param:
+        case "classification":
+            return rng.integers(low=2, size=len(data))
+        case "regression":
+            return rng.random(size=len(data))
+        case _:
+            return None
 
 
 class AbstractSplitTest(ABC):
@@ -323,11 +330,11 @@ class TestSubsetsSplit(AbstractSplitTest):
     [
         (
             k_fold,
-            "k_fold(holdout_test_size=None,n_splits=10,random_state=12345,shuffle=True,stratify={stratify},test_fold=True)",
+            "k_fold(holdout_test_size=None,n_splits=10,random_state=12345,shuffle=True,stratify={stratify},stratify_bins=10,test_fold=True)",
         ),
         (
             subsets_split,
-            "subsets_split(random_state=12345,stratify={stratify},test_size=0.2,val_size=0.1)",
+            "subsets_split(random_state=12345,stratify={stratify},stratify_bins=10,test_size=0.2,val_size=0.1)",
         ),
     ],
 )
