@@ -4,6 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from pathlib import Path
+from typing import Literal
 
 import pytest
 import torch
@@ -28,13 +29,13 @@ class AbstractLightningDatasetTest(ABC):
         """A Pytest fixture for the `LightningDataset` to test."""
 
     @staticmethod
-    @pytest.fixture(scope="module")
+    @pytest.fixture
     def batch_size() -> int:
         """A Pytest fixture for the default batch size to be used for the dataloaders."""
         return 1
 
     @staticmethod
-    @pytest.fixture(scope="module", params=[TrainerFn.FITTING, TrainerFn.TESTING])
+    @pytest.fixture(params=[TrainerFn.FITTING, TrainerFn.TESTING])
     def stage(request: FixtureRequest) -> TrainerFn:
         """A Pytest fixture for the stage for which to set up the `LightningDataset`."""
         return request.param
@@ -101,6 +102,7 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
         split: tuple[SplitLightningDataset.SplitFunction, bool, bool],
         stratify: bool,
         batch_size: int,
+        on_conflict: Literal["raise", "warn", "ignore"],
     ) -> SplitLightningDataset:
         """A Pytest fixture for a `SplitLightningDataset` datamodule.
 
@@ -109,10 +111,17 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
             split: A split function for the dataset and booleans indicating whether the split has val/test sets.
             stratify: Whether to split the data in a stratified fashion, using the dataset's class labels.
             batch_size: Batch size used for the dataloaders.
+            on_conflict: Behavior when handling conflicts with previously saved splits.
         """
         split_fn, has_val, has_test = split
         return SplitLightningDataset(
-            dataset_fn, has_val, has_test, split=split_fn, stratify=stratify, batch_size=batch_size
+            dataset_fn,
+            has_val,
+            has_test,
+            split=split_fn,
+            stratify=stratify,
+            batch_size=batch_size,
+            on_conflict=on_conflict,
         )
 
     @staticmethod
@@ -129,23 +138,38 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
         return request.getfixturevalue(request.param)
 
     @staticmethod
-    @pytest.fixture(scope="class", params=[k_fold, subsets_split])
-    def split(request: FixtureRequest) -> tuple[SplitLightningDataset.SplitFunction, bool, bool]:
+    @pytest.fixture(params=[k_fold, subsets_split])
+    def split(
+        request: FixtureRequest, random_state: int | None
+    ) -> tuple[SplitLightningDataset.SplitFunction, bool, bool]:
         """A Pytest fixture for the default split function and booleans indicating the availability of val/test sets.
 
         Args:
             request: The pytest request builtin fixture.
+            random_state: The random state to be used for the split function.
 
         Returns:
             A split function for the dataset and booleans indicating whether the split has val/test sets.
         """
-        return request.param, True, True
+        return functools.partial(request.param, random_state=random_state), True, True
 
     @staticmethod
-    @pytest.fixture(scope="class")
+    @pytest.fixture
+    def random_state() -> int | None:
+        """A Pytest fixture for the random state to be used for the dataset splits."""
+        return 12345
+
+    @staticmethod
+    @pytest.fixture
     def stratify() -> bool:
         """A Pytest fixture for the default stratification setting to be used for the dataset splits."""
         return False
+
+    @staticmethod
+    @pytest.fixture
+    def on_conflict() -> str:
+        """A Pytest fixture for the default behavior when handling conflicts with previously saved splits."""
+        return "raise"
 
     @staticmethod
     @pytest.mark.parametrize("split", [(functools.partial(subsets_split, val_size=None), False, True)])
@@ -214,8 +238,9 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
         assert "Newly generated requested splits match the saved splits from" in caplog.text
 
     @staticmethod
-    @pytest.mark.parametrize("split", [(functools.partial(k_fold, random_state=None), True, True)])
-    def test_mismatching_previous_splits(
+    @pytest.mark.parametrize("on_conflict", ["raise"])
+    @pytest.mark.parametrize("random_state", [None])
+    def test_mismatching_previous_splits_raise(
         caplog: LogCaptureFixture, dm: SplitLightningDataset, stage: TrainerFn
     ) -> None:
         """Test that `SplitLightningDataset` correctly errors on previous splits that do not match new splits.
@@ -235,6 +260,43 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
         )
         assert exc_info.type is RuntimeError
         assert "Newly generated requested splits do not match the saved splits from" in str(exc_info.value)
+
+    @staticmethod
+    @pytest.mark.parametrize("on_conflict", ["warn"])
+    @pytest.mark.parametrize("random_state", [None])
+    def test_mismatching_previous_splits_warn(
+        caplog: LogCaptureFixture, dm: SplitLightningDataset, stage: TrainerFn
+    ) -> None:
+        """Test that `SplitLightningDataset` is set to log a warning on previous splits that do not match new splits.
+
+        Notes:
+            - The `split` function is parametrized to be non-deterministic so that splits are different between calls
+        """
+        dm.prepare_data()
+        dm_copy = copy.deepcopy(dm)  # Copy dm before setting internal state w/ `setup` to simulate, e.g. another worker
+        dm.setup(stage)
+        with caplog.at_level(logging.INFO):
+            dm_copy.setup(stage)
+
+        assert (
+            "Found saved splits that match the requested splits. Checking that the generated splits match saved splits "
+            "from" in caplog.text
+        )
+        assert "Newly generated requested splits do not match the saved splits from" in caplog.text
+
+    @staticmethod
+    @pytest.mark.parametrize("on_conflict", ["ignore"])
+    @pytest.mark.parametrize("random_state", [None, 12345])
+    def test_saved_splits_ignore_conflict(
+        caplog: LogCaptureFixture, dm: SplitLightningDataset, stage: TrainerFn
+    ) -> None:
+        """Test that `SplitLightningDataset` is set to ignore previous splits when existing splits are available."""
+        dm.prepare_data()
+        dm_copy = copy.deepcopy(dm)  # Copy dm before setting internal state w/ `setup` to simulate, e.g. another worker
+        dm.setup(stage)
+        with caplog.at_level(logging.INFO):
+            dm_copy.setup(stage)
+        assert "Found saved splits that match the requested splits. Using previously saved splits from" in caplog.text
 
 
 @RunIf(ogb=True)
