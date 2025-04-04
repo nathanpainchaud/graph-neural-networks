@@ -1,3 +1,4 @@
+import copy
 import functools
 import logging
 from abc import ABC, abstractmethod
@@ -193,7 +194,6 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
     @staticmethod
     def test_no_saved_splits(caplog: LogCaptureFixture, dm: SplitLightningDataset, stage: TrainerFn) -> None:
         """Test that `SplitLightningDataset` behaves correctly when no previous splits are available."""
-        # Ensure that the expected info log appears when newly creating splits
         dm.prepare_data()
         with caplog.at_level(logging.INFO):
             dm.setup(stage)
@@ -202,12 +202,11 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
     @staticmethod
     def test_matching_previous_splits(caplog: LogCaptureFixture, dm: SplitLightningDataset, stage: TrainerFn) -> None:
         """Test that `SplitLightningDataset` correctly checks against previous splits when they are available."""
-        # Ensure that the expected info log appears when `setup` is called multiple times (simulating calls from
-        # different workers)
         dm.prepare_data()
+        dm_copy = copy.deepcopy(dm)  # Copy dm before setting internal state w/ `setup` to simulate, e.g. another worker
         dm.setup(stage)
         with caplog.at_level(logging.INFO):
-            dm.setup(stage)
+            dm_copy.setup(stage)
         assert (
             "Found saved splits that match the requested splits. Checking that the generated splits match saved splits "
             "from" in caplog.text
@@ -224,12 +223,11 @@ class TestSplitLightningDataset(AbstractLightningDatasetTest):
         Notes:
             - The `split` function is parametrized to be non-deterministic so that splits are different between calls
         """
-        # Ensure that the expected info log and runtime error are generated when `setup` is called multiple times with
-        # different splits
         dm.prepare_data()
+        dm_copy = copy.deepcopy(dm)  # Copy dm before setting internal state w/ `setup` to simulate, e.g. another worker
         dm.setup(stage)
         with caplog.at_level(logging.INFO), pytest.raises(RuntimeError) as exc_info:
-            dm.setup(stage)
+            dm_copy.setup(stage)
 
         assert (
             "Found saved splits that match the requested splits. Checking that the generated splits match saved splits "

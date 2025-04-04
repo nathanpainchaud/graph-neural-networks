@@ -71,6 +71,7 @@ class LightningDataset(LightningDataModule, ABC):
         self.val_dataset = None
         self.test_dataset = None
         self.pred_dataset = None
+        self._splits = None  # Cache the splits to avoid recomputing them on each call to `setup`
 
     def __repr__(self) -> str:  # noqa: D105
         kwargs = kwargs_repr(
@@ -104,7 +105,9 @@ class LightningDataset(LightningDataModule, ABC):
 
         else:
             # Split the dataset into train, val, and test sets
-            train_idx, val_idx, test_idx = self.get_splits(dataset)
+            if self._splits is None:
+                self._splits = self.get_splits(dataset)  # Cache the splits for the next call to `setup`
+            train_idx, val_idx, test_idx = self._splits
 
             if stage == TrainerFn.FITTING:
                 self.train_dataset = dataset[train_idx]
