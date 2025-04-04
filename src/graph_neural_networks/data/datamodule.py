@@ -163,7 +163,7 @@ class SplitLightningDataset(LightningDataset):
         Args:
             *args: Additional positional arguments to pass to the superclass.
             split: The callable to use for splitting the dataset.
-            stratify: Whether to split the data in a stratified fashion, using the dataset's class labels.
+            stratify: Whether to split the data in a stratified fashion, using the dataset's labels.
             split_idx: The split to use, in case of multiple splits, e.g. for cross-validation. If you have only one
                 split, e.g. a typical train/val/test split, use the default value of 0 to access the only split.
             **kwargs: Additional keyword arguments to pass to the superclass.
