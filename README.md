@@ -90,14 +90,14 @@ to suit your needs, while still providing a feature-complete and flexible framew
    python -m venv .venv
    source .venv/bin/activate
    ```
-3. Install PyTorch libraries (i.e. `torch` and `torchvision`) according to the [official instructions](https://pytorch.org/get-started/locally/).
+3. Install PyTorch according to the [official instructions](https://pytorch.org/get-started/locally/).
    Follow the instructions for `pip` and the compute platform compatible with your system.
    ```bash
    # e.g. to install the PyTorch version built for CPU
-   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+   pip install torch --index-url https://download.pytorch.org/whl/cpu
 
    # e.g. to install the PyTorch version built for CUDA 12.6
-   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+   pip install torch --index-url https://download.pytorch.org/whl/cu126
    ```
 4. Install the project in editable mode.
    ```bash
