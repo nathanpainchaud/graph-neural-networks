@@ -1,0 +1,7 @@
+# @package _global_
+
+data:
+  dataset:
+    _target_: ogb.graphproppred.PygGraphPropPredDataset
+    root: ${paths.data_dir}
+    name: ${hydra:runtime.choices.data/dataset}

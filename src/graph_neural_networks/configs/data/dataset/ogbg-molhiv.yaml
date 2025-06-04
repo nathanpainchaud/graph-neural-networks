@@ -1,7 +1,7 @@
 # @package _global_
 
 defaults:
-  - /data/dataset/ogb_base@data.dataset: graph_prop_pred
+  - _graph_prop_pred
   # To add transforms (or pre-transforms) to the dataset, use the following config group:
   - optional /data/dataset/transform: null
   - optional /data/dataset/transform@data.dataset.pre_transform: null
