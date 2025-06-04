@@ -30,7 +30,7 @@ all = [
     "graph-neural-networks[wandb,tensorboard,ogb]",
 ]
 wandb = [
-    "wandb>=0.19.3,<0.20",
+    "wandb>=0.20,<0.21",
 ]
 tensorboard = [
     "tensorboard>=2.19.0,<3",
