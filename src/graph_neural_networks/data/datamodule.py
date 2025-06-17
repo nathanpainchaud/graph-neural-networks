@@ -271,8 +271,8 @@ class OGBLightningDataset(LightningDataset):
         # The following imports and safe globals additions are a workaround to load OGB datasets in torch>=2.6
         # until this issue is resolved: https://github.com/snap-stanford/ogb/issues/497
         # TODO: Remove this workaround once the issue linked above is resolved and the fix is released
-        from torch_geometric.data.data import DataEdgeAttr, DataTensorAttr
-        from torch_geometric.data.storage import GlobalStorage
+        from torch_geometric.data.data import DataEdgeAttr, DataTensorAttr  # noqa: PLC0415
+        from torch_geometric.data.storage import GlobalStorage  # noqa: PLC0415
 
         torch.serialization.add_safe_globals([GlobalStorage, DataEdgeAttr, DataTensorAttr])
 

@@ -30,6 +30,6 @@ def ogbg_molhiv_dataset_fn(tmp_path: Path) -> Callable[[], Dataset]:
     Returns:
         A function that returns a dataset.
     """
-    from ogb.graphproppred import PygGraphPropPredDataset
+    from ogb.graphproppred import PygGraphPropPredDataset  # noqa: PLC0415
 
     return functools.partial(PygGraphPropPredDataset, root=str(tmp_path), name="ogbg-molhiv")
