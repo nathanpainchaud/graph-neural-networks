@@ -79,14 +79,11 @@ gnn-train = "graph_neural_networks.train:main"
 gnn-eval = "graph_neural_networks.eval:main"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.metadata]
-allow-direct-references = true  # Allow direct references to install `torch-geometric` from our fork
+requires = ["uv_build>=0.7.19,<0.8"]
+build-backend = "uv_build"
 
 [tool.uv]
-required-version = ">=0.7.1,<0.8"
+required-version = ">=0.7.19,<0.8"
 # Refer to the note above about installing pytorch using optional dependencies,
 # especially the link to uv's documentation, to understand this configuration
 conflicts = [
