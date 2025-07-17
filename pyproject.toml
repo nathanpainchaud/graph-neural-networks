@@ -79,7 +79,7 @@ gnn-train = "graph_neural_networks.train:main"
 gnn-eval = "graph_neural_networks.eval:main"
 
 [build-system]
-requires = ["uv_build>=0.7.19,<0.8"]
+requires = ["uv_build>=0.8,<0.9"]
 build-backend = "uv_build"
 
 [tool.uv]
