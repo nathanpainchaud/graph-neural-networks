@@ -54,13 +54,13 @@ to suit your needs, while still providing a feature-complete and flexible framew
    cd graph-neural-networks
    ```
 2. Create a virtual environment and install the project and its dependencies. You must specify as an extra the desired
-   compute platform for PyTorch (i.e. CPU/CUDA). Supported values are: `cpu`, `cu128`, `cu126`, `cu118`.
+   compute platform for PyTorch (i.e. CPU/CUDA). Supported values are: `cpu`, `cu129`, `cu128`, `cu126`.
    ```bash
    # e.g. to install the project with the PyTorch version built for CPU
    uv sync --extra cpu
 
-   # e.g. to install the project with the PyTorch version built for CUDA 12.6
-   uv sync --extra cu126
+   # e.g. to install the project with the PyTorch version built for CUDA 12.8
+   uv sync --extra cu128
    ```
    [OPTIONAL] You can also specify other extras for additional functionalities:
    ```bash
@@ -96,8 +96,8 @@ to suit your needs, while still providing a feature-complete and flexible framew
    # e.g. to install the PyTorch version built for CPU
    pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-   # e.g. to install the PyTorch version built for CUDA 12.6
-   pip install torch --index-url https://download.pytorch.org/whl/cu126
+   # e.g. to install the PyTorch version built for CUDA 12.8
+   pip install torch --index-url https://download.pytorch.org/whl/cu128
    ```
 4. Install PyG and its `torch_scatter` dependency according to the [official instructions](https://pytorch-geometric.readthedocs.io/en/stable/install/installation.html)
    Follow the instructions for `pip` and the compute platform compatible with your system.
@@ -105,8 +105,8 @@ to suit your needs, while still providing a feature-complete and flexible framew
    # install PyG
    pip install torch_geometric
 
-   # install `torch_scatter` optional dependency (e.g. for CUDA 12.6)
-   pip install torch_scatter -f https://data.pyg.org/whl/torch-2.7.0+cu126.html
+   # install `torch_scatter` optional dependency (e.g. for CUDA 12.8)
+   pip install torch_scatter -f https://data.pyg.org/whl/torch-2.8.0+cu128.html
    ```
 5. Install the project in editable mode.
    ```bash
@@ -126,7 +126,7 @@ to suit your needs, while still providing a feature-complete and flexible framew
 
 ### List of available extras
 
-- \[`cpu`|`cu128`|`cu126`|`cu118`\]: Required mutually exclusive extras to install the project with a PyTorch version
+- \[`cpu`|`cu129`|`cu128`|`cu126`\]: Required mutually exclusive extras to install the project with a PyTorch version
   built for CPU or a specific CUDA version (only available when using `uv`, not `pip`).
 - `wandb`: For experiment tracking with Weights & Biases.
 - `ogb`: For Open Graph Benchmark datasets.

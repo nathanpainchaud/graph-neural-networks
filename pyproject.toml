@@ -40,19 +40,19 @@ ogb = [
 # they want to list here, i.e. support
 cpu = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
-]
-cu118 = [
-  "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
+  "torch>=2.8,<2.9",
 ]
 cu126 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
+  "torch>=2.8,<2.9",
 ]
 cu128 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
+  "torch>=2.8,<2.9",
+]
+cu129 = [
+  "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
+  "torch>=2.8,<2.9",
 ]
 
 [dependency-groups]
@@ -86,9 +86,9 @@ required-version = ">=0.9,<0.10"
 conflicts = [
   [
     { extra = "cpu" },
-    { extra = "cu118" },
     { extra = "cu126" },
     { extra = "cu128" },
+    { extra = "cu129" },
   ],
 ]
 
@@ -97,15 +97,15 @@ conflicts = [
 # especially the link to uv's documentation, to understand this configuration
 torch = [
   { index = "pytorch-cpu", extra = "cpu" },
-  { index = "pytorch-cu118", extra = "cu118" },
   { index = "pytorch-cu126", extra = "cu126" },
   { index = "pytorch-cu128", extra = "cu128" },
+  { index = "pytorch-cu129", extra = "cu129" },
 ]
 torch-scatter = [
   { index = "pyg-cpu", extra = "cpu" },
-  { index = "pyg-cu118", extra = "cu118" },
   { index = "pyg-cu126", extra = "cu126" },
   { index = "pyg-cu128", extra = "cu128" },
+  { index = "pyg-cu129", extra = "cu129" },
 ]
 
 [[tool.uv.index]]
@@ -113,11 +113,6 @@ torch-scatter = [
 # especially the link to uv's documentation, to understand this configuration
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
-explicit = true
-
-[[tool.uv.index]]
-name = "pytorch-cu118"
-url = "https://download.pytorch.org/whl/cu118"
 explicit = true
 
 [[tool.uv.index]]
@@ -131,31 +126,36 @@ url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [[tool.uv.index]]
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
+
+[[tool.uv.index]]
 # PyG use their own index for their wheels built against specific PyTorch/CUDA versions
 # (see their install instructions: https://pytorch-geometric.readthedocs.io/en/stable/install/installation.html)
 # Since their index does not implement the PEP 503 Simple Repository API we have to specify to uv that it is "flat"
 # (see uv's documentation: https://docs.astral.sh/uv/concepts/indexes/#flat-indexes
 # and this issue: https://github.com/astral-sh/uv/issues/12238)
 name = "pyg-cpu"
-url = "https://data.pyg.org/whl/torch-2.7.0+cpu.html"
-format = "flat"
-explicit = true
-
-[[tool.uv.index]]
-name = "pyg-cu118"
-url = "https://data.pyg.org/whl/torch-2.7.0+cu118.html"
+url = "https://data.pyg.org/whl/torch-2.8.0+cpu.html"
 format = "flat"
 explicit = true
 
 [[tool.uv.index]]
 name = "pyg-cu126"
-url = "https://data.pyg.org/whl/torch-2.7.0+cu126.html"
+url = "https://data.pyg.org/whl/torch-2.8.0+cu126.html"
 format = "flat"
 explicit = true
 
 [[tool.uv.index]]
 name = "pyg-cu128"
-url = "https://data.pyg.org/whl/torch-2.7.0+cu128.html"
+url = "https://data.pyg.org/whl/torch-2.8.0+cu128.html"
+format = "flat"
+explicit = true
+
+[[tool.uv.index]]
+name = "pyg-cu129"
+url = "https://data.pyg.org/whl/torch-2.8.0+cu129.html"
 format = "flat"
 explicit = true
 
