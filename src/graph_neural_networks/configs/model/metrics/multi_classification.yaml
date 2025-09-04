@@ -1,6 +1,7 @@
 defaults:
   - metrics/acc
   - metrics/auroc
+  - metrics/confusion_matrix
   # insert _self_, i.e. current config, before wrappers (instead of by default being the last item in the defaults list)
   # to avoid erasing the wrappers' overrides when interpolating the metrics inside the wrappers
   - _self_

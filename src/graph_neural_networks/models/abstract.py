@@ -6,10 +6,16 @@ from typing import Any, Literal
 
 import torch
 from lightning import LightningModule
+from lightning.pytorch.loggers import WandbLogger
 from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.datasets import FakeDataset
 from torchmetrics import MeanMetric, MetricCollection, MetricTracker
+from torchmetrics.classification import (
+    BinaryConfusionMatrix,
+    MulticlassConfusionMatrix,
+    MultilabelConfusionMatrix,
+)
 
 from graph_neural_networks.utils import RankedLogger, pad_keys
 
@@ -67,17 +73,46 @@ class MetricTrackingLitModule(LightningModule, ABC):
         # No tracker for test loss, since it should only be computed for one epoch
         self.test_loss = MeanMetric()
 
-        self._base_metrics = metrics
+        # Handle common cases of non-scalar metrics that cannot be tracked/logged like scalar metrics
+        scalar_metrics = {}
+        plot_metrics = {}
+        for tag, metric in (metrics or {}).items():
+            # First check that the metric can be tracked and logged natively, because some supported metrics might
+            # inherit from non-scalar metrics (e.g. CohenKappa inherits from ConfusionMatrix), so testing for type
+            # might lead to false negatives
+            if metric.higher_is_better is not None:
+                scalar_metrics[tag] = metric
+            else:
+                match metric:
+                    case BinaryConfusionMatrix() | MulticlassConfusionMatrix() | MultilabelConfusionMatrix():
+                        # Remove confusion matrix from base metrics, since it is not a scalar metric
+                        plot_metrics[tag] = metric
+                    case _:
+                        raise NotImplementedError(
+                            f"Only metrics that implement `higher_is_better` attribute are can be tracked and logged "
+                            f"natively. Either remove metric '{tag}' of type {type(metric)} or implement custom "
+                            f"logging in your LightningModule subclass or in {MetricTrackingLitModule.__name__}."
+                        )
+
+        self._base_metrics = MetricCollection(scalar_metrics) if scalar_metrics else None
         if self._base_metrics:
             # Use metric collection to group metrics in a single object, to update and log them together
             # torchmetrics recommends to use different instances of the metrics for train, val, and test
             # to avoid conflicts since the metrics are stateful
             # Just as for the loss, we wrap the metrics inside a tracker to help track the best values across epochs
             # Here, we explicitly set `maximize=None` to infer the best value from the underlying metric
-            self.train_metrics_tracker = MetricTracker(metrics.clone(prefix="train/"), maximize=None)
-            self.val_metrics_tracker = MetricTracker(metrics.clone(prefix="val/"), maximize=None)
+            self.train_metrics_tracker = MetricTracker(self._base_metrics.clone(prefix="train/"), maximize=None)
+            self.val_metrics_tracker = MetricTracker(self._base_metrics.clone(prefix="val/"), maximize=None)
             # No tracker for test metrics, since they should only be computed for one epoch
-            self.test_metrics = metrics.clone(prefix="test/")
+            self.test_metrics = self._base_metrics.clone(prefix="test/")
+
+        # Group non-scalar metrics separately, since they need custom handling, but with the same pattern of
+        # train/val/test instances as for scalar metrics
+        self._plot_metrics = MetricCollection(plot_metrics) if plot_metrics else None
+        if self._plot_metrics:
+            self.train_plot_metrics = self._plot_metrics.clone(prefix="train/")
+            self.val_plot_metrics = self._plot_metrics.clone(prefix="val/")
+            self.test_plot_metrics = self._plot_metrics.clone(prefix="test/")
 
     def save_hyperparameters(  # noqa: D102
         self,
@@ -118,6 +153,8 @@ class MetricTrackingLitModule(LightningModule, ABC):
         self.train_loss_tracker.increment()
         if self._base_metrics:
             self.train_metrics_tracker.increment()
+        if self._plot_metrics:
+            self.train_plot_metrics.reset()
 
     def training_step(self, batch: Batch) -> torch.Tensor:  # noqa: D102
         # Perform the forward pass on the model and compute the loss
@@ -127,6 +164,8 @@ class MetricTrackingLitModule(LightningModule, ABC):
         self.train_loss_tracker.update(loss)
         if self._base_metrics:
             self.train_metrics_tracker.update(logits, batch.y)
+        if self._plot_metrics:
+            self.train_plot_metrics.update(logits, batch.y)
 
         return loss
 
@@ -137,6 +176,7 @@ class MetricTrackingLitModule(LightningModule, ABC):
         if self._base_metrics:
             self.log_dict(self.train_metrics_tracker.compute(), prog_bar=True)
             self.log_dict(pad_keys(self.train_metrics_tracker.best_metric(), postfix="/best"), prog_bar=True)
+        self._log_nonscalar_metrics(self.train_plot_metrics)
 
     def on_validation_epoch_start(self) -> None:  # noqa: D102
         # Initialize new instances of the tracked loss/metrics for the new epoch
@@ -148,6 +188,8 @@ class MetricTrackingLitModule(LightningModule, ABC):
         self.val_loss_tracker.increment()
         if self._base_metrics:
             self.val_metrics_tracker.increment()
+        if self._plot_metrics:
+            self.val_plot_metrics.reset()
 
     def validation_step(self, batch: Batch) -> None:  # noqa: D102
         # Perform the forward pass on the model and compute the loss
@@ -157,6 +199,8 @@ class MetricTrackingLitModule(LightningModule, ABC):
         self.val_loss_tracker.update(loss)
         if self._base_metrics:
             self.val_metrics_tracker.update(logits, batch.y)
+        if self._plot_metrics:
+            self.val_plot_metrics.update(logits, batch.y)
 
     def on_validation_epoch_end(self) -> None:  # noqa: D102
         # Log the loss and metrics accumulated over the epoch, and the best values so far
@@ -165,6 +209,7 @@ class MetricTrackingLitModule(LightningModule, ABC):
         if self._base_metrics:
             self.log_dict(self.val_metrics_tracker.compute(), prog_bar=True)
             self.log_dict(pad_keys(self.val_metrics_tracker.best_metric(), postfix="/best"), prog_bar=True)
+        self._log_nonscalar_metrics(self.val_plot_metrics)
 
     def test_step(self, batch: Batch) -> None:  # noqa: D102
         # Perform the forward pass on the model and compute the loss
@@ -177,6 +222,8 @@ class MetricTrackingLitModule(LightningModule, ABC):
         if self._base_metrics:
             # Update the stateful metrics
             self.test_metrics.update(logits, batch.y)
+        if self._plot_metrics:
+            self.test_plot_metrics.update(logits, batch.y)
 
     def on_test_epoch_end(self) -> None:  # noqa: D102
         # Log the metrics accumulated over the epoch
@@ -186,6 +233,26 @@ class MetricTrackingLitModule(LightningModule, ABC):
             # `MetricCollection` to flatten the output directory, which is not supported when called internally by
             # Lightning.
             self.log_dict(self.test_metrics.compute(), prog_bar=True)
+        self._log_nonscalar_metrics(self.test_plot_metrics)
+
+    def _log_nonscalar_metrics(self, metrics: MetricCollection) -> None:
+        # Manually log non-scalar metrics, if wandb is being used as logger
+        if self._plot_metrics:
+            plots = metrics.plot()
+
+            match self.logger:
+                case WandbLogger():
+                    import wandb  # noqa: PLC0415
+
+                    wandb_run = self.logger.experiment
+                    for tag, (fig_, ax_) in zip(metrics.keys(), plots, strict=False):  # noqa: B007
+                        wandb_run.log({tag: wandb.Image(fig_)})
+                case None:
+                    pass  # not logging if no logger is configured
+                case _:
+                    raise NotImplementedError(
+                        f"Logging non-scalar metrics is only implemented for wandb logger, found {type(self.logger)}."
+                    )
 
     def configure_optimizers(self) -> dict[str, Any]:
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
