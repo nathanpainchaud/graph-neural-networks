@@ -1,0 +1,10 @@
+confusion_matrix:
+  _target_: torchmetrics.ConfusionMatrix
+  # Force `binary` task if `num_classes=1` (e.g. in special cases of multilabel classification),
+  # otherwise use the task associated with the dataset
+  task: ${op.ternary:${op:eq,${oc.select:hparams.data.num_classes},1}, binary, ${hparams.data.task}}
+  # Provide the number of classes as either `num_classes` or `num_labels` depending on the task
+  num_classes: ${oc.select:hparams.data.num_classes}
+  num_labels: ${oc.select:hparams.data.num_classes}
+  # Normalization mode for the confusion matrix
+  normalize: none

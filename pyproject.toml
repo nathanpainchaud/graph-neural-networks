@@ -23,7 +23,7 @@ dependencies = [
     # NOTE: The direct reference is specified here using standard syntax (instead of in `tool.uv.sources`)
     # so that our fork also gets chosen when installing the package using `pip install .`
     "torch-geometric @ git+https://github.com/nathanpainchaud/pytorch_geometric.git@b20a4d72c3309f608b8990c89d128c67799a3fff",
-    "torchmetrics>=1.8,<1.9",
+    "torchmetrics[visual]>=1.8,<1.9",
 ]
 [project.optional-dependencies]
 all = [

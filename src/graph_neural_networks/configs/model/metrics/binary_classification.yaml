@@ -1,5 +1,6 @@
 defaults:
   - metrics/acc
+  - metrics/confusion_matrix
 
 _target_: torchmetrics.MetricCollection
 # since MetricCollection does not recognize OmegaConf containers as their corresponding Python primitives
