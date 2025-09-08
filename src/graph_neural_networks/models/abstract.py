@@ -4,6 +4,7 @@ from abc import ABC
 from collections.abc import Sequence
 from typing import Any, Literal
 
+import matplotlib
 import torch
 from lightning import LightningModule
 from lightning.pytorch.loggers import WandbLogger
@@ -253,6 +254,8 @@ class MetricTrackingLitModule(LightningModule, ABC):
                     raise NotImplementedError(
                         f"Logging non-scalar metrics is only implemented for wandb logger, found {type(self.logger)}."
                     )
+
+            matplotlib.pyplot.close("all")  # avoid memory leaks from figures left opened
 
     def configure_optimizers(self) -> dict[str, Any]:
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
