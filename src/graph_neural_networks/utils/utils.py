@@ -13,7 +13,7 @@ from hydra.core.override_parser.overrides_parser import OverridesParser
 from hydra.utils import call
 from omegaconf import DictConfig, OmegaConf
 
-from graph_neural_networks.configs import register_omegaconf_resolvers
+from graph_neural_networks.configs import register_config_resolvers, register_operator_and_keyword_resolvers
 from graph_neural_networks.utils import pylogger, rich_utils
 
 log = pylogger.RankedLogger(__name__, rank_zero_only=True)
@@ -34,7 +34,8 @@ def pre_hydra_routine() -> None:
     # more info: https://github.com/ashleve/rootutils
 
     # Register custom OmegaConf resolvers
-    register_omegaconf_resolvers()
+    register_operator_and_keyword_resolvers()
+    register_config_resolvers()
 
 
 def extras(cfg: DictConfig) -> None:

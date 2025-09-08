@@ -1,0 +1,41 @@
+defaults:
+  - components@encoder: gcn
+  - components/global_pool@readout: add
+  - components@head: mlp
+  - optimizer: adamw
+  - scheduler: step_lr
+  # Metrics are part of the model, used to evaluate it during training, but they depend on the data task.
+  # Intuitively, the metrics config should be interpolated based on the data config. However, limitations in the
+  # interpolation capabilities of Hydra make this impractical.
+  # In this context, the least bad solution is to assign the metrics manually at the experiment (or main config) level.
+  - metrics: null # no sane default can be provided here, metrics are set in `experiment` config
+
+_target_: graph_neural_networks.models.GraphLevelLitModule
+task: ${hparams.data.task}
+num_node_features: ${oc.select:hparams.data.num_node_features,0}
+num_edge_features: ${oc.select:hparams.data.num_edge_features,0}
+
+encoder:
+  out_channels: null
+
+head:
+  in_channels: ${..encoder.hidden_channels}
+  hidden_channels: ${.in_channels}
+  num_layers: 2
+  dropout: ${oc.select:..encoder.dropout,0.5}
+  norm: batch_norm
+
+criterion:
+  # if task is `regression` -> `torch.nn.L1Loss`
+  # if task is `multiclass` -> `torch.nn.CrossEntropyLoss`
+  # if task is `multilabel` -> `torch.nn.BCEWithLogitsLoss`
+  # if task is `binary` -> `torch.nn.BCEWithLogitsLoss`
+  _target_: ${cfg.graph_level_criterion:${hparams.data.task}}
+
+# Use `torch.long` dtype for target when the criterion is `CrossEntropyLoss`, otherwise use `torch.float`
+criterion_target_dtype:
+  # Workaround to have hydra import the torch dtype, suggested in the comment referenced below:
+  # https://github.com/facebookresearch/hydra/issues/2140#issuecomment-2334918114
+  _target_: torch.__dict__.get
+  _args_:
+    - ${op.ternary:${op:eq,${...criterion._target_},torch.nn.CrossEntropyLoss}, long, float}

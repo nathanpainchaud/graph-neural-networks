@@ -170,7 +170,7 @@ def mutag_classification_overrides() -> list[str]:
         "data=split_lightning_dataset",
         "data/dataset=mutag",
         # Model overrides
-        "model=graph_classifier",
+        "model=graph_level",
         "model/metrics=binary_classification",
     ]
 
@@ -187,6 +187,6 @@ def enzymes_classification_overrides() -> list[str]:
         "data=split_lightning_dataset",
         "data/dataset=enzymes",
         # Model overrides
-        "model=graph_classifier",
+        "model=graph_level",
         "model/metrics=multi_classification",
     ]

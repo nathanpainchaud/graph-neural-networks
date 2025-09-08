@@ -18,7 +18,7 @@ defaults:
 
   # experiment configs allow for version control of specific hyperparameters
   # e.g. best hyperparameters for given model and datamodule
-  - experiment: graph_classification
+  - experiment: graph_level_prediction
 
   # config for hyperparameter optimization
   - hparams_search: null

@@ -1,16 +1,16 @@
 # @package _global_
 
 # to execute this experiment run:
-# python train.py experiment=graph_classification
+# python train.py experiment=graph_level_prediction
 
 defaults:
   - override /data: split_lightning_dataset
   - override /data/dataset: mutag
-  - override /model: graph_classifier
-  # Metrics should only depend on the data task, and therefore should be able to be inferred from the data config.
-  # However, they belong to the model config, and because of limitations to the interpolation in the defaults list,
-  # it is not possible to use the data task value to interpolate which metrics config to use.
-  # Therefore, the least bad solution is to assign the metrics manually in the experiment config.
+  - override /model: graph_level
+  # Metrics are part of the model, used to evaluate it during training, but they depend on the data task.
+  # Intuitively, the metrics config should be interpolated based on the data config. However, limitations in the
+  # interpolation capabilities of Hydra make this impractical.
+  # In this context, the least bad solution is to assign the metrics manually at the experiment (or main config) level.
   - override /model/metrics: binary_classification
 
 # all parameters below will be merged with parameters from default configurations set above
@@ -40,5 +40,3 @@ logger:
 _assert_:
   data_more_than_one_graph: ${assert:${op:gt,${oc.select:hparams.data.num_graphs,0},1}}
   data_at_least_one_num_node_features: ${assert:${op:ge,${oc.select:hparams.data.num_node_features,0},1}}
-  # Unless the task is binary, the number of classes must be specified and at least 1
-  data_at_least_one_num_classes: ${assert:$${op:or_,${op:eq,${hparams.data.task},binary},${op:ge,${oc.select:hparams.data.num_classes,0},1}}}

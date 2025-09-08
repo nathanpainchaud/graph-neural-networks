@@ -249,8 +249,8 @@ Launch an automatic hyperparameter search using the [Optuna sweeper for Hydra](h
 > defines how to sweep over model-dependent config options.
 
 ```bash
-# Example of a predefined Optuna config for graph-level models with a compatible experiment
-gnn-train experiment=graph_classification hparams_search=graph_level_optuna
+# Example of a predefined Optuna config for graph-level models compatible with the default experiment
+gnn-train hparams_search=graph_classification_optuna
 ```
 
 > [!TIP]
@@ -263,9 +263,10 @@ gnn-train experiment=graph_classification hparams_search=graph_level_optuna
 > same Hydra run and then aggregate the results of these jobs. By sweeping over the different folds with this sweeper,
 > we support cross-validation with Optuna.
 >
-> This is all handled already in the predefined Optuna config `graph_level_optuna` for graph-level models. However, if
-> you want to support this in your own Optuna config, all you have to do is to use the predefined `cross_validation`
-> config for `serial_sweeper`, and make sure that `data/split=kfold` is used to split the data into multiple folds.
+> This is all handled already in the predefined Optuna config `graph_classification_optuna` for graph-level models.
+> However, if you want to support this in your own Optuna config, all you have to do is to use the predefined
+> `cross_validation` config for `serial_sweeper`, and make sure that `data/split=kfold` is used to split the data into
+> multiple folds.
 >
 > ```bash
 > gnn-train [...] hparams_search=<YOUR_OPTUNA_CONFIG> data/split=kfold serial_sweeper=cross_validation

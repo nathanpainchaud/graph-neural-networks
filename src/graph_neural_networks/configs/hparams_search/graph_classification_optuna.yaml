@@ -1,7 +1,7 @@
 # @package _global_
 
 # example hyperparameter optimization of some experiment with Optuna:
-# python train.py -m experiment=graph_classification hparams_search=graph_level_optuna
+# python train.py -m hparams_search=graph_classification_optuna
 
 defaults:
   - /serial_sweeper: cross_validation # each trial is evaluated with cross-validation on all folds, run serially
