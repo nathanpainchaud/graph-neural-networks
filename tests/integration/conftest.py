@@ -148,9 +148,19 @@ def cfg_eval(cfg_eval_global: DictConfig, tmp_path: Path) -> DictConfig:
     GlobalHydra.instance().clear()
 
 
-@pytest.fixture(scope="package", params=["mutag_classification_overrides", "enzymes_classification_overrides"])
-def application_overrides(request: FixtureRequest) -> list[str]:
+@pytest.fixture(scope="package")
+def application_overrides(graph_level_data_overrides: list[str], graph_level_model_overrides: list[str]) -> list[str]:
     """A pytest fixture for the overrides to use to specify the application (i.e. data, model, etc.) for the tests.
+
+    Returns:
+        A list of configuration overrides.
+    """
+    return [*graph_level_data_overrides, *graph_level_model_overrides]
+
+
+@pytest.fixture(scope="package", params=["mutag_classification_overrides", "enzymes_classification_overrides"])
+def graph_level_data_overrides(request: FixtureRequest) -> list[str]:
+    """A pytest fixture for the overrides to use to specify the data.
 
     Returns:
         A list of configuration overrides.
@@ -160,7 +170,7 @@ def application_overrides(request: FixtureRequest) -> list[str]:
 
 @pytest.fixture(scope="package")
 def mutag_classification_overrides() -> list[str]:
-    """A pytest fixture for the overrides to use in the tests for graph-level applications.
+    """A pytest fixture for the overrides to use for quick binary classification task tests on the MUTAG dataset.
 
     Returns:
         A list of configuration overrides.
@@ -169,15 +179,14 @@ def mutag_classification_overrides() -> list[str]:
         # Data overrides
         "data=split_lightning_dataset",
         "data/dataset=mutag",
-        # Model overrides
-        "model=graph_level",
+        # Specify the metrics here, since they depend on the data task
         "model/metrics=binary_classification",
     ]
 
 
 @pytest.fixture(scope="package")
 def enzymes_classification_overrides() -> list[str]:
-    """A pytest fixture for the overrides to use for quick tests on the MUTAG graph-level classification dataset.
+    """A pytest fixture for the overrides to use for quick multiclass classification task tests on the ENZYMES dataset.
 
     Returns:
         A list of configuration overrides.
@@ -186,7 +195,20 @@ def enzymes_classification_overrides() -> list[str]:
         # Data overrides
         "data=split_lightning_dataset",
         "data/dataset=enzymes",
-        # Model overrides
-        "model=graph_level",
+        # Specify the metrics here, since they depend on the data task
         "model/metrics=multi_classification",
+    ]
+
+
+@pytest.fixture(scope="package", params=["gcn"])
+def graph_level_model_overrides(request: FixtureRequest) -> list[str]:
+    """A pytest fixture for the overrides to use to specify the model for the tests.
+
+    Returns:
+        A list of configuration overrides.
+    """
+    model = request.param
+    return [
+        "model=graph_level",
+        f"model/components@model.encoder={model}",
     ]
