@@ -1,9 +1,13 @@
+# Default GNN configuration derives from common parameters used to benchmark models in the paper
+# "How Powerful are Graph Neural Networks?"
+# https://arxiv.org/abs/1810.00826
+
 _target_: ???
 in_channels: ${hparams.data.num_node_features}
-hidden_channels: ???
-num_layers: ???
+hidden_channels: 64
+num_layers: 4
 out_channels: ${oc.select:hparams.data.num_classes,1}
-dropout: 0
+dropout: 0.5
 act: relu
 act_first: false
 act_kwargs: null
