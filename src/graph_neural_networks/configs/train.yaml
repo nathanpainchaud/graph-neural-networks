@@ -7,7 +7,7 @@ defaults:
   - data: ??? # no sane default can be provided here, data is set in `experiment` config
   - model: ??? # no sane default can be provided here, model is set in `experiment` config
   - callbacks: default
-  - logger: null # set logger here or use command line (e.g. `python train.py logger=tensorboard`)
+  - logger: null # set logger here or use command line (e.g. `python train.py logger=wandb`)
   - trainer: default
   - paths: default
   - extras: default

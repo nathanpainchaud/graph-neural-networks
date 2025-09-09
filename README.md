@@ -64,8 +64,8 @@ to suit your needs, while still providing a feature-complete and flexible framew
    ```
    [OPTIONAL] You can also specify other extras for additional functionalities:
    ```bash
-   # e.g. to install the `wandb` and `tensorboard` extras for loggers' integration
-   uv sync --extra cpu --extra wandb --extra tensorboard
+   # e.g. to install the `wandb` extra for W&B integration
+   uv sync --extra cpu --extra wandb
 
    # e.g. to install the `ogb` extra for Open Graph Benchmark datasets
    uv sync --extra cpu --extra ogb
@@ -105,8 +105,8 @@ to suit your needs, while still providing a feature-complete and flexible framew
    ```
    [OPTIONAL] You can also specify other extras for additional functionalities:
    ```bash
-   # e.g. to install the `wandb` and `tensorboard` extras for loggers' integration
-   pip install -e .[wandb,tensorboard]
+   # e.g. to install the `wandb` extra for W&B integration
+   pip install -e .[wandb]
 
    # e.g. to install the `ogb` extra for Open Graph Benchmark datasets
    pip install -e .[ogb]
@@ -120,7 +120,6 @@ to suit your needs, while still providing a feature-complete and flexible framew
 - \[`cpu`|`cu128`|`cu126`|`cu118`\]: Required mutually exclusive extras to install the project with a PyTorch version
   built for CPU or a specific CUDA version (only available when using `uv`, not `pip`).
 - `wandb`: For experiment tracking with Weights & Biases.
-- `tensorboard`: For experiment tracking with TensorBoard.
 - `ogb`: For Open Graph Benchmark datasets.
 - `all`: Install all (non-mutually exclusive) extras at once.
 
@@ -197,27 +196,18 @@ gnn-train experiment=<YOUR_EXPERIMENT_CONFIG>
 
 ### Track experiments
 
-Although some basic logging configurations are provided for CSV file and TensorBoard, the recommended tool to track
-experiments is [Weights & Biases](https://wandb.ai/site), by using W&B's
+The implemented tool to track experiments is [Weights & Biases](https://wandb.ai/site), by using W&B's
 [integration in PyTorch Lightning](https://docs.wandb.ai/guides/integrations/lightning/).
 
 > [!WARNING]
 > You must have followed the [W&B setup instructions](#setup-weight--biases) to use this feature.
 
 ```bash
-# track experiment locally w/ TensorBoard
-gnn-train logger=tensorboard
-# and in another terminal
-tensorboard --logdir ./logs/
-
 # track experiment online w/ W&B
 gnn-train logger=wandb
 
 # track experiment offline w/ W&B
 gnn-train logger=wandb logger.wandb.offline=True
-
-# track experiments using different loggers at once (i.e. CSV, TensorBoard, W&B)
-gnn-train logger=many_loggers
 ```
 
 ### Run multiple experiments

@@ -27,13 +27,10 @@ dependencies = [
 ]
 [project.optional-dependencies]
 all = [
-    "graph-neural-networks[wandb,tensorboard,ogb]",
+    "graph-neural-networks[wandb,ogb]",
 ]
 wandb = [
     "wandb>=0.21,<0.22",
-]
-tensorboard = [
-    "tensorboard>=2.19.0,<3",
 ]
 ogb = [
     "ogb>=1.3.6,<2",
