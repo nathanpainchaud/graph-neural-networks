@@ -4,7 +4,7 @@ defaults:
 _target_: graph_neural_networks.data.datamodule.OGBLightningDataset
 batch_size: 32
 num_workers: 0
-pin_memory: True
+pin_memory: ${op:eq,${oc.select:trainer.accelerator},gpu} # Pin memory if using GPU
 persistent_workers: ${op:gt,${.num_workers},0} # If `num_workers` is greater than 0, enable `persistent_workers`
 
 dataset:
