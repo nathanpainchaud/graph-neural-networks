@@ -181,7 +181,7 @@ def serialize_split_fn(
     """
     # Inspect the signature of the split function to get the default parameters
     split_params = inspect.signature(split_fn).parameters.copy()
-    split_params.popitem(last=False)  # Del the first param passed to `split_fn` (the positional dataset arg)
+    split_params.popitem(last=False)  # Del the first param passed to `split_fn` (the positional data arg)
     split_params.pop("stratify", None)  # Del the `stratify` param, as it's overridden by the flag
     split_params = {k: v.default for k, v in split_params.items()}  # Unpack the `Signature` object
     split_params["stratify"] = stratify  # Add the stratify flag to the params
