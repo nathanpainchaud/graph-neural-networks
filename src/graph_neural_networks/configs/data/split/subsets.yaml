@@ -3,7 +3,7 @@
 split:
   _target_: graph_neural_networks.data.subsets_split
   _partial_: True
-  stratify_bins: ${op.ternary:${op:eq,${hparams.data.task},regression}, 10, null} # default to 5 if task is regression, otherwise None
+  stratify_bins: ${op.ternary:${op:eq,${hparams.data.task},regression}, 5, null} # default to 5 if task is regression, otherwise None
   val_size: 0.1
   test_size: 0.2
   random_state: 12345 # Use a different seed from the main seed to allow models w/ different seeds to use the same splits
