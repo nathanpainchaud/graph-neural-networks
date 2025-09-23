@@ -17,8 +17,10 @@ defaults:
 # this allows you to overwrite only specified parameters
 
 tags:
-  - ${hydra:runtime.choices.data/dataset} # automatically tag with the chosen dataset
+  - ${model.encoder._target_} # automatically tag with the chosen model architecture
   - ${hydra:runtime.choices.model} # automatically tag with the chosen model/task
+  - ${hydra:runtime.choices.data/dataset} # automatically tag with the chosen dataset
+  - ${hydra:runtime.choices.model/metrics} # automatically tag with the chosen metrics
 
 seed: 12345
 
@@ -32,7 +34,7 @@ data:
 logger:
   wandb:
     tags: ${tags}
-    group: ${tags.0} # by default, group runs by the first tag (dataset)
+    group: ${tags.0} # by default, group runs by the first tag
 
 # Assert data config values are compatible with the model
 # Implementing these assertions in the config file allows Hydra to check them
