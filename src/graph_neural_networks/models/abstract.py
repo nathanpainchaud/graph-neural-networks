@@ -258,20 +258,25 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
         """
         super().__init__(*args, **kwargs)
 
-        available_data_hparams = [param is not None for param in [num_node_features, num_edge_features]]
-        if any(available_data_hparams):
-            if not all(available_data_hparams):
+        required_data_hparams = {"num_node_features": num_node_features}
+        missing_required_hparams = [k for k, v in required_data_hparams.items() if v is None]
+        optional_data_hparams = {"num_edge_features": num_edge_features}
+        data_hparams = required_data_hparams | optional_data_hparams
+
+        # If at least one of the required or optional hparams is provided (not None), try to generate an example batch
+        if any(val is not None for val in data_hparams.values()):
+            # If some of the required hparams are missing, warn and skip example batch generation
+            if missing_required_hparams:
                 log.warning(
-                    "You provided the following hparams to generate an example input batch: "
-                    f"{num_node_features=}, {num_edge_features=}. "
-                    "No example batch will be generated because some hparams are missing."
-                    "To suppress this warning, either provide missing hparams or set all of them to `None` to disable "
-                    "example batch generation."
+                    f"You provided the following hparams to generate an example input batch: {data_hparams}. "
+                    "No example batch will be generated because some hparams are missing. "
+                    f"To suppress this warning, either set all hparams to `None` to disable example batch generation, "
+                    f"or provide missing required hparams: {missing_required_hparams}."
                 )
             else:
                 fake_dataset = FakeDataset(
                     num_graphs=2 if self.task_level == "graph" else 1,
                     num_channels=num_node_features,
-                    edge_dim=num_edge_features,
+                    edge_dim=num_edge_features or 0,
                 )
                 self.example_input_array = Batch.from_data_list(list(fake_dataset))
