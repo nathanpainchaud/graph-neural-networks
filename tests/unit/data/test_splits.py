@@ -94,6 +94,7 @@ class TestKFold(AbstractSplitTest):
             k_fold,
             data,
             labels,
+            stratify_bins=5 if labels is not None and np.issubdtype(labels.dtype, np.floating) else None,
             n_splits=n_splits,
             test_fold=test_fold,
             holdout_test_size=holdout_test_size,
@@ -238,7 +239,13 @@ class TestSubsetsSplit(AbstractSplitTest):
             random_state: The random state to use for reproducibility.
         """
         return functools.partial(
-            subsets_split, data, labels, val_size=val_size, test_size=test_size, random_state=random_state
+            subsets_split,
+            data,
+            labels,
+            stratify_bins=5 if labels is not None and np.issubdtype(labels.dtype, np.floating) else None,
+            val_size=val_size,
+            test_size=test_size,
+            random_state=random_state,
         )
 
     @staticmethod
@@ -330,11 +337,11 @@ class TestSubsetsSplit(AbstractSplitTest):
     [
         (
             k_fold,
-            "k_fold(holdout_test_size=None,n_splits=10,random_state=12345,shuffle=True,stratify={stratify},stratify_bins=10,test_fold=True)",
+            "k_fold(holdout_test_size=None,n_splits=10,random_state=12345,shuffle=True,stratify={stratify},stratify_bins=None,test_fold=True)",
         ),
         (
             subsets_split,
-            "subsets_split(random_state=12345,stratify={stratify},stratify_bins=10,test_size=0.2,val_size=0.1)",
+            "subsets_split(random_state=12345,stratify={stratify},stratify_bins=None,test_size=0.2,val_size=0.1)",
         ),
     ],
 )

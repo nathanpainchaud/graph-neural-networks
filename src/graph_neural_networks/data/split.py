@@ -21,8 +21,8 @@ TEST_SET = "test"
 
 def k_fold(
     data: Sequence[Any],
-    stratify: Sequence[int] | None = None,
-    stratify_bins: int | Sequence[float] = 10,
+    stratify: Sequence[int | float] | None = None,
+    stratify_bins: int | Sequence[float] | None = None,
     n_splits: int = 10,
     test_fold: bool = True,
     holdout_test_size: float | int | None = None,
@@ -34,10 +34,10 @@ def k_fold(
     Args:
         data: Data of length `n_samples` to split.
         stratify: If provided, the data is split in a stratified fashion, using this as the class labels.
-        stratify_bins: The bins to divide the stratify labels into, if `stratify` contains float labels. Ignored if
-            `stratify` is None or contains class labels. If `bins` is an int, it defines the number of equal-width bins
-            in the given range (10, by default). If bins is a sequence, it defines a monotonically increasing array of
-            bin edges, including the rightmost edge, allowing for non-uniform bin widths.
+        stratify_bins: The bins to divide the stratify labels into, assuming they represent a continuous target.
+            If `bins` is an int, it defines the number of equal-width bins in the given range.
+            If bins is a sequence, it defines a monotonically increasing array of bin edges allowing for non-uniform bin
+            widths (see `bins` argument of `np.digitize`)
         n_splits: The number of folds/splits to create.
         holdout_test_size: The size of the holdout test set to split from the training set before creating the K folds.
             This effectively means that all splits are assigned the same test set. If None or 0, the full dataset is
@@ -63,7 +63,7 @@ def k_fold(
     if stratify is not None:
         stratify = np.array(stratify)
         # Support continuous labels, by dividing them into discrete bins that sklearn can use for stratification
-        if np.issubdtype(stratify.dtype, np.floating):
+        if stratify_bins:
             stratify = _digitize_labels(stratify, stratify_bins)
 
     if holdout_test_size:
@@ -99,8 +99,8 @@ def k_fold(
 
 def subsets_split(
     data: Sequence[Any],
-    stratify: Sequence[int] | None = None,
-    stratify_bins: int = 10,
+    stratify: Sequence[int | float] | None = None,
+    stratify_bins: int | Sequence[float] | None = None,
     val_size: float | int | None = 0.1,
     test_size: float | int | None = 0.2,
     random_state: int | RandomState | None = 12345,
@@ -110,10 +110,10 @@ def subsets_split(
     Args:
         data: Data of length `n_samples` to split.
         stratify: If provided, the data is split in a stratified fashion, using this as the class labels.
-        stratify_bins: The bins to divide the stratify labels into, if `stratify` contains float labels. Ignored if
-            `stratify` is None or contains class labels. If `bins` is an int, it defines the number of equal-width bins
-            in the given range (10, by default). If bins is a sequence, it defines a monotonically increasing array of
-            bin edges, including the rightmost edge, allowing for non-uniform bin widths.
+        stratify_bins: The bins to divide the stratify labels into, assuming they represent a continuous target.
+            If `bins` is an int, it defines the number of equal-width bins in the given range.
+            If bins is a sequence, it defines a monotonically increasing array of bin edges allowing for non-uniform bin
+            widths (see `bins` argument of `np.digitize`)
         val_size: The size of the validation set. If None or 0, no validation set is created.
         test_size: The size of the test set. If None or 0, no test set is created.
         random_state: The random state to use for reproducibility.
@@ -133,7 +133,7 @@ def subsets_split(
     if stratify is not None:
         stratify = np.array(stratify)
         # Support continuous labels, by dividing them into discrete bins that sklearn can use for stratification
-        if np.issubdtype(stratify.dtype, np.floating):
+        if stratify_bins:
             stratify = _digitize_labels(stratify, stratify_bins)
 
     split = {TRAIN_SET: indices}
@@ -192,7 +192,7 @@ def serialize_split_fn(
     return f"{split_fn_name}({params_repr})"
 
 
-def _digitize_labels(labels: Sequence[float], bins: int | Sequence[float]) -> np.ndarray:
+def _digitize_labels(labels: Sequence[int | float], bins: int | Sequence[float]) -> np.ndarray:
     """Digitizes continuous labels, e.g. regression targets, into bins to help create stratified splits.
 
     Args:
