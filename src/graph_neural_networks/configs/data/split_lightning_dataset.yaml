@@ -3,7 +3,7 @@ defaults:
   - split: subsets # Default to a standard train/val/test split
 
 _target_: graph_neural_networks.data.SplitLightningDataset
-stratify: ${op:truth,${oc.select:hparams.data.num_classes,0}} # stratify splits by default if num_classes exists and > 0
+stratify: True
 split_idx: 0
 batch_size: 32
 num_workers: 0

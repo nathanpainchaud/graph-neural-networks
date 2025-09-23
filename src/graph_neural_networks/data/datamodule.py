@@ -162,7 +162,7 @@ class SplitLightningDataset(LightningDataset):
         self,
         *args,
         split: SplitFunction,
-        stratify: bool = False,
+        stratify: bool = True,
         split_idx: int = 0,
         on_conflict: Literal["raise", "warn", "ignore"] = "raise",
         **kwargs,
