@@ -197,13 +197,15 @@ def _digitize_labels(labels: Sequence[int | float], bins: int | Sequence[float])
 
     Args:
         labels: The labels to digitize.
-        bins: The number of bins to create.
+        bins: The number of bins to create, or directly the bins to use.
 
     Returns:
         An array of bin indices for each label.
     """
     if isinstance(bins, int):
-        bins = np.linspace(np.min(labels), np.max(labels), bins + 1)  # Create `bins + 1` edges
-    # Replace left/right bins with open intervals to +-inf, since digitize assigns out-of-bounds values to 0/len(bins)
-    # + shift the bin indices by -1 to make them 0-based
-    return np.digitize(labels, bins[1:-1]) - 1
+        # `np.digitize` assigns 0/len(bins) to values beyond the left/right bins' bounds, respectively.
+        # Thus, to naturally get indices in the range [0, bins-1], we exclude the min/max from the bins by:
+        # 1) setting endpoint=False in linspace to exclude the max value
+        # 2) removing the first bin edge to exclude the min value
+        bins = np.linspace(np.min(labels), np.max(labels), num=bins, endpoint=False)[1:]
+    return np.digitize(labels, bins)
