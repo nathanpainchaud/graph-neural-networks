@@ -18,9 +18,9 @@ defaults:
 
 tags:
   - ${model.encoder._target_} # automatically tag with the chosen model architecture
+  - ${hydra:runtime.choices.experiment} # automatically tag with the chosen experiment
   - ${hydra:runtime.choices.model} # automatically tag with the chosen model/task
   - ${hydra:runtime.choices.data/dataset} # automatically tag with the chosen dataset
-  - ${hydra:runtime.choices.model/metrics} # automatically tag with the chosen metrics
 
 seed: 12345
 
