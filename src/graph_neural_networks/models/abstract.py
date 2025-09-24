@@ -9,7 +9,7 @@ from lightning import LightningModule
 from torch import nn
 from torch_geometric.data import Batch
 from torch_geometric.datasets import FakeDataset
-from torchmetrics import MeanMetric, MetricCollection, MetricTracker
+from torchmetrics import MeanMetric, Metric, MetricCollection, MetricTracker
 
 from graph_neural_networks.utils import RankedLogger, pad_keys
 from graph_neural_networks.utils.logging_utils import log_nonscalar_metrics, split_scalar_nonscalar_metrics
@@ -122,95 +122,123 @@ class MetricTrackingLitModule(LightningModule, ABC):
         loss = self.criterion(logits, target)
         return loss, logits
 
-    def on_train_epoch_start(self) -> None:  # noqa: D102
+    def _shared_epoch_start(
+        self,
+        loss_tracker: MetricTracker,
+        scalar_metrics_tracker: MetricTracker | None = None,
+        nonscalar_metrics: MetricCollection | None = None,
+    ) -> None:
         # Initialize new instances of the tracked loss/metrics for the new epoch
-        self.train_loss_tracker.increment()
-        if self._base_metrics:
-            self.train_metrics_tracker.increment()
-        if self._nonscalar_metrics:
-            self.train_nonscalar_metrics.reset()
+        loss_tracker.increment()
+        if scalar_metrics_tracker:
+            scalar_metrics_tracker.increment()
+        if nonscalar_metrics:
+            nonscalar_metrics.reset()
 
-    def training_step(self, batch: Batch) -> torch.Tensor:  # noqa: D102
+    def _shared_eval_step(
+        self,
+        batch: Batch,
+        loss_metric: Metric | MetricTracker,
+        scalar_metrics: MetricCollection | MetricTracker | None = None,
+        nonscalar_metrics: MetricCollection | None = None,
+    ) -> torch.Tensor:
         # Perform the forward pass on the model and compute the loss
         loss, logits = self.model_step(batch)
 
         # Update the stateful loss and metrics
-        self.train_loss_tracker.update(loss)
-        if self._base_metrics:
-            self.train_metrics_tracker.update(logits, batch.y)
-        if self._nonscalar_metrics:
-            self.train_nonscalar_metrics.update(logits, batch.y)
+        loss_metric.update(loss)
+        if scalar_metrics:
+            scalar_metrics.update(logits, batch.y)
+        if nonscalar_metrics:
+            nonscalar_metrics.update(logits, batch.y)
 
         return loss
 
-    def on_train_epoch_end(self) -> None:  # noqa: D102
+    def _shared_epoch_end(
+        self,
+        prefix: str,
+        loss_metric: Metric | MetricTracker,
+        scalar_metrics: MetricCollection | MetricTracker | None = None,
+        nonscalar_metrics: MetricCollection | None = None,
+    ) -> None:
         # Log the loss and metrics accumulated over the epoch, and the best values so far
-        self.log("train/loss", self.train_loss_tracker.compute(), prog_bar=True)
-        self.log("train/loss/best", self.train_loss_tracker.best_metric(), prog_bar=True)
-        if self._base_metrics:
-            self.log_dict(self.train_metrics_tracker.compute(), prog_bar=True)
-            self.log_dict(pad_keys(self.train_metrics_tracker.best_metric(), postfix="/best"), prog_bar=True)
-        if self._nonscalar_metrics:
-            log_nonscalar_metrics(self.logger, self.train_nonscalar_metrics)
+        # Note: best values are logged at every epoch, instead of only once at the end of the loop, because limitations
+        # in Lightning's logging mean metrics logged on loop ends are not available to callbacks
+        # (see issue recommending to log on epoch end as a workaround: https://github.com/Lightning-AI/pytorch-lightning/issues/5285)
+        self.log(f"{prefix}loss", loss_metric.compute(), prog_bar=True)
+        if isinstance(loss_metric, MetricTracker):
+            self.log(f"{prefix}loss/best", loss_metric.best_metric(), prog_bar=True)
+        if scalar_metrics:
+            # Call the `compute` method explicitly, instead of passing the metric object to `log_dict` and relying on
+            # Lightning to aggregate the metrics. This avoids issues when relying on the `MetricCollection` to flatten
+            # the output dictionary, which is not supported when called internally by Lightning.
+            self.log_dict(scalar_metrics.compute(), prog_bar=True)
+            if isinstance(scalar_metrics, MetricTracker):
+                self.log_dict(pad_keys(scalar_metrics.best_metric(), postfix="/best"), prog_bar=True)
+        if nonscalar_metrics:
+            log_nonscalar_metrics(self.logger, nonscalar_metrics)
+
+    def on_train_epoch_start(self) -> None:  # noqa: D102
+        self._shared_epoch_start(
+            self.train_loss_tracker,
+            self.train_metrics_tracker,
+            self.train_nonscalar_metrics,
+        )
+
+    def training_step(self, batch: Batch) -> torch.Tensor:  # noqa: D102
+        return self._shared_eval_step(
+            batch,
+            self.train_loss_tracker,
+            self.train_metrics_tracker,
+            self.train_nonscalar_metrics,
+        )
+
+    def on_train_epoch_end(self) -> None:  # noqa: D102
+        self._shared_epoch_end(
+            "train/",
+            self.train_loss_tracker,
+            self.train_metrics_tracker,
+            self.train_nonscalar_metrics,
+        )
 
     def on_validation_epoch_start(self) -> None:  # noqa: D102
-        # Initialize new instances of the tracked loss/metrics for the new epoch
-        # Since by default Lightning executes validation step sanity checks before training starts,
-        # this also makes sure that loss/metrics logged during the sanity check (i.e. 1st val increment)
-        # are not used to compute loss/metrics in the 1st actual validation epoch (i.e. 2nd val increment)
-        # This is a workaround to ignore sanity checks values, since trackers do not support deleting previous metrics,
-        # that is simpler than the alternative of reinitializing the val trackers in `on_train_start`
-        self.val_loss_tracker.increment()
-        if self._base_metrics:
-            self.val_metrics_tracker.increment()
-        if self._nonscalar_metrics:
-            self.val_nonscalar_metrics.reset()
+        self._shared_epoch_start(
+            self.val_loss_tracker,
+            self.val_metrics_tracker,
+            self.val_nonscalar_metrics,
+        )
 
     def validation_step(self, batch: Batch) -> None:  # noqa: D102
-        # Perform the forward pass on the model and compute the loss
-        loss, logits = self.model_step(batch)
-
-        # Update the stateful loss and metrics
-        self.val_loss_tracker.update(loss)
-        if self._base_metrics:
-            self.val_metrics_tracker.update(logits, batch.y)
-        if self._nonscalar_metrics:
-            self.val_nonscalar_metrics.update(logits, batch.y)
+        self._shared_eval_step(
+            batch,
+            self.val_loss_tracker,
+            self.val_metrics_tracker,
+            self.val_nonscalar_metrics,
+        )
 
     def on_validation_epoch_end(self) -> None:  # noqa: D102
-        # Log the loss and metrics accumulated over the epoch, and the best values so far
-        self.log("val/loss", self.val_loss_tracker.compute(), prog_bar=True)
-        self.log("val/loss/best", self.val_loss_tracker.best_metric(), prog_bar=True)
-        if self._base_metrics:
-            self.log_dict(self.val_metrics_tracker.compute(), prog_bar=True)
-            self.log_dict(pad_keys(self.val_metrics_tracker.best_metric(), postfix="/best"), prog_bar=True)
-        if self._nonscalar_metrics:
-            log_nonscalar_metrics(self.logger, self.val_nonscalar_metrics)
+        self._shared_epoch_end(
+            "val/",
+            self.val_loss_tracker,
+            self.val_metrics_tracker,
+            self.val_nonscalar_metrics,
+        )
 
     def test_step(self, batch: Batch) -> None:  # noqa: D102
-        # Perform the forward pass on the model and compute the loss
-        loss, logits = self.model_step(batch)
-
-        # Update the stateful loss and log it, Lightning will take care to aggregate it over the epoch
-        self.test_loss.update(loss)
-        self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
-
-        # Update the stateful metrics
-        if self._base_metrics:
-            self.test_metrics.update(logits, batch.y)
-        if self._nonscalar_metrics:
-            self.test_nonscalar_metrics.update(logits, batch.y)
+        self._shared_eval_step(
+            batch,
+            self.test_loss,
+            self.test_metrics,
+            self.test_nonscalar_metrics,
+        )
 
     def on_test_epoch_end(self) -> None:  # noqa: D102
-        # Log the metrics accumulated over the epoch
-        if self._base_metrics:
-            # Call the `compute` method explicitly, instead of passing the metric object to `log_dict` inside the
-            # `test_step` and relying on Lightning to aggregate the metrics. This avoids issues when relying on the
-            # `MetricCollection` to flatten the output directory, which is not supported when called internally by
-            # Lightning.
-            self.log_dict(self.test_metrics.compute(), prog_bar=True)
-        if self._nonscalar_metrics:
-            log_nonscalar_metrics(self.logger, self.test_nonscalar_metrics)
+        self._shared_epoch_end(
+            "test/",
+            self.test_loss,
+            self.test_metrics,
+            self.test_nonscalar_metrics,
+        )
 
     def configure_optimizers(self) -> dict[str, Any]:
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
