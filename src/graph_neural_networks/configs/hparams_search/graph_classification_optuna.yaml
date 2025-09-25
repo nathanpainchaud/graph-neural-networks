@@ -4,8 +4,12 @@
 # python train.py -m hparams_search=graph_classification_optuna
 
 defaults:
-  - /serial_sweeper: cross_validation # each trial is evaluated with cross-validation on all folds, run serially
+  # each trial is evaluated on all folds (e.g. in cross-validation), run serially on the same worker
+  - override /serial_sweeper: splits
   - override /hydra/sweeper: optuna
+
+# task name, determines output directory path
+task_name: "hparams_search"
 
 # choose metric which will be optimized by Optuna
 # make sure this is the correct name of some metric logged in lightning module!
@@ -38,7 +42,7 @@ hydra:
 
     # choose Optuna hyperparameter sampler
     # you can choose bayesian sampler (tpe), random search (without optimization), grid sampler, and others
-    # docs: https://optuna.readthedocs.io/en/stable/reference/samplers.html
+    # docs: https://optuna.readthedocs.io/en/stable/reference/samplers/index.html
     sampler:
       _target_: optuna.samplers.TPESampler
       seed: ${seed}

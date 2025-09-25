@@ -255,11 +255,11 @@ gnn-train hparams_search=graph_classification_optuna
 >
 > This is all handled already in the predefined Optuna config `graph_classification_optuna` for graph-level models.
 > However, if you want to support this in your own Optuna config, all you have to do is to use the predefined
-> `cross_validation` config for `serial_sweeper`, and make sure that `data/split=kfold` is used to split the data into
+> `splits` config for `serial_sweeper`, and make sure that `data/split=kfold` is used to split the data into
 > multiple folds.
 >
 > ```bash
-> gnn-train [...] hparams_search=<YOUR_OPTUNA_CONFIG> data/split=kfold serial_sweeper=cross_validation
+> gnn-train [...] hparams_search=<YOUR_OPTUNA_CONFIG> data/split=k_fold serial_sweeper=splits
 > ```
 
 ### Run tests
