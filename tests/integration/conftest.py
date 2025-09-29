@@ -210,5 +210,5 @@ def graph_level_model_overrides(request: FixtureRequest) -> list[str]:
     model = request.param
     return [
         "model=graph_level",
-        f"model/components@model.encoder={model}",
+        f"model/encoder={model}",
     ]

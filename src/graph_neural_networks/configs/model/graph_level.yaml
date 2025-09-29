@@ -1,7 +1,7 @@
 defaults:
-  - components@encoder: gcn
-  - components/global_pool@readout: add
-  - components@head: mlp
+  - encoder: gcn
+  - readout: add
+  - head: mlp
   - optimizer: adamw
   - scheduler: step_lr
   # Metrics are part of the model, used to evaluate it during training, but they depend on the data task.
