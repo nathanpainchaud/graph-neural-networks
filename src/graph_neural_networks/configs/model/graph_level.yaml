@@ -1,6 +1,6 @@
 defaults:
   - encoder: gcn
-  - readout: add
+  - readout: sum
   - head: mlp
   - optimizer: adamw
   - scheduler: step_lr

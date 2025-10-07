@@ -1,2 +1,1 @@
-_target_: torch_geometric.nn.global_max_pool
-_partial_: true
+_target_: torch_geometric.nn.MaxAggregation

@@ -1,9 +1,9 @@
-from collections.abc import Callable
 from typing import Literal
 
 import torch
 from torch import nn
 from torch_geometric.data import Batch
+from torch_geometric.nn import aggr
 
 from graph_neural_networks.models import GraphLitModule
 
@@ -17,7 +17,7 @@ class GraphLevelLitModule(GraphLitModule):
         self,
         task: Literal["binary", "multiclass", "multilabel", "regression"],
         encoder: nn.Module,
-        readout: Callable[[torch.Tensor, torch.Tensor | None, int | None], torch.Tensor],
+        readout: aggr.Aggregation,
         head: nn.Module,
         *args,
         **kwargs,
@@ -29,6 +29,8 @@ class GraphLevelLitModule(GraphLitModule):
             encoder: The GNN model used to encode the graph.
             readout: The readout operation to use to aggregate node features into a single graph-level representation.
             head: The prediction head used to make predictions based on the graph-level representation.
+            transforms: Transformations with learnable parameters (e.g. embedding) to apply to the input graphs before
+                passing them to the encoder.
             *args: Additional positional arguments to pass to the superclass.
             **kwargs: Additional keyword arguments to pass to the superclass.
         """
@@ -36,9 +38,10 @@ class GraphLevelLitModule(GraphLitModule):
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
-        self.save_hyperparameters(ignore=["encoder", "head"])
+        self.save_hyperparameters(ignore=["encoder", "readout", "head"])
 
         self.encoder = encoder
+        self.readout = readout
         self.head = head
 
     def forward(self, data: Batch) -> torch.Tensor:
@@ -61,7 +64,7 @@ class GraphLevelLitModule(GraphLitModule):
             batch_size=batch_size,
         )
         # Pass the batch size to readout operation to avoid CPU communication/graph breaks
-        x = self.hparams.readout(x, batch, batch_size)
+        x = self.readout(x, index=batch, dim_size=batch_size)
         x = self.head(x, batch=batch, batch_size=batch_size)
         if self.hparams.task == "binary":
             x = x.squeeze(-1)  # Flatten the last dim when only one value is predicted
