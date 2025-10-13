@@ -64,7 +64,7 @@ class GraphLevelLitModule(GraphLitModule):
             batch_size=batch_size,
         )
         # Pass the batch size to readout operation to avoid CPU communication/graph breaks
-        x = self.readout(x, index=batch, dim_size=batch_size)
+        x = self.readout(x, ptr=data.ptr, dim_size=batch_size)
         x = self.head(x, batch=batch, batch_size=batch_size)
         if self.hparams.task == "binary":
             x = x.squeeze(-1)  # Flatten the last dim when only one value is predicted
