@@ -1,5 +1,6 @@
 defaults:
   - metrics/acc
+  - metrics/auroc
   - metrics/confusion_matrix
 
 _target_: torchmetrics.MetricCollection
