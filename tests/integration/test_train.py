@@ -91,12 +91,6 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
     """
     with open_dict(cfg_train):
         cfg_train.trainer.max_epochs = 1
-        # Make sure that the checkpoint monitors the loss instead of other metrics (e.g. accuracy) to ensure that the
-        # monitored metric is able to improve in a few epochs, even on a small dataset.
-        # Otherwise, this test could fail systematically if the monitored metric peaks during the first epoch and does
-        # not improve further upon resuming training for a few more epochs.
-        cfg_train.callbacks.model_checkpoint.monitor = "val/loss"
-        cfg_train.callbacks.model_checkpoint.mode = "min"
 
     HydraConfig().set_config(cfg_train)
     metric_dict_1, _ = train(cfg_train)
