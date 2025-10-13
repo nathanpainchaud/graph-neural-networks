@@ -86,7 +86,6 @@ def test_optuna_sweep(train_script: Path, testing_overrides: list[str]) -> None:
         "-m",
         "hparams_search=graph_classification_optuna",
         "~serial_sweeper",  # Disable the serial sweeper here to test it separately
-        "hydra.sweeper.n_jobs=1",
         "hydra.sweeper.n_trials=10",
         "hydra.sweeper.sampler.n_startup_trials=5",
         "++trainer.fast_dev_run=true",
