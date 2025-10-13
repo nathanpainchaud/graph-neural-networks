@@ -14,6 +14,7 @@ _target_: graph_neural_networks.models.GraphLevelLitModule
 task: ${hparams.data.task}
 num_node_features: ${oc.select:hparams.data.num_node_features}
 num_edge_features: ${oc.select:hparams.data.num_edge_features}
+num_classes: ${oc.select:hparams.data.num_classes}
 
 encoder:
   out_channels: null

@@ -272,7 +272,12 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
     """The type of task the model is designed for, used to generate an example input batch."""
 
     def __init__(
-        self, num_node_features: int | None = None, num_edge_features: int | None = None, *args, **kwargs
+        self,
+        num_node_features: int | None = None,
+        num_edge_features: int | None = None,
+        num_classes: int | None = None,
+        *args,
+        **kwargs,
     ) -> None:
         """Initializes a `GraphLitModule`.
 
@@ -281,6 +286,8 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
                 generate an example input batch, useful for inspecting the model's input/output shapes.
             num_edge_features: The number of features per edge in the input graph(s). If provided, it is used to
                 generate an example input batch, useful for inspecting the model's input/output shapes.
+            num_classes: The number of target classes for the prediction task. If provided, it is used to generate an
+                example input batch, useful for inspecting the model's input/output shapes.
             *args: Additional positional arguments to pass to the superclass.
             **kwargs: Additional keyword arguments to pass to the superclass.
         """
@@ -288,7 +295,7 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
 
         required_data_hparams = {"num_node_features": num_node_features}
         missing_required_hparams = [k for k, v in required_data_hparams.items() if v is None]
-        optional_data_hparams = {"num_edge_features": num_edge_features}
+        optional_data_hparams = {"num_edge_features": num_edge_features, "num_classes": num_classes}
         data_hparams = required_data_hparams | optional_data_hparams
 
         # If at least one of the required or optional hparams is provided (not None), try to generate an example batch
@@ -306,5 +313,6 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
                     num_graphs=2 if self.task_level == "graph" else 1,
                     num_channels=num_node_features,
                     edge_dim=num_edge_features or 0,
+                    num_classes=num_classes or 10,
                 )
                 self.example_input_array = Batch.from_data_list(list(fake_dataset))
