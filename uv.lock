@@ -653,7 +653,7 @@ requires-dist = [
     { name = "torch", marker = "extra == 'cu118'", specifier = ">=2.7,<2.8", index = "https://download.pytorch.org/whl/cu118", conflict = { package = "graph-neural-networks", extra = "cu118" } },
     { name = "torch", marker = "extra == 'cu126'", specifier = ">=2.7,<2.8", index = "https://download.pytorch.org/whl/cu126", conflict = { package = "graph-neural-networks", extra = "cu126" } },
     { name = "torch", marker = "extra == 'cu128'", specifier = ">=2.7,<2.8", index = "https://download.pytorch.org/whl/cu128", conflict = { package = "graph-neural-networks", extra = "cu128" } },
-    { name = "torch-geometric", git = "https://github.com/nathanpainchaud/pytorch_geometric.git?rev=b20a4d72c3309f608b8990c89d128c67799a3fff" },
+    { name = "torch-geometric", specifier = ">=2.7,<2.8" },
     { name = "torch-scatter", marker = "extra == 'cpu'", specifier = ">=2.1.2,<3", index = "https://data.pyg.org/whl/torch-2.7.0+cpu.html", conflict = { package = "graph-neural-networks", extra = "cpu" } },
     { name = "torch-scatter", marker = "extra == 'cu118'", specifier = ">=2.1.2,<3", index = "https://data.pyg.org/whl/torch-2.7.0+cu118.html", conflict = { package = "graph-neural-networks", extra = "cu118" } },
     { name = "torch-scatter", marker = "extra == 'cu126'", specifier = ">=2.1.2,<3", index = "https://data.pyg.org/whl/torch-2.7.0+cu126.html", conflict = { package = "graph-neural-networks", extra = "cu126" } },
@@ -2876,7 +2876,7 @@ wheels = [
 [[package]]
 name = "torch-geometric"
 version = "2.7.0"
-source = { git = "https://github.com/nathanpainchaud/pytorch_geometric.git?rev=b20a4d72c3309f608b8990c89d128c67799a3fff#b20a4d72c3309f608b8990c89d128c67799a3fff" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "fsspec" },
@@ -2887,6 +2887,10 @@ dependencies = [
     { name = "requests" },
     { name = "tqdm" },
     { name = "xxhash" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/75/63/b210152635902da7fe79fcdd16517fae108f457a0ed22c737e702a9afbae/torch_geometric-2.7.0.tar.gz", hash = "sha256:f9099e4aece1a9f618c84dbaac33a77f43139736698c7e8bddf3301ef1f2e8d4", size = 876725, upload-time = "2025-10-15T20:48:03.443Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/d3/4dffd7300500465e0b4a2ae917dcb2ce771de0b9a772670365799a27c024/torch_geometric-2.7.0-py3-none-any.whl", hash = "sha256:6e0cd3ad824d484651ef5d308fc66c687bfcf5ba040d56d1e0fe0f81f365e292", size = 1275346, upload-time = "2025-10-15T20:48:01.949Z" },
 ]
 
 [[package]]

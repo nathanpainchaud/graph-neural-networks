@@ -18,11 +18,7 @@ dependencies = [
     "rich>=14,<15",
     "rootutils>=1.0.7,<2",
     "scikit-learn>=1.6.1,<2",
-    # Use our fork of torch-geometric that patches Lightning imports until the following issue gets solved and released:
-    # https://github.com/pyg-team/pytorch_geometric/issues/9811
-    # NOTE: The direct reference is specified here using standard syntax (instead of in `tool.uv.sources`)
-    # so that our fork also gets chosen when installing the package using `pip install .`
-    "torch-geometric @ git+https://github.com/nathanpainchaud/pytorch_geometric.git@b20a4d72c3309f608b8990c89d128c67799a3fff",
+    "torch-geometric>=2.7,<2.8",
     "torchmetrics[visual]>=1.8,<1.9",
 ]
 [project.optional-dependencies]
