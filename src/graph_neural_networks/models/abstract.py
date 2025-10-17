@@ -181,63 +181,63 @@ class MetricTrackingLitModule(LightningModule, ABC):
     def on_train_epoch_start(self) -> None:  # noqa: D102
         self._shared_epoch_start(
             self.train_loss_tracker,
-            self.train_metrics_tracker,
-            self.train_nonscalar_metrics,
+            getattr(self, "train_metrics_tracker", None),
+            getattr(self, "train_nonscalar_metrics", None),
         )
 
     def training_step(self, batch: Batch) -> torch.Tensor:  # noqa: D102
         return self._shared_eval_step(
             batch,
             self.train_loss_tracker,
-            self.train_metrics_tracker,
-            self.train_nonscalar_metrics,
+            getattr(self, "train_metrics_tracker", None),
+            getattr(self, "train_nonscalar_metrics", None),
         )
 
     def on_train_epoch_end(self) -> None:  # noqa: D102
         self._shared_epoch_end(
             "train/",
             self.train_loss_tracker,
-            self.train_metrics_tracker,
-            self.train_nonscalar_metrics,
+            getattr(self, "train_metrics_tracker", None),
+            getattr(self, "train_nonscalar_metrics", None),
         )
 
     def on_validation_epoch_start(self) -> None:  # noqa: D102
         self._shared_epoch_start(
             self.val_loss_tracker,
-            self.val_metrics_tracker,
-            self.val_nonscalar_metrics,
+            getattr(self, "val_metrics_tracker", None),
+            getattr(self, "val_nonscalar_metrics", None),
         )
 
     def validation_step(self, batch: Batch) -> None:  # noqa: D102
         self._shared_eval_step(
             batch,
             self.val_loss_tracker,
-            self.val_metrics_tracker,
-            self.val_nonscalar_metrics,
+            getattr(self, "val_metrics_tracker", None),
+            getattr(self, "val_nonscalar_metrics", None),
         )
 
     def on_validation_epoch_end(self) -> None:  # noqa: D102
         self._shared_epoch_end(
             "val/",
             self.val_loss_tracker,
-            self.val_metrics_tracker,
-            self.val_nonscalar_metrics,
+            getattr(self, "val_metrics_tracker", None),
+            getattr(self, "val_nonscalar_metrics", None),
         )
 
     def test_step(self, batch: Batch) -> None:  # noqa: D102
         self._shared_eval_step(
             batch,
             self.test_loss,
-            self.test_metrics,
-            self.test_nonscalar_metrics,
+            getattr(self, "test_metrics", None),
+            getattr(self, "test_nonscalar_metrics", None),
         )
 
     def on_test_epoch_end(self) -> None:  # noqa: D102
         self._shared_epoch_end(
             "test/",
             self.test_loss,
-            self.test_metrics,
-            self.test_nonscalar_metrics,
+            getattr(self, "test_metrics", None),
+            getattr(self, "test_nonscalar_metrics", None),
         )
 
     def configure_optimizers(self) -> dict[str, Any]:
