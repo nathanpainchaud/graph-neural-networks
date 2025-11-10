@@ -54,6 +54,8 @@ hydra:
       model.optimizer.lr: interval(0.0001, 0.1)
       data.batch_size: choice(32, 64)
       model.encoder.hidden_channels: choice(16, 32)
+      # Range sweeps in Hydra usually call Python's native range underneath, which excludes upper endpoints.
+      # However, Optuna's `range` sweep calls Optuna's `IntUniformDistribution`, which includes upper endpoints.
       model.encoder.num_layers: range(2, 5)
       model.encoder.dropout: choice(0.0, 0.1, 0.2, 0.3, 0.4, 0.5)
       model.head.num_layers: choice(1, 2)
