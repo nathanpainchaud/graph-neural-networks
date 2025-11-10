@@ -17,7 +17,10 @@ num_edge_features: ${oc.select:hparams.data.num_edge_features}
 num_classes: ${oc.select:hparams.data.num_classes}
 
 encoder:
-  out_channels: null
+  # If using an MLP model, set `out_channels` to `hidden_channels` (as a value is required)
+  # Otherwise, do not set and let models implement their own behavior
+  # i.e. `BasicGNN` implements the same behavior internally and sets the final layer to `hidden_channels`
+  out_channels: ${op.ternary:${op:eq,${._target_},torch_geometric.nn.MLP}, ${.hidden_channels}, null}
 
 head:
   in_channels: ${..encoder.hidden_channels}
