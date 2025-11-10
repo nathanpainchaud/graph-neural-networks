@@ -12,7 +12,7 @@ dropout: 0
 act: relu
 act_first: false
 act_kwargs: null
-norm: batch_norm
+norm: ${oc.select:..encoder.norm,batch_norm}
 norm_kwargs: null
 plain_last: true
 bias: true
