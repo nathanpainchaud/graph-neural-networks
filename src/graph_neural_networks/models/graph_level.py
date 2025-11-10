@@ -53,21 +53,24 @@ class GraphLevelLitModule(GraphLitModule):
         Returns:
             The predicted logits for the input graphs in the batch.
         """
-        x, batch, batch_size = data.x, data.batch, data.batch_size
+        x = data.x
+
+        encoder_forward_kwargs = {}
+        if getattr(self.encoder, "supports_edge_attr", False):
+            encoder_forward_kwargs["edge_attr"] = data.edge_attr.float() if data.edge_attr is not None else None
+        if getattr(self.encoder, "supports_edge_weight", False):
+            encoder_forward_kwargs["edge_weight"] = data.edge_weight.float() if data.edge_weight is not None else None
+        if getattr(self.encoder, "supports_batchnorm", False):
+            encoder_forward_kwargs["batch"] = data.batch
+            encoder_forward_kwargs["batch_size"] = data.batch_size
+
         # Cast input features that must be floats to floats
-        x = self.encoder(
-            x.float(),
-            data.edge_index,
-            edge_weight=data.edge_weight.float() if data.edge_weight is not None else None,
-            edge_attr=data.edge_attr.float() if data.edge_attr is not None else None,
-            batch=batch,
-            batch_size=batch_size,
-        )
+        x = self.encoder(x.float(), data.edge_index, **encoder_forward_kwargs)
         # Pass the batch size to readout operation to avoid CPU communication/graph breaks
-        x = self.readout(x, ptr=data.ptr, dim_size=batch_size)
+        x = self.readout(x, ptr=data.ptr, dim_size=data.batch_size)
         # After the readout step, each graph as been reduced to one vector representation,
         # i.e. each element in the batch comes from a different graph, so we have to update the batch vector
-        x = self.head(x, batch=torch.arange(data.batch_size, device=x.device), batch_size=batch_size)
+        x = self.head(x, batch=torch.arange(data.batch_size, device=x.device), batch_size=data.batch_size)
         if self.hparams.task == "binary":
             x = x.squeeze(-1)  # Flatten the last dim when only one value is predicted
         return x
