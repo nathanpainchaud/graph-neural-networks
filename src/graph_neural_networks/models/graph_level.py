@@ -65,7 +65,9 @@ class GraphLevelLitModule(GraphLitModule):
         )
         # Pass the batch size to readout operation to avoid CPU communication/graph breaks
         x = self.readout(x, ptr=data.ptr, dim_size=batch_size)
-        x = self.head(x, batch=batch, batch_size=batch_size)
+        # After the readout step, each graph as been reduced to one vector representation,
+        # i.e. each element in the batch comes from a different graph, so we have to update the batch vector
+        x = self.head(x, batch=torch.arange(data.batch_size, device=x.device), batch_size=batch_size)
         if self.hparams.task == "binary":
             x = x.squeeze(-1)  # Flatten the last dim when only one value is predicted
         return x
