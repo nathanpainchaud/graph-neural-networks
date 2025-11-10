@@ -1,6 +1,6 @@
 _target_: torch_geometric.nn.MLP
 # it is possible to define a fixed hidden channel size over a number of layers
-in_channels: ${hparams.data.num_in_features}
+in_channels: ???
 hidden_channels: ???
 # Predict `num_classes` outputs when it is set, otherwise a single value, e.g. for binary classification, regression
 out_channels: ${oc.select:hparams.data.num_classes,1}
@@ -8,7 +8,7 @@ num_layers: ???
 # alternatively, it is possible to define a list of input, intermediate and output channels
 # such that len(channel_list) - 1 denotes the number of layers of the MLP
 # channels_list: [16, 16, ${oc.select:hparams.data.num_classes,1}]
-dropout: 0
+dropout: 0.0
 act: relu
 act_first: false
 act_kwargs: null
