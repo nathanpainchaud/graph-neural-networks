@@ -26,7 +26,7 @@ all = [
     "graph-neural-networks[wandb,ogb]",
 ]
 wandb = [
-    "wandb>=0.22,<0.23",
+    "wandb>=0.23,<0.24",
 ]
 ogb = [
     "ogb>=1.3.6,<2",
