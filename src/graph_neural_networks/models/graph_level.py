@@ -1,3 +1,4 @@
+import inspect
 from typing import Literal
 
 import torch
@@ -53,7 +54,7 @@ class GraphLevelLitModule(GraphLitModule):
         Returns:
             The predicted logits for the input graphs in the batch.
         """
-        x = data.x
+        x = data.x.float()  # Cast input features that must be floats to floats
 
         encoder_forward_kwargs = {}
         if getattr(self.encoder, "supports_edge_attr", False):
@@ -64,10 +65,15 @@ class GraphLevelLitModule(GraphLitModule):
             encoder_forward_kwargs["batch"] = data.batch
             encoder_forward_kwargs["batch_size"] = data.batch_size
 
-        # Cast input features that must be floats to floats
-        x = self.encoder(x.float(), data.edge_index, **encoder_forward_kwargs)
+        encoder_params = inspect.signature(self.encoder.forward).parameters
+        if "edge_index" in encoder_params:
+            x = self.encoder(x, data.edge_index, **encoder_forward_kwargs)
+        else:  # Do not pass edge_index if not expected by the encoder, e.g. baseline MLP on nodes individually
+            x = self.encoder(x, **encoder_forward_kwargs)
+
         # Pass the batch size to readout operation to avoid CPU communication/graph breaks
         x = self.readout(x, ptr=data.ptr, dim_size=data.batch_size)
+
         # After the readout step, each graph as been reduced to one vector representation,
         # i.e. each element in the batch comes from a different graph, so we have to update the batch vector
         x = self.head(x, batch=torch.arange(data.batch_size, device=x.device), batch_size=data.batch_size)
