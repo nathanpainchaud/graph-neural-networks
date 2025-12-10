@@ -177,6 +177,7 @@ minversion = "9.0"
 strict = true
 testpaths = [
     "tests/",
+    "src/graph_neural_networks/", # to run doctests
 ]
 
 [tool.coverage.run]
