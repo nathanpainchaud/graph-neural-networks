@@ -5,6 +5,7 @@ defaults:
 _target_: graph_neural_networks.data.SplitLightningDataset
 stratify: True
 split_idx: 0
+on_conflict: raise # How to handle conflict with previously saved splits
 batch_size: 32
 num_workers: 0
 pin_memory: ${op:eq,${oc.select:trainer.accelerator},gpu} # Pin memory if using GPU
