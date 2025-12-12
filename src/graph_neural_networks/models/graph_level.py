@@ -82,6 +82,6 @@ class GraphLevelLitModule(GraphLitModule):
         # After the readout step, each graph as been reduced to one vector representation,
         # i.e. each element in the batch comes from a different graph, so we have to update the batch vector
         x = self.head(x, batch=torch.arange(data.batch_size, device=x.device), batch_size=data.batch_size)
-        if self.hparams.task == "binary":
+        if self.hparams.task in ("binary", "regression"):
             x = x.squeeze(-1)  # Flatten the last dim when only one value is predicted
         return x
