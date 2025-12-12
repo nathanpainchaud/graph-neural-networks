@@ -315,4 +315,18 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
                     edge_dim=num_edge_features or 0,
                     num_classes=num_classes or 10,
                 )
-                self.example_input_array = Batch.from_data_list(list(fake_dataset))
+
+                # For manual updates of the data before batching, extract individual `Data` objects from the dataset
+                # This is because `InMemoryDataset` attributes are either batched views disconnected from the underlying
+                # `Data` objects, or read-only cached `Data` objects on which updates won't be reflected.
+                # Therefore, it is not recommended to update the dataset attributes directly, but rather to update each
+                # individual `Data` object instead (see issue: https://github.com/pyg-team/pytorch_geometric/issues/989)
+                data_list = list(fake_dataset)
+
+                # If `edge_dim==1`, `FakeDataset` creates a features in `data.edge_weight` instead of `data.edge_attr`.
+                # In this case, copy them to `data.edge_attr` in case the model excepts edge features specifically.
+                if num_edge_features == 1:
+                    for data in data_list:
+                        data.edge_attr = data.edge_weight
+
+                self.example_input_array = Batch.from_data_list(data_list)

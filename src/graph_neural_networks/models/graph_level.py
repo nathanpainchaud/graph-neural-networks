@@ -54,8 +54,13 @@ class GraphLevelLitModule(GraphLitModule):
         Returns:
             The predicted logits for the input graphs in the batch.
         """
-        x = data.x.float()  # Cast input features that must be floats to floats
+        if data.edge_attr is not None and data.edge_attr.ndim == 1:
+            # If edge features exist but are 1D (e.g. ZINC dataset), add feature dimension of size 1 at the end to fit
+            # in the general case of edge features with multiple dimensions, and tobe compatible with models expecting
+            # edge features to have shape [num_edges, num_edge_features]
+            data.edge_attr = data.edge_attr.unsqueeze(-1)
 
+        x = data.x.float()  # Cast input features that must be floats to floats
         encoder_forward_kwargs = {}
         if getattr(self.encoder, "supports_edge_attr", False):
             encoder_forward_kwargs["edge_attr"] = data.edge_attr.float() if data.edge_attr is not None else None
