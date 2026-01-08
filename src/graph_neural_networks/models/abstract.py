@@ -316,7 +316,7 @@ class GraphLitModule(MetricTrackingLitModule, ABC):
                     num_classes=num_classes or 10,
                 )
 
-                # For manual updates of the data before batching, extract individual `Data` objects from the dataset
+                # For manual updates of the data before batching, extract individual `Data` objects from the dataset.
                 # This is because `InMemoryDataset` attributes are either batched views disconnected from the underlying
                 # `Data` objects, or read-only cached `Data` objects on which updates won't be reflected.
                 # Therefore, it is not recommended to update the dataset attributes directly, but rather to update each
