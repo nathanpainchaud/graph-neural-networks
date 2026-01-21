@@ -40,19 +40,19 @@ ogb = [
 # they want to list here, i.e. support
 cpu = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
+  "torch>=2.10,<2.11",
 ]
 cu118 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
+  "torch>=2.10,<2.11",
 ]
 cu126 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
+  "torch>=2.10,<2.11",
 ]
 cu128 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.7,<2.8",
+  "torch>=2.10,<2.11",
 ]
 
 [dependency-groups]
