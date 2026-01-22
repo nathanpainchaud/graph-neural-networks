@@ -19,6 +19,15 @@
       ],
     },
     {
+      // Ignore PyTorch and domain libraries, since we depend on torch-geometric, which is only compatible with specific
+      // and is not updated at the same as PyTorch like other domain libraries (e.g. torchvision).
+      groupName: 'PyTorch',
+      matchPackageNames: [
+        'torch',
+      ],
+      enabled: false,
+    },
+    {
       // Set monthly schedule to reduce noise (since this hook is updated very frequently)
       description: 'Schedule renovatebot/pre-commit-hooks updates on the first day of the month before 4 AM.',
       matchPackageNames: [
