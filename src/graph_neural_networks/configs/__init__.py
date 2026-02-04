@@ -34,7 +34,7 @@ def register_operator_and_keyword_resolvers() -> None:
 
 def register_config_resolvers() -> None:
     """Register custom OmegaConf resolvers to handle complex config interpolation cases."""
-    OmegaConf.register_new_resolver("cfg.graph_level_criterion", lambda task: _graph_level_criterion_resolver(task))
+    OmegaConf.register_new_resolver("cfg.graph_level_criterion", _graph_level_criterion_resolver)
 
 
 def import_from_module(dotpath: str) -> Any:
