@@ -101,7 +101,7 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
 
     with open_dict(cfg_train):
         cfg_train.ckpt_path = str(tmp_path / "checkpoints" / "last.ckpt")
-        cfg_train.trainer.max_epochs = 6
+        cfg_train.trainer.max_epochs = 10
 
     metric_dict_2, _ = train(cfg_train)
 
@@ -109,6 +109,6 @@ def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
     # Check that a checkpoint from a later epoch was saved after resuming training
     monitor_checkpoint_stem = next(f for f in files if f.startswith("epoch_"))
     monitor_checkpoint_best_epoch = int(monitor_checkpoint_stem.split("_")[1])
-    assert monitor_checkpoint_best_epoch in range(1, 6)
+    assert monitor_checkpoint_best_epoch in range(1, 10)
 
     assert metric_dict_1["val/loss/best"] > metric_dict_2["val/loss/best"]
