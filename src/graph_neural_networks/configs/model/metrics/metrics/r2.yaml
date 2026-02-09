@@ -1,0 +1,2 @@
+r2:
+  _target_: torchmetrics.R2Score
