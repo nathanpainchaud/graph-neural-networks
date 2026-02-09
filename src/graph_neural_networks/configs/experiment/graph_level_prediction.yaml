@@ -28,6 +28,21 @@ trainer:
   min_epochs: 50
   max_epochs: 350
 
+callbacks:
+  # Override default callbacks monitoring loss to monitor the 1st metric specified in the model metrics config
+  model_checkpoint:
+    # Interpolate the name of the metric to monitor from the model metrics config
+    monitor: val/${op:getitem,${oc.dict.keys:model.metrics.metrics},0}
+    # Inspect the monitored metric's torchmetric instance to determine whether to maximize or minimize it
+    mode: ${cfg.metric_optim_mode:${op:getitem,${oc.dict.values:model.metrics.metrics},0}}
+
+  early_stopping:
+    # Interpolate the name of the metric to monitor from the model metrics config
+    monitor: val/${op:getitem,${oc.dict.keys:model.metrics.metrics},0}
+    patience: 50 # increase patience since the dataset is small
+    # Inspect the monitored metric's torchmetric instance to determine whether to maximize or minimize it
+    mode: ${cfg.metric_optim_mode:${op:getitem,${oc.dict.values:model.metrics.metrics},0}}
+
 data:
   batch_size: 32
 
