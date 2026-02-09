@@ -1,0 +1,11 @@
+f1:
+  _target_: torchmetrics.F1Score
+  # Force `binary` task if `num_classes=1` (e.g. in special cases of multilabel classification),
+  # otherwise use the task associated with the dataset
+  task: ${op.ternary:${op:eq,${oc.select:hparams.data.num_classes},1}, binary, ${hparams.data.task}}
+  # Provide the number of classes as either `num_classes` or `num_labels` depending on the task
+  num_classes: ${oc.select:hparams.data.num_classes}
+  num_labels: ${oc.select:hparams.data.num_classes}
+  # In the multiclass case, override default 'micro' average, since in this context micro-F1 is equal to micro-accuracy,
+  # which is already measured
+  average: ${op.ternary:${op:eq,${.task},multiclass}, macro, micro }

@@ -1,4 +1,5 @@
 defaults:
+  - metrics/f1
   - metrics/acc
   - metrics/auroc
   - metrics/confusion_matrix
