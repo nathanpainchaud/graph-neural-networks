@@ -4,6 +4,7 @@ defaults:
   - _self_
   - data: ??? # no sane default can be provided here, data has to be provided by the user
   - model: ??? # no sane default can be provided here, model has to be provided by the user
+  - callbacks: default
   - logger: null
   - trainer: default
   - paths: default
