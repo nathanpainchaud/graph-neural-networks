@@ -62,7 +62,6 @@ class AbstractLightningDatasetTest(ABC):
         assert not dm.train_dataset
         assert not dm.val_dataset
         assert not dm.test_dataset
-        assert not dm.pred_dataset
 
         # Ensure that `setup` assigns the subsets (for the respective stages) and that dataloaders can be created
         dm.setup(TrainerFn.FITTING)
@@ -75,13 +74,10 @@ class AbstractLightningDatasetTest(ABC):
         assert dm.test_dataset
         assert dm.test_dataloader()
 
-        dm.setup(TrainerFn.PREDICTING)
-        assert dm.pred_dataset
-        assert dm.predict_dataloader()
-
-        # Ensure that the number of items in the datasets match
-        num_datapoints = len(dm.train_dataset) + len(dm.val_dataset) + len(dm.test_dataset)
-        assert num_datapoints == len(dm.pred_dataset)
+        # Ensure that the datasets are not empty
+        assert len(dm.train_dataset) > 0
+        assert len(dm.val_dataset) > 0
+        assert len(dm.test_dataset) > 0
 
         # Ensure that the dataloaders have the correct batch size and dtypes
         batch = next(iter(dm.train_dataloader()))

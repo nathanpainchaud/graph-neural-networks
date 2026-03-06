@@ -9,7 +9,7 @@ import torch
 from filelock import FileLock
 from lightning import LightningDataModule
 from lightning.pytorch.trainer.states import TrainerFn
-from torch.utils.data import ConcatDataset, IterableDataset
+from torch.utils.data import IterableDataset
 from torch_geometric.data import Dataset
 from torch_geometric.data.lightning.datamodule import kwargs_repr
 from torch_geometric.loader import DataLoader
@@ -109,14 +109,6 @@ class LightningDataset(LightningDataModule, ABC):
             if self.test_dataset is None and self.test_dataloader is not None:
                 self.test_dataset = self.get_dataset_split(TEST_SET)
 
-        if stage == TrainerFn.PREDICTING:
-            all_splits = [self.train_dataset]
-            if self.val_dataset is not None:
-                all_splits.append(self.val_dataset)
-            if self.test_dataset is not None:
-                all_splits.append(self.test_dataset)
-            self.pred_dataset = ConcatDataset(all_splits)
-
     @abstractmethod
     def get_dataset_split(self, split: str) -> Dataset:
         """Get a subset over a requested split of the dataset.
@@ -149,9 +141,6 @@ class LightningDataset(LightningDataModule, ABC):
 
     def test_dataloader(self) -> DataLoader:  # noqa: D102
         return self._eval_dataloader(self.test_dataset)
-
-    def predict_dataloader(self) -> DataLoader:  # noqa: D102
-        return self._eval_dataloader(self.pred_dataset)
 
 
 class PreSplitLightningDataset(LightningDataset):
