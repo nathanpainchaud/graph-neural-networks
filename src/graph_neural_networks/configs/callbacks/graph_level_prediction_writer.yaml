@@ -1,0 +1,13 @@
+graph_level_prediction_writer:
+  _target_: graph_neural_networks.callbacks.prediction_writer.GraphLevelPredictionWriter
+  # output where predictions will be saved
+  output_dir: ${paths.output_dir}/predictions/
+  # which splits to save predictions for and how to name the output files
+  save_fit_predictions: ${oc.select:train,False}
+  save_test_predictions: ${oc.select:test,True}
+  filename_format: "{}_predictions.csv"
+  # labels for the prediction outputs
+  output_labels: ${oc.select:hparams.data.class_labels}
+  # for multiclass classification, save the predicted probabilities (softmax) and class (argmax) along with the logits;
+  # otherwise, do not make assumptions about the predictions format and save the raw model outputs
+  samplewise_op: ${op.ternary:${op:eq,${hparams.data.task},multiclass},[softmax,argmax],null}

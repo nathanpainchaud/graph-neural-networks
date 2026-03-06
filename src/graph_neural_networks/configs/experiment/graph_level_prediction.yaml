@@ -4,6 +4,8 @@
 # python train.py experiment=graph_level_prediction
 
 defaults:
+  - /callbacks:
+      - graph_level_prediction_writer # Add callback to log graph-level predictions after evaluation
   - override /data: split_lightning_dataset
   - override /data/dataset: mutag
   - override /model: graph_level
