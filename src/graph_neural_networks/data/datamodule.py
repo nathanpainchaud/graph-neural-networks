@@ -73,14 +73,12 @@ class LightningDataset(LightningDataModule, ABC):
         self.train_dataset = None
         self.val_dataset = None
         self.test_dataset = None
-        self.pred_dataset = None
 
     def __repr__(self) -> str:  # noqa: D105
         kwargs = kwargs_repr(
             train_dataset=self.train_dataset,
             val_dataset=self.val_dataset,
             test_dataset=self.test_dataset,
-            pred_dataset=self.pred_dataset,
             **self.kwargs,
         )
         return f"{self.__class__.__name__}({kwargs})"
@@ -93,7 +91,7 @@ class LightningDataset(LightningDataModule, ABC):
         self._dataset_init()
 
     def setup(self, stage: TrainerFn) -> None:
-        """Set up the train, val, test or predict datasets according to the stage.
+        """Set up the train, val, or test datasets according to the stage.
 
         Args:
             stage: The stage of the trainer to set up the datasets for.
