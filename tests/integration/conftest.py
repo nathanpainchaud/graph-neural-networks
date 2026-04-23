@@ -53,6 +53,7 @@ def cfg_train_global(cfg_path: Path, application_overrides: list[str]) -> DictCo
             cfg.trainer.limit_train_batches = 10
             cfg.trainer.limit_val_batches = 2
             cfg.trainer.limit_test_batches = 2
+            cfg.trainer.limit_predict_batches = 2
             cfg.trainer.accelerator = "cpu"
             cfg.trainer.devices = 1
             cfg.compile = False
@@ -88,6 +89,7 @@ def cfg_eval_global(cfg_path: Path, application_overrides: list[str]) -> DictCon
             # Use a shared data directory to speed up testing by avoiding re-downloading datasets
             cfg.paths.data_dir = os.path.join(os.environ["PROJECT_ROOT"], "data")
             cfg.trainer.limit_test_batches = 2
+            cfg.trainer.limit_predict_batches = 2
             cfg.trainer.accelerator = "cpu"
             cfg.trainer.devices = 1
             cfg.compile = False
