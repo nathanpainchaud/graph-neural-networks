@@ -15,6 +15,7 @@ dependencies = [
     "hydra-joblib-launcher>=1.2.0,<2",
     "hydra-optuna-sweeper>=1.2.0,<2",
     "lightning>=2.6,<2.7",
+    "pandas>=3.0.2,<4",
     "rich>=15,<16",
     "rootutils>=1.0.7,<2",
     "scikit-learn>=1.6.1,<2",
