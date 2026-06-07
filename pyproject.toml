@@ -19,7 +19,7 @@ dependencies = [
     "rich>=15,<16",
     "rootutils>=1.0.7,<2",
     "scikit-learn>=1.6.1,<2",
-    "torch-geometric>=2.7,<2.8",
+    "torch-geometric>=2.8,<2.9",
     "torchmetrics[visual]>=1.9,<1.10",
 ]
 [project.optional-dependencies]
