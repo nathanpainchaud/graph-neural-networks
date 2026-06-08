@@ -41,19 +41,19 @@ ogb = [
 # they want to list here, i.e. support
 cpu = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.8,<2.9",
+  "torch>=2.12,<2.13",
 ]
 cu126 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.8,<2.9",
+  "torch>=2.12,<2.13",
 ]
-cu128 = [
+cu130 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.8,<2.9",
+  "torch>=2.12,<2.13",
 ]
-cu129 = [
+cu132 = [
   "torch-scatter>=2.1.2,<3",    # torch-scatter is an optional dependency of `torch-geometric` that optimizes scatter ops used by GNN models
-  "torch>=2.8,<2.9",
+  "torch>=2.12,<2.13",
 ]
 
 [dependency-groups]
@@ -88,8 +88,8 @@ conflicts = [
   [
     { extra = "cpu" },
     { extra = "cu126" },
-    { extra = "cu128" },
-    { extra = "cu129" },
+    { extra = "cu130" },
+    { extra = "cu132" },
   ],
 ]
 
@@ -99,14 +99,14 @@ conflicts = [
 torch = [
   { index = "pytorch-cpu", extra = "cpu" },
   { index = "pytorch-cu126", extra = "cu126" },
-  { index = "pytorch-cu128", extra = "cu128" },
-  { index = "pytorch-cu129", extra = "cu129" },
+  { index = "pytorch-cu130", extra = "cu130" },
+  { index = "pytorch-cu132", extra = "cu132" },
 ]
 torch-scatter = [
   { index = "pyg-cpu", extra = "cpu" },
   { index = "pyg-cu126", extra = "cu126" },
-  { index = "pyg-cu128", extra = "cu128" },
-  { index = "pyg-cu129", extra = "cu129" },
+  { index = "pyg-cu130", extra = "cu130" },
+  { index = "pyg-cu132", extra = "cu132" },
 ]
 
 [[tool.uv.index]]
@@ -122,13 +122,13 @@ url = "https://download.pytorch.org/whl/cu126"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu129"
-url = "https://download.pytorch.org/whl/cu129"
+name = "pytorch-cu132"
+url = "https://download.pytorch.org/whl/cu132"
 explicit = true
 
 [[tool.uv.index]]
@@ -138,25 +138,25 @@ explicit = true
 # (see uv's documentation: https://docs.astral.sh/uv/concepts/indexes/#flat-indexes
 # and this issue: https://github.com/astral-sh/uv/issues/12238)
 name = "pyg-cpu"
-url = "https://data.pyg.org/whl/torch-2.8.0+cpu.html"
+url = "https://data.pyg.org/whl/torch-2.12.0+cpu.html"
 format = "flat"
 explicit = true
 
 [[tool.uv.index]]
 name = "pyg-cu126"
-url = "https://data.pyg.org/whl/torch-2.8.0+cu126.html"
+url = "https://data.pyg.org/whl/torch-2.12.0+cu126.html"
 format = "flat"
 explicit = true
 
 [[tool.uv.index]]
-name = "pyg-cu128"
-url = "https://data.pyg.org/whl/torch-2.8.0+cu128.html"
+name = "pyg-cu130"
+url = "https://data.pyg.org/whl/torch-2.12.0+cu130.html"
 format = "flat"
 explicit = true
 
 [[tool.uv.index]]
-name = "pyg-cu129"
-url = "https://data.pyg.org/whl/torch-2.8.0+cu129.html"
+name = "pyg-cu132"
+url = "https://data.pyg.org/whl/torch-2.12.0+cu132.html"
 format = "flat"
 explicit = true
 
