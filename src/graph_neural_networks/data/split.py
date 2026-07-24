@@ -25,7 +25,7 @@ def k_fold(
     stratify_bins: int | Sequence[float] | None = None,
     n_splits: int = 10,
     test_fold: bool = True,
-    holdout_test_size: float | int | None = None,
+    holdout_test_size: float | int | None = None,  # noqa: PYI041   # Explicit different behavior for float and int values
     shuffle: bool = True,
     random_state: int | RandomState | None = 12345,
 ) -> DatasetSplit:
@@ -101,8 +101,8 @@ def subsets_split(
     data: Sequence[Any],
     stratify: Sequence[int | float] | None = None,
     stratify_bins: int | Sequence[float] | None = None,
-    val_size: float | int | None = 0.1,
-    test_size: float | int | None = 0.2,
+    val_size: float | int | None = 0.1,  # noqa: PYI041 # Explicit different behavior for float and int values
+    test_size: float | int | None = 0.2,  # noqa: PYI041    # Explicit different behavior for float and int values
     random_state: int | RandomState | None = 12345,
 ) -> DatasetSplit:
     """Splits a sequence of sample indices into train, and optional val and test sets.
