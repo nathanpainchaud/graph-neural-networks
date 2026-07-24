@@ -76,7 +76,7 @@ class TestKFold(AbstractSplitTest):
         labels: np.ndarray | None,
         n_splits: int,
         test_fold: bool,
-        holdout_test_size: float | int | None,
+        holdout_test_size: float | int | None,  # noqa: PYI041  # Explicit different behavior for float and int values
         random_state: int | np.random.RandomState | None,
     ) -> Callable[[], DatasetSplit]:
         """A Pytest fixture for the k-fold split function.
@@ -119,7 +119,7 @@ class TestKFold(AbstractSplitTest):
 
     @staticmethod
     @pytest.fixture
-    def holdout_test_size() -> int | float | None:
+    def holdout_test_size() -> float | int | None:
         """A Pytest fixture for the holdout test size to use when generating the splits."""
         return None
 
@@ -177,7 +177,10 @@ class TestKFold(AbstractSplitTest):
     @pytest.mark.parametrize("test_fold", [False])
     @pytest.mark.parametrize("holdout_test_size", [0.1, 20])
     def test_holdout_test_size(
-        splits_fn: Callable[[], DatasetSplit], data: np.ndarray, n_splits: int, holdout_test_size: float | int
+        splits_fn: Callable[[], DatasetSplit],
+        data: np.ndarray,
+        n_splits: int,
+        holdout_test_size: float | int,  # noqa: PYI041 # Explicit different behavior for float and int values
     ) -> None:
         """Test splits with a holdout test set of a specific size that is the same across all splits."""
         splits = splits_fn()
@@ -225,8 +228,8 @@ class TestSubsetsSplit(AbstractSplitTest):
     def splits_fn(
         data: np.ndarray,
         labels: np.ndarray | None,
-        val_size: float | int | None,
-        test_size: float | int | None,
+        val_size: float | int | None,  # noqa: PYI041   # Explicit different behavior for float and int values
+        test_size: float | int | None,  # noqa: PYI041  # Explicit different behavior for float and int values
         random_state: int | np.random.RandomState | None,
     ) -> Callable[[], DatasetSplit]:
         """A Pytest fixture for the subsets split function.
@@ -283,7 +286,10 @@ class TestSubsetsSplit(AbstractSplitTest):
 
     @staticmethod
     def _test_train_other_set(
-        split: dict[str, list[int]], other_set: str, other_size: float | int, data: np.ndarray
+        split: dict[str, list[int]],
+        other_set: str,
+        other_size: float | int,  # noqa: PYI041 # Explicit different behavior for float and int values
+        data: np.ndarray,
     ) -> None:
         # Ensure that only train and other sets are present
         assert {TRAIN_SET, other_set} == split.keys()
@@ -298,14 +304,22 @@ class TestSubsetsSplit(AbstractSplitTest):
     @staticmethod
     @pytest.mark.parametrize("val_size", [0.2, 10])
     @pytest.mark.parametrize("test_size", [None, 0])
-    def test_train_val(splits_fn: Callable[[], DatasetSplit], data: np.ndarray, val_size: float | int) -> None:
+    def test_train_val(
+        splits_fn: Callable[[], DatasetSplit],
+        data: np.ndarray,
+        val_size: float | int,  # noqa: PYI041 # Explicit different behavior for float and int values
+    ) -> None:
         """Test split with train and val sets."""
         TestSubsetsSplit._test_train_other_set(TestSubsetsSplit._get_split(splits_fn), VAL_SET, val_size, data)
 
     @staticmethod
     @pytest.mark.parametrize("val_size", [None, 0])
     @pytest.mark.parametrize("test_size", [0.1, 20])
-    def test_train_test(splits_fn: Callable[[], DatasetSplit], data: np.ndarray, test_size: float | int) -> None:
+    def test_train_test(
+        splits_fn: Callable[[], DatasetSplit],
+        data: np.ndarray,
+        test_size: float | int,  # noqa: PYI041 # Explicit different behavior for float and int values
+    ) -> None:
         """Test split with train and test sets."""
         TestSubsetsSplit._test_train_other_set(TestSubsetsSplit._get_split(splits_fn), TEST_SET, test_size, data)
 
@@ -313,7 +327,10 @@ class TestSubsetsSplit(AbstractSplitTest):
     @pytest.mark.parametrize("val_size", [0.2, 10])
     @pytest.mark.parametrize("test_size", [0.1, 20])
     def test_train_val_test(
-        splits_fn: Callable[[], DatasetSplit], data: np.ndarray, val_size: float | int, test_size: float | int
+        splits_fn: Callable[[], DatasetSplit],
+        data: np.ndarray,
+        val_size: float | int,  # noqa: PYI041 # Explicit different behavior for float and int values
+        test_size: float | int,  # noqa: PYI041 # Explicit different behavior for float and int values
     ) -> None:
         """Test split with train, val, and test sets."""
         split = TestSubsetsSplit._get_split(splits_fn)
