@@ -5,32 +5,32 @@ resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'win32' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version >= '3.14' and sys_platform == 'darwin' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version >= '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra == 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra == 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
+    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra == 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version < '3.14' and sys_platform == 'win32' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version < '3.14' and sys_platform == 'emscripten' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version < '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version < '3.14' and sys_platform == 'darwin' and extra == 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version >= '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
-    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version < '3.14' and sys_platform == 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version < '3.14' and sys_platform == 'emscripten' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
     "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-21-graph-neural-networks-cpu' and extra != 'extra-21-graph-neural-networks-cu126' and extra != 'extra-21-graph-neural-networks-cu130' and extra != 'extra-21-graph-neural-networks-cu132'",
@@ -760,30 +760,6 @@ http = [
 ]
 
 [[package]]
-name = "gitdb"
-version = "4.0.12"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "smmap" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/72/94/63b0fc47eb32792c7ba1fe1b694daec9a63620db1e313033d18140c2320a/gitdb-4.0.12.tar.gz", hash = "sha256:5ef71f855d191a3326fcfbc0d5da835f26b13fbcba60c32c21091c349ffdb571", size = 394684, upload-time = "2025-01-02T07:20:46.413Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/61/5c78b91c3143ed5c14207f463aecfc8f9dbb5092fb2869baf37c273b2705/gitdb-4.0.12-py3-none-any.whl", hash = "sha256:67073e15955400952c6565cc3e707c554a4eea2e428946f7a4c162fab9bd9bcf", size = 62794, upload-time = "2025-01-02T07:20:43.624Z" },
-]
-
-[[package]]
-name = "gitpython"
-version = "3.1.44"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "gitdb" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c0/89/37df0b71473153574a5cdef8f242de422a0f5d26d7a9e231e6f169b4ad14/gitpython-3.1.44.tar.gz", hash = "sha256:c87e30b26253bf5418b01b0660f818967f3c503193838337fe5e573331249269", size = 214196, upload-time = "2025-01-02T07:32:43.59Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/9a/4114a9057db2f1462d5c8f8390ab7383925fe1ac012eaa42402ad65c2963/GitPython-3.1.44-py3-none-any.whl", hash = "sha256:9e0e10cda9bed1ee64bc9a6de50e7e38a9c9943241cd7f585f6df3ed28011110", size = 207599, upload-time = "2025-01-02T07:32:40.731Z" },
-]
-
-[[package]]
 name = "gnureadline"
 version = "8.2.13"
 source = { registry = "https://pypi.org/simple" }
@@ -891,7 +867,7 @@ requires-dist = [
     { name = "torch-scatter", marker = "extra == 'cu130'", specifier = ">=2.1.2,<3", index = "https://data.pyg.org/whl/torch-2.12.0+cu130.html", conflict = { package = "graph-neural-networks", extra = "cu130" } },
     { name = "torch-scatter", marker = "extra == 'cu132'", specifier = ">=2.1.2,<3", index = "https://data.pyg.org/whl/torch-2.12.0+cu132.html", conflict = { package = "graph-neural-networks", extra = "cu132" } },
     { name = "torchmetrics", extras = ["visual"], specifier = ">=1.9,<1.10" },
-    { name = "wandb", marker = "extra == 'wandb'", specifier = ">=0.28,<0.29" },
+    { name = "wandb", marker = "extra == 'wandb'", specifier = ">=0.29,<0.30" },
 ]
 provides-extras = ["all", "wandb", "ogb", "cpu", "cu126", "cu130", "cu132"]
 
@@ -2086,6 +2062,18 @@ wheels = [
 ]
 
 [[package]]
+name = "opentelemetry-api"
+version = "1.44.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ee/8b/aa9e2d8b8dfa7c946f7dec5d1f8f6ba8eca062f43509a06bdb5ce93d26c0/opentelemetry_api-1.44.0.tar.gz", hash = "sha256:67647e5e9566edcf421166fdf022b3537f818635daa852b289e34604dc6fb33a", size = 72406, upload-time = "2026-07-16T15:25:32.678Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ca/6f/a04e900f465ff3221ccc395522503e2d10e79fa21f2723c8e177aae1e0d1/opentelemetry_api-1.44.0-py3-none-any.whl", hash = "sha256:94b98c893a91b88657eaac1e3ba89618cdb85be6918196705354f34728b2cdef", size = 60018, upload-time = "2026-07-16T15:25:11.657Z" },
+]
+
+[[package]]
 name = "optuna"
 version = "2.10.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2744,15 +2732,6 @@ wheels = [
 ]
 
 [[package]]
-name = "smmap"
-version = "5.0.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/44/cd/a040c4b3119bbe532e5b0732286f805445375489fceaec1f48306068ee3b/smmap-5.0.2.tar.gz", hash = "sha256:26ea65a03958fa0c8a1c7e8c7a58fdc77221b8910f6be2131affade476898ad5", size = 22329, upload-time = "2025-01-02T07:14:40.909Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/be/d09147ad1ec7934636ad912901c5fd7667e1c858e19d355237db0d0cd5e4/smmap-5.0.2-py3-none-any.whl", hash = "sha256:b30115f0def7d7531d22a0fb6502488d879e75b260a9db4d0819cfb25403af5e", size = 24303, upload-time = "2025-01-02T07:14:38.724Z" },
-]
-
-[[package]]
 name = "sqlalchemy"
 version = "2.0.37"
 source = { registry = "https://pypi.org/simple" }
@@ -3327,11 +3306,11 @@ wheels = [
 
 [[package]]
 name = "wandb"
-version = "0.28.0"
+version = "0.29.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
-    { name = "gitpython" },
+    { name = "opentelemetry-api" },
     { name = "packaging" },
     { name = "platformdirs" },
     { name = "protobuf" },
@@ -3340,18 +3319,18 @@ dependencies = [
     { name = "requests" },
     { name = "sentry-sdk" },
     { name = "typing-extensions" },
+    { name = "xxhash" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/a7/683bfbd6cbade3012bc90d3e9c4cfc72dd62566195bf4c30321946d64b77/wandb-0.28.0.tar.gz", hash = "sha256:b20e5af0fe80e2e2a466b0466a1d60cedcc578dce0f036eca04f4a0adcad95b6", size = 40558332, upload-time = "2026-06-23T00:38:50.115Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c8/f2/ae1d136972c93c20b87f0caa8cfcacf922d2c650272d0f5af412847955a9/wandb-0.29.0.tar.gz", hash = "sha256:44981b504427ba312e0823fa62c02ff96fb9740a83e4657e693e3e2097cde603", size = 41230058, upload-time = "2026-08-26T23:43:12.669Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/47/1723605f76c5d6446b6d0db65b83eda1599721bc8c1e65bd76cc1682b1a7/wandb-0.28.0-py3-none-macosx_12_0_arm64.whl", hash = "sha256:c3dab1205a5aca4abbad1eca08902cdba86add0edfa83d8d61b4429d0e79fa87", size = 24335272, upload-time = "2026-06-23T00:38:26.002Z" },
-    { url = "https://files.pythonhosted.org/packages/81/ff/42b539bc75bc48fc86981dccde89327ba9b71504b805b9ba42cba7c26de9/wandb-0.28.0-py3-none-macosx_12_0_x86_64.whl", hash = "sha256:ae255da18726ee8e731ef82cbc85035b901a28ae14cf91604c361b44b8d44ce0", size = 25557959, upload-time = "2026-06-23T00:38:28.993Z" },
-    { url = "https://files.pythonhosted.org/packages/15/55/c3db03d04aeab3726066a418b2ef6a1f8119774ee510f4fbe992f52b7472/wandb-0.28.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:6dbcba12ab168aa37561f2f32dcdef8713495fc25fa7d30fdc9bfb37989694dd", size = 24878557, upload-time = "2026-06-23T00:38:31.417Z" },
-    { url = "https://files.pythonhosted.org/packages/d8/5d/1385ce3c219cb5bd30d4027687e3f8d25969c7dfd09adad1cbd5080e1a72/wandb-0.28.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:325b2d0bd88be6eda5db10542499bad3710927f2569c81a84dc5eeaffc76825c", size = 26764727, upload-time = "2026-06-23T00:38:33.775Z" },
-    { url = "https://files.pythonhosted.org/packages/00/58/23b6c17a6d3d5422b007707961c4496b2f6f892624d2910c9f7742fcc202/wandb-0.28.0-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:8954bc1c62ae43914dce2bebfd1d9957f72350f8fbb78e5cdfe2ca9b6be8a7b8", size = 25051656, upload-time = "2026-06-23T00:38:36.281Z" },
-    { url = "https://files.pythonhosted.org/packages/89/67/9be00fb2db2281063af24a148636d2dd363d337317642ab5d8e93572c794/wandb-0.28.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:9fec6c908554c2dad33110c1312bc3028cc2e430f0679f16b84f82c8ea801e3b", size = 27074113, upload-time = "2026-06-23T00:38:38.737Z" },
-    { url = "https://files.pythonhosted.org/packages/59/b1/f7a96c09cab0c5131b1e6466659b093b401e1653cbe6bb77b462fc1c361d/wandb-0.28.0-py3-none-win32.whl", hash = "sha256:8834ef3a7c8c43b701654162783caa7ad37af48a0ff06fc35d0d65a411f76ccd", size = 24525206, upload-time = "2026-06-23T00:38:42.041Z" },
-    { url = "https://files.pythonhosted.org/packages/c6/c4/c7bed5e981679c74e9fbb22c03ff31c42e95f266199d03d8d325f4d0e6df/wandb-0.28.0-py3-none-win_amd64.whl", hash = "sha256:ac1f82292e2da4f98297b78c3a46726b3a6c5734ecb75fc39b8db2c8a4989159", size = 24525214, upload-time = "2026-06-23T00:38:44.549Z" },
-    { url = "https://files.pythonhosted.org/packages/f0/77/b5ce9696c8cb955521a7941fbc443e78b2f504894c6ae1a2d0b1de6e12ae/wandb-0.28.0-py3-none-win_arm64.whl", hash = "sha256:c5b0faf1b84cf79ebabed77538c1940a4c6053e815f767a4004e877a1354bed1", size = 22378208, upload-time = "2026-06-23T00:38:47.148Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/ff/b1ca84260ff441652389188510b8ad8fab0e978b936aa8b7fb7557808d4a/wandb-0.29.0-py3-none-macosx_13_0_arm64.whl", hash = "sha256:c9efa966c3bf7b7a80bf461e4856546f0592cbb6a47e6f292db4d8e7270dab73", size = 26899829, upload-time = "2026-08-26T23:42:52.271Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/9c/fb0799f91830441e65616902c3c633f5f72166732e57c137dc6c2625179e/wandb-0.29.0-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:2adae9c36a6d992c767c2248c175a1963db4771e650acdf3da471314c33d3d41", size = 28892707, upload-time = "2026-08-26T23:42:55.37Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/15/7270dd7ae17dd914f25794088b6d9583bc989626be472153770ca6272cf0/wandb-0.29.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:095b17df32ead3b459069b460665cea1d1781c63ad649be042894bc8e4c17b0b", size = 27547745, upload-time = "2026-08-26T23:42:57.795Z" },
+    { url = "https://files.pythonhosted.org/packages/32/fc/d9a9978acffb34ae2a2e5065f421a6e62f3ad6e27ad41229e86025b56fe3/wandb-0.29.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:fdfd8845539302d2e3a880bc3d2586c2fd2da9515939cbc69e173d88f9e8c024", size = 29847397, upload-time = "2026-08-26T23:43:00.218Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/21/a4034ec06ed5a72cb85e3f1db013b1a8366b91ffd629bc807eb900527c73/wandb-0.29.0-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:217236c7347cd9c9c9e0332d5cf6d7342ca47d9d81faf2bcd1674d72988870c3", size = 27583732, upload-time = "2026-08-26T23:43:02.643Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/9a/6da88bb45ea28c83eeb889473f84d0d505ed5f15be40726f125621fa7467/wandb-0.29.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:2bdb72ba809192a1a170830bea1071804d762769448f3ceb822b41160b9f6098", size = 30074151, upload-time = "2026-08-26T23:43:05.026Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/f9/96746f484690cd23fbb84c6fd0364e8c462e804dede9efe50a98b4f27ddd/wandb-0.29.0-py3-none-win_amd64.whl", hash = "sha256:92dca672417404d2cb882fe34f38d602ddcb54ece38716f7c76630e06fc62360", size = 27040796, upload-time = "2026-08-26T23:43:07.444Z" },
+    { url = "https://files.pythonhosted.org/packages/94/74/e11e2ad886ac35bb5d568308f279357868de233e0dfaec11b9ddeed53164/wandb-0.29.0-py3-none-win_arm64.whl", hash = "sha256:ac523a1cd863f1a883852146f451ec9b950b0d2278d6e3bbedd099c713d14047", size = 24663195, upload-time = "2026-08-26T23:43:09.896Z" },
 ]
 
 [[package]]
